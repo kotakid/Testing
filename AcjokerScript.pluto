@@ -55,7 +55,7 @@ local auto_update_config = {
         },
         {
             name="ACJSTables",
-            source_url="https://raw.githubusercontent.com/acjoker8818/AcjokerScript/main/resources/AcjokerScript/ACJSTables.lua",
+            source_url="https://raw.githubusercontent.com/kotakid/Testing/main/resources/AcjokerScript/ACJSTables.pluto",
             script_relpath="resources/AcjokerScript/ACJSTables.pluto",
         },
     }
