@@ -11,8 +11,61 @@ require ('resources/AcjokerScript/translations')
 local LOADING_START = util.current_time_millis()
 LOADING_SCRIPT = true
 Script = {}
-Script.Version = "0.23.1"
+Script.Version = "0.24.0"
+---
+--- Auto-Updater Lib Install
+---
 
+-- Auto Updater from https://github.com/hexarobi/stand-lua-auto-updater
+local status, auto_updater = pcall(require, "auto-updater")
+if not status then
+    local auto_update_complete = nil util.toast("Installing auto-updater...", TOAST_ALL)
+    async_http.init("raw.githubusercontent.com", "/hexarobi/stand-lua-auto-updater/main/auto-updater.lua",
+            function(result, headers, status_code)
+                local function parse_auto_update_result(result, headers, status_code)
+                    local error_prefix = "Error downloading auto-updater: "
+                    if status_code ~= 200 then util.toast(error_prefix..status_code, TOAST_ALL) return false end
+                    if not result or result == "" then util.toast(error_prefix.."Found empty file.", TOAST_ALL) return false end
+                    filesystem.mkdir(filesystem.scripts_dir() .. "lib")
+                    local file = io.open(filesystem.scripts_dir() .. "lib\\auto-updater.lua", "wb")
+                    if file == nil then util.toast(error_prefix.."Could not open file for writing.", TOAST_ALL) return false end
+                    file:write(result) file:close() util.toast("Successfully installed auto-updater lib", TOAST_ALL) return true
+                end
+                auto_update_complete = parse_auto_update_result(result, headers, status_code)
+            end, function() util.toast("Error downloading auto-updater lib. Update failed to download.", TOAST_ALL) end)
+    async_http.dispatch() local i = 1 while (auto_update_complete == nil and i < 40) do util.yield(250) i = i + 1 end
+    if auto_update_complete == nil then error("Error downloading auto-updater lib. HTTP Request timeout") end
+    auto_updater = require("auto-updater")
+end
+if auto_updater == true then error("Invalid auto-updater lib. Please delete your Stand/Lua Scripts/lib/auto-updater.lua and try again") end
+
+
+---
+--- Auto-Update
+---
+
+local auto_update_config = {
+    source_url="https://raw.githubusercontent.com/kotakid/Testing/main/AcjokerScript.pluto",
+    script_relpath=SCRIPT_RELPATH,
+    dependencies={
+        {
+            name="translations",
+            source_url="https://raw.githubusercontent.com/kotakid/Testing/main/resources/AcjokerScript/translations.pluto",
+            script_relpath="resources/AcjokerScript/translations.pluto",
+        },
+        {
+            name="ACJSTables",
+            source_url="https://raw.githubusercontent.com/acjoker8818/AcjokerScript/main/resources/AcjokerScript/ACJSTables.lua",
+            script_relpath="resources/AcjokerScript/ACJSTables.pluto",
+        },
+    }
+}
+
+
+auto_updater.run_auto_update(auto_update_config)
+
+local max_int = 2147483647
+local min_int = -2147483647
 util.require_natives(1663599433)
 util.ensure_package_is_installed('lua/ScaleformLib')
 
@@ -32,8 +85,6 @@ local CONFIG_DIR = filesystem.resources_dir() .. 'AcjokerScript\\'
 filesystem.mkdirs(CONFIG_DIR)
 local Fav_Vehicles = CONFIG_DIR .. "FavVehicles.json"
 local Kill_List = CONFIG_DIR .. "Kill_List.json"
-
-
 
 menu.action(my, T('Player Options'), {}, T('Redirects you to the Player list in Stand for the Trolling and Friendly options'), function ()
     menu.ref_by_path("Players"):trigger()
@@ -176,6 +227,20 @@ function SFfly2()
     sf.SET_DATA_SLOT(2,PAD.GET_CONTROL_INSTRUCTIONAL_BUTTONS_STRING(0, 76, true), Str_trans('Fly forward or backward twice as fast'))
     sf.SET_DATA_SLOT(1,PAD.GET_CONTROL_INSTRUCTIONAL_BUTTONS_STRING(0, 88, true), Str_trans('Backward'))
     sf.SET_DATA_SLOT(0,PAD.GET_CONTROL_INSTRUCTIONAL_BUTTONS_STRING(0, 87, true), Str_trans('Forward'))
+    sf.DRAW_INSTRUCTIONAL_BUTTONS()
+    sf:draw_fullscreen()
+end
+
+function SFsuper()
+    Hudhide()
+    sf.SET_DATA_SLOT(0,PAD.GET_CONTROL_INSTRUCTIONAL_BUTTONS_STRING(0, 22, true), Str_trans('Fly Upwards'))
+    sf.SET_DATA_SLOT(1,PAD.GET_CONTROL_INSTRUCTIONAL_BUTTONS_STRING(0, 25, true), Str_trans('Lazer Eyes'))
+    sf.addButton(PAD.GET_CONTROL_INSTRUCTIONAL_BUTTONS_STRING(0, 22, true))
+    sf.SET_DATA_SLOT(3,PAD.GET_CONTROL_INSTRUCTIONAL_BUTTONS_STRING(0, 32, true), Str_trans('Fly Downwards'))
+    sf.addButton(PAD.GET_CONTROL_INSTRUCTIONAL_BUTTONS_STRING(0, 22, true))
+    sf.SET_DATA_SLOT(5,PAD.GET_CONTROL_INSTRUCTIONAL_BUTTONS_STRING(0, 33, true), Str_trans('Fly faster'))
+    sf.SET_DATA_SLOT(6,PAD.GET_CONTROL_INSTRUCTIONAL_BUTTONS_STRING(0, 44, true), Str_trans('Land'))
+    sf.SET_DATA_SLOT(7,PAD.GET_CONTROL_INSTRUCTIONAL_BUTTONS_STRING(0, 73, true), Str_trans('Super Breath'))
     sf.DRAW_INSTRUCTIONAL_BUTTONS()
     sf:draw_fullscreen()
 end
@@ -909,21 +974,13 @@ end
             reye = ENTITY.GET_WORLD_POSITION_OF_ENTITY_BONE(players.user_ped(), PED.GET_PED_BONE_INDEX(players.user_ped(), 6468))
             leye = ENTITY.GET_WORLD_POSITION_OF_ENTITY_BONE(players.user_ped(), PED.GET_PED_BONE_INDEX(players.user_ped(), 5956))
         end
-                -- credits to jinxscript
-                local inst = v3.new()
-                local cama = {}
-                v3.set(inst,CAM.GET_FINAL_RENDERED_CAM_ROT(2))
-                local tmp = v3.toDir(inst)
-                v3.set(inst, v3.get(tmp))
-                v3.mul(inst, 1000)
-                v3.set(tmp, CAM.GET_FINAL_RENDERED_CAM_COORD())
-                v3.add(inst, tmp)
-                cama.x, cama.y, cama.z = v3.get(inst)
-                if lazer.exp then
-                    if WEAPON.GET_PED_LAST_WEAPON_IMPACT_COORD(players.user_ped(), memory.addrof(impact)) then
-                        FIRE.ADD_EXPLOSION(impact.x, impact.y, impact.z, 81, 5000, true, false, 0.0, false)
-                    end
-                end
+        local cama = {}
+        cama.x, cama.y, cama.z = Cama()
+        if lazer.exp then
+            if WEAPON.GET_PED_LAST_WEAPON_IMPACT_COORD(players.user_ped(), memory.addrof(impact)) then
+                FIRE.ADD_EXPLOSION(impact.x, impact.y, impact.z, 81, 5000, true, false, 0.0, false)
+            end
+        end
         Streamptfx('weap_xs_weapons')
         camrot.x += 90
         camrot.y += 180
@@ -932,12 +989,62 @@ end
         GRAPHICS.START_NETWORKED_PARTICLE_FX_NON_LOOPED_AT_COORD('bullet_tracer_xs_sr', leye.x, leye.y, leye.z, camrot.x, camrot.y,  camrot.z, 1, true)
         MISC.SHOOT_SINGLE_BULLET_BETWEEN_COORDS_IGNORE_ENTITY(reye.x, reye.y, reye.z, cama.x, cama.y,  cama.z , 200, 0, weap, players.user_ped(), true, false, 1000, players.user_ped())
         MISC.SHOOT_SINGLE_BULLET_BETWEEN_COORDS_IGNORE_ENTITY(leye.x, leye.y, leye.z, cama.x, cama.y,  cama.z, 200, 0, weap, players.user_ped(), true, false, 1000, players.user_ped())
-
     end
 
+    function Cama()
+                -- credits to jinxscript
+        local inst = v3.new()
+        local cama = {}
+        v3.set(inst,CAM.GET_FINAL_RENDERED_CAM_ROT(2))
+        local tmp = v3.toDir(inst)
+        v3.set(inst, v3.get(tmp))
+        v3.mul(inst, 1000)
+        v3.set(tmp, CAM.GET_FINAL_RENDERED_CAM_COORD())
+        v3.add(inst, tmp)
+        cama.x, cama.y, cama.z = v3.get(inst)
+        return cama.x, cama.y, cama.z
+    end
 
+    function Supereyes(lazer, impact, camrot, weap)
+        local reye, leye
+        if lazer.exp then
+            if WEAPON.GET_PED_LAST_WEAPON_IMPACT_COORD(players.user_ped(), memory.addrof(impact)) then
+                FIRE.ADD_EXPLOSION(impact.x, impact.y, impact.z, 81, 5000, true, false, 0.0, false)
+            end
+        end
+        Streamptfx('weap_xs_weapons')
+        
+        camrot.x += 90
+        camrot.y += 180
 
+        if util.is_session_started() then
+            reye = ENTITY.GET_WORLD_POSITION_OF_ENTITY_BONE(players.user_ped(), PED.GET_PED_BONE_INDEX(players.user_ped(), 0x6b52))
+            leye = ENTITY.GET_WORLD_POSITION_OF_ENTITY_BONE(players.user_ped(), PED.GET_PED_BONE_INDEX(players.user_ped(), 0x62ac))
+        else
+            reye = ENTITY.GET_WORLD_POSITION_OF_ENTITY_BONE(players.user_ped(), PED.GET_PED_BONE_INDEX(players.user_ped(), 6468))
+            leye = ENTITY.GET_WORLD_POSITION_OF_ENTITY_BONE(players.user_ped(), PED.GET_PED_BONE_INDEX(players.user_ped(), 5956))
+        end
+        local cama = {}
+        cama.x, cama.y, cama.z = Cama()
+        GRAPHICS.START_NETWORKED_PARTICLE_FX_NON_LOOPED_AT_COORD('bullet_tracer_xs_sr', reye.x, reye.y, reye.z, camrot.x, camrot.y,  camrot.z, 1, true)
+        Streamptfx('weap_xs_weapons')
+        GRAPHICS.START_NETWORKED_PARTICLE_FX_NON_LOOPED_AT_COORD('bullet_tracer_xs_sr', leye.x, leye.y, leye.z, camrot.x, camrot.y,  camrot.z, 1, true)
+        MISC.SHOOT_SINGLE_BULLET_BETWEEN_COORDS_IGNORE_ENTITY(reye.x, reye.y, reye.z, cama.x, cama.y,  cama.z, 200, 0, weap, players.user_ped(), true, false, 1000, players.user_ped())
+        MISC.SHOOT_SINGLE_BULLET_BETWEEN_COORDS_IGNORE_ENTITY(leye.x, leye.y, leye.z, cama.x, cama.y,  cama.z, 200, 0, weap, players.user_ped(), true, false, 1000, players.user_ped())
+        Player_rotate()
+    end
 
+function Super_Breath(superman)
+    Player_rotate()
+    local offset = ENTITY.GET_OFFSET_FROM_ENTITY_IN_WORLD_COORDS(players.user_ped(), 0, 5, 0)
+    local offset2 = ENTITY.GET_OFFSET_FROM_ENTITY_IN_WORLD_COORDS(players.user_ped(), 0, 10, 0)
+    for i = 0, superman.breath do
+        FIRE.ADD_EXPLOSION(offset.x, offset.y, offset.z, 81, 5000, false, true, 0.0, superman.nodam)
+        FIRE.ADD_EXPLOSION(offset2.x, offset2.y, offset2.z, 81, 5000, false, true, 0.0, superman.nodam)
+    end
+    
+
+end
 
 
 function RepairGod(veh)
@@ -1484,7 +1591,154 @@ end
 
 
 -------------------------------------------------------------------------------------------------------
+local superman = {multi = 0.0, running = 0.0, friction = nil, speed = 3.0, height = 0.6, crosshair = true, exp = false,
+bull = 'WEAPON_TACTICALRIFLE', godmode = nil, breath = 1, nodam = true}
+local super = selfroot:list(T('Superman Mode'), {''}, 'Turn yourself into Superman')
+super:toggle_loop(T('Superman Mode'), {'superman'}, T('Turn on Superman Mode'), function (on)
+    if superman.multi <= 0.0 then
+        superman.multi = menu.get_value(menu.ref_by_path('Self>Weapons>Damage Multiplier'))
+    else
+    end
+    if superman.running <= 0.0 then
+        superman.running = menu.get_value(menu.ref_by_path('Self>Movement>Walk And Run Speed'))
+    else
+    end
+    if superman.friction == nil then
+        superman.friction = menu.get_value(menu.ref_by_path('Self>Movement>Increased Friction'))
+    else
+    end
+    if superman.godmode == nil then
+        superman.godmode = menu.get_value(menu.ref_by_path('Self>Immortality'))
+    else
+    end
+    SFsuper()
+    menu.set_value(menu.ref_by_path('Self>Weapons>Damage Multiplier'), 10000000)
+    menu.set_value(menu.ref_by_path('Self>Movement>Walk And Run Speed'), 500)
+    menu.set_value(menu.ref_by_path('Self>Movement>Increased Friction'), 'On')
+    menu.set_value(menu.ref_by_path('Self>Immortality'), 'On')
+    if PAD.IS_CONTROL_PRESSED(0, 22) or PAD.IS_CONTROL_JUST_PRESSED(0, 21) then
+        PED.SET_PED_CAN_RAGDOLL(players.user_ped(), false)
+        ENTITY.APPLY_FORCE_TO_ENTITY_CENTER_OF_MASS(players.user_ped(), 1, 0.0, 0.6, superman.height, 0, 0, 0, 0, true, true, true, true)
+        if ENTITY.IS_ENTITY_IN_AIR(players.user_ped()) then
+            ENTITY.APPLY_FORCE_TO_ENTITY_CENTER_OF_MASS(players.user_ped(), 1, 0.0, 0.6, superman.height, 0, 0, 0, 0, true, true, true, true)
+        end
+    end
+    if ENTITY.IS_ENTITY_IN_AIR(players.user_ped()) and PAD.IS_CONTROL_PRESSED(0, 22) then
+        if PAD.IS_CONTROL_PRESSED(0, 32) then
+            ENTITY.APPLY_FORCE_TO_ENTITY_CENTER_OF_MASS(players.user_ped(), 1, 0.0, superman.speed, superman.height, 0, 0, 0, 0, true, true, true, true)
+        elseif PAD.IS_CONTROL_PRESSED(0, 33) then
+            ENTITY.APPLY_FORCE_TO_ENTITY_CENTER_OF_MASS(players.user_ped(), 1, 0.0, superman.speed, 0.0, 0, 0, 0, 0, true, true, true, true)
+        end
+    end
 
+    if ENTITY.IS_ENTITY_IN_AIR(players.user_ped()) and PAD.IS_CONTROL_PRESSED(0, 44) then
+        local groundz = memory.alloc(4)
+        local flycoor = ENTITY.GET_ENTITY_COORDS(players.user_ped())
+        MISC.GET_GROUND_Z_FOR_3D_COORD(flycoor.x, flycoor.y, flycoor.z, groundz, 0, 0)
+        if memory.read_float(groundz) != 0 then
+            SEC(players.user_ped(), flycoor.x, flycoor.y, memory.read_float(groundz), false, true, true, false)
+            TASK.CLEAR_PED_TASKS(players.user_ped())
+        else
+            util.toast(T('Too high go lower to land'))
+        end
+
+
+
+    end
+
+    if superman.crosshair then
+        HUD.DISPLAY_SNIPER_SCOPE_THIS_FRAME()
+    end
+    
+    local weap = util.joaat(superman.bull)
+    local camrot = CAM.GET_FINAL_RENDERED_CAM_ROT(2)
+    WEAPON.REQUEST_WEAPON_ASSET(weap)
+    local impact = v3.new()
+    if PED.IS_PED_IN_ANY_VEHICLE(players.user_ped()) and PAD.IS_CONTROL_PRESSED(0, 68) and PAD.IS_CONTROL_PRESSED(0, 69) then
+        Super_Breath(superman)
+        ENTITY.SET_ENTITY_ROTATION(entities.get_user_vehicle_as_handle(), 0, 0, camrot.z, 2, true)
+    elseif not PED.IS_PED_IN_ANY_VEHICLE(players.user_ped()) and PAD.IS_CONTROL_PRESSED(0, 73) then
+        if ENTITY.IS_ENTITY_IN_AIR(players.user_ped()) and PAD.IS_CONTROL_PRESSED(0, 73) then
+            TASK.CLEAR_PED_TASKS(players.user_ped())
+            while not ENTITY.HAS_ENTITY_ANIM_FINISHED(players.user_ped(), 'rcmme_amanda1', "stand_loop_cop", 3) and PAD.IS_CONTROL_PRESSED(0, 73) do
+                ENTITY.FREEZE_ENTITY_POSITION(players.user_ped(), true)
+                camrot = CAM.GET_FINAL_RENDERED_CAM_ROT(2)
+                local impact = v3.new()
+                Super_Breath(superman)
+                Streamanim('rcmme_amanda1')
+                Runanim(players.user_ped(), 'rcmme_amanda1', "stand_loop_cop")
+                util.yield()
+            end
+        else
+            TASK.CLEAR_PED_TASKS(players.user_ped())
+            ENTITY.FREEZE_ENTITY_POSITION(players.user_ped(), false)
+            Super_Breath(superman)
+        end
+
+
+    elseif PED.IS_PED_IN_ANY_VEHICLE(players.user_ped()) and PAD.IS_CONTROL_PRESSED(0, 68) then
+        Leyes(superman, impact, camrot, weap)
+        ENTITY.SET_ENTITY_ROTATION(entities.get_user_vehicle_as_handle(), 0, 0, camrot.z, 2, true)
+    elseif not PED.IS_PED_IN_ANY_VEHICLE(players.user_ped()) and PAD.IS_CONTROL_PRESSED(0, 25) then
+        if ENTITY.IS_ENTITY_IN_AIR(players.user_ped()) and PAD.IS_CONTROL_PRESSED(0, 25) then
+            TASK.CLEAR_PED_TASKS(players.user_ped())
+            while not ENTITY.HAS_ENTITY_ANIM_FINISHED(players.user_ped(), 'rcmme_amanda1', "stand_loop_cop", 3) and PAD.IS_CONTROL_PRESSED(0, 25) do
+                ENTITY.FREEZE_ENTITY_POSITION(players.user_ped(), true)
+                camrot = CAM.GET_FINAL_RENDERED_CAM_ROT(2)
+                local impact = v3.new()
+                Supereyes(superman, impact, camrot, weap)
+                Streamanim('rcmme_amanda1')
+                Runanim(players.user_ped(), 'rcmme_amanda1', "stand_loop_cop")
+                util.yield()
+            end
+        else
+            TASK.CLEAR_PED_TASKS(players.user_ped())
+            ENTITY.FREEZE_ENTITY_POSITION(players.user_ped(), false)
+            Leyes(superman, impact, camrot, weap)
+        end
+
+    else
+        ENTITY.FREEZE_ENTITY_POSITION(players.user_ped(), false)
+    end
+
+
+    
+    return superman.multi, superman.running
+end, function ()
+    TASK.CLEAR_PED_TASKS(players.user_ped())
+    menu.set_value(menu.ref_by_path('Self>Weapons>Damage Multiplier'), superman.multi)
+    menu.set_value(menu.ref_by_path('Self>Movement>Walk And Run Speed'), superman.running)
+    menu.set_value(menu.ref_by_path('Self>Movement>Increased Friction'), superman.friction)
+    menu.set_value(menu.ref_by_path('Self>Immortality'), superman.godmode)
+end)
+
+super:slider(T('Fly Speed'), {'superfly'}, T('Adjust the speed you fly with Superman'), 6, 1000, 6, 1, function (a)
+    superman.speed = a*0.1
+end)
+
+super:slider(T('Jump Height'), {''}, T('Adjust the amount you move upwards by'), 6, 1000, 6, 1, function (a)
+    superman.height = a*0.1
+end)
+
+super:slider(T('Super Breath Intensity'), {''}, T('Adjust the amount your Super Breath blows people away'), 1, 1000, 1, 1, function (a)
+    superman.breath = a
+end)
+
+super:toggle(T('Super Breath Damage'), {'superexp'}, T('Turn on damage with Super Breath'), function (on)
+    superman.nodam = not on
+end)
+
+super:toggle(T('No Crosshair'), {''}, T('Turn off crosshair with Lazer Eyes'), function (on)
+    superman.crosshair = not on
+end)
+
+super:toggle(T('Explosions'), {'superexp'}, T('Turn on Explosions with Lazer Eyes'), function (on)
+    superman.exp = on
+end)
+
+super:list_select(T('Change Bullets'), {'superbullets'}, T('Change the Bullets used for Lazer eyes'), Leyen, 1, function (bulsel)
+    superman.bull = Leyel[bulsel] 
+end)
 
 -------------------------------- Teleports---------------------------------------------------
 TeleRoot = menu.list(selfroot, T('Teleports'), {}, '')
@@ -2374,14 +2628,8 @@ menu.toggle(menus.aimbot, T('Turn on Shoot Through Walls'), {''}, T('Turns on Sh
     aimbot.stw = on
 end)
 
-menu.toggle(menus.aimbot, Str_trans('Make Kills Anonymous'), {''}, T('Turn off credit for the kills and make them anonymous made with Aimbot also activates current weapon off because bullets wont hurt players anonymously'), function (on)
-    if on then
-        aimbot.owner = 0
-        menu.trigger_commands('Curweapoff')
-    else
-        aimbot.owner = players.user_ped()
-        menu.trigger_commands('Curweapoff')
-    end
+menu.toggle(menus.aimbot, Str_trans('Make Kills Anonymous'), {''}, T('Makes kills anonymous made with Aimbot *WARNING* to kill players also activate current weapon off and railgun or rockets because bullets wont hurt players anonymously'), function (on)
+    aimbot.owner = 0
 end)
 
 
@@ -2440,9 +2688,6 @@ menus.aimbotweap = menu.list(menus.aimbot, Str_trans('Weapon Settings'), {''}, '
 
 menu.toggle(menus.aimbotweap, T('Turn off Current Weapon Bullets'), {'Curweapoff'}, T('Does not use the current weapons bullets and uses your selected weapon in Aimbot instead'), function (on)
     aimbot.curweap = not on
-    menu.set_value(menus.aimbotchw, 1)
-    menu.set_value(menus.aimbotchw, 2)
-    menu.set_value(menus.aimbotchw, 1)
 end)
 
 menus.aimbotchw = menu.list_select(menus.aimbotweap, T('Change Weapons'), {'vatkweap'}, T('Choose the weapon for Aimbot'), Leyen, 1, function (weapsel)
@@ -2575,16 +2820,18 @@ local function objshots(hash, obj, camcoords)
     local rot = CAM.GET_GAMEPLAY_CAM_ROT(0)
     if STREAMING.IS_MODEL_A_VEHICLE(hash) then
         vshot(hash, camcoords, CV, rot)
-        for objtab as car do
+        for i, car in ipairs(objtab) do
             if obj.expl then
                 if ENTITY.HAS_ENTITY_COLLIDED_WITH_ANYTHING(car) then
                     local expcoor = ENTITY.GET_ENTITY_COORDS(car)
                     FIRE.ADD_EXPLOSION(expcoor.x, expcoor.y, expcoor.z, 81, 5000, true, false, 0.0, false)
                     entities.delete_by_handle(car)
                 end
+
+
             end
             if i >= 150 then
-                for objtab as vehs do
+                for index, vehs in ipairs(objtab) do
                     entities.delete_by_handle(vehs)
                     objtab ={}
                 end
@@ -2704,11 +2951,12 @@ end, 'toreador')
 
 local lsrmenu = menu.list(selfroot, T('Lazer Eyes'), {}, '')
 
-local lazereyes = false
-local impact = v3.new()
+
+Lazer = {buttons = {68, 25}}
+Lazer_buttons = {Str_trans('Aim'), Str_trans('Pickup/Horn')}
 local lazer = {exp = false, bull = 'WEAPON_TACTICALRIFLE', crosshair = true}
 menu.toggle_loop(lsrmenu, T('Lazer Eyes'), {'Leyeson'}, T('Shoot lazers out of your eyes also works in vehicles'), function (on)
-    lazereyes = on
+
     if lazer.crosshair then
         HUD.DISPLAY_SNIPER_SCOPE_THIS_FRAME()
     end
@@ -2729,6 +2977,7 @@ menu.toggle_loop(lsrmenu, T('Lazer Eyes'), {'Leyeson'}, T('Shoot lazers out of y
             SFleaim()
         end
     end
+    local impact = v3.new()
     if PED.IS_PED_IN_ANY_VEHICLE(players.user_ped()) and PAD.IS_CONTROL_PRESSED(0, Lazer.buttons[1]) then
         Leyes(lazer, impact, camrot, weap)
         ENTITY.SET_ENTITY_ROTATION(entities.get_user_vehicle_as_handle(), 0, 0, camrot.z, 2, true)
@@ -2750,8 +2999,7 @@ menu.toggle(lsrmenu, T('No Crosshair'), {''}, T('Turn off crosshair with Lazer E
     lazer.crosshair = not on
 end)
 
-Lazer = {buttons = {68, 25}}
-Lazer_buttons = {Str_trans('Aim'), Str_trans('Pickup/Horn')}
+
 
 menu.list_select(lsrmenu, T('Change Buttons'), {'lebutton'}, T('Change the Button used for Lazer eyes'), Lazer_buttons, 1, function (index, value)
     switch value do
@@ -2782,19 +3030,19 @@ menu.action(selfroot, T('Stop Sounds'), {'ssound'}, T('Stop all sounds incase th
     Stopsound()
 end)
 
-local jump = {height = 0.6 }
+Jump = {height = 0.6 }
 menu.toggle_loop(selfroot, T('Ultra Jump'), {}, T('Keep going higher the longer you press jump (can also be used to fly)'), function ()
     if PAD.IS_CONTROL_PRESSED(0, 22) or PAD.IS_CONTROL_JUST_PRESSED(0, 21) then
         PED.SET_PED_CAN_RAGDOLL(players.user_ped(), false)
-        ENTITY.APPLY_FORCE_TO_ENTITY_CENTER_OF_MASS(players.user_ped(), 1, 0.0, 0.6, jump.height, 0, 0, 0, 0, true, true, true, true)
+        ENTITY.APPLY_FORCE_TO_ENTITY_CENTER_OF_MASS(players.user_ped(), 1, 0.0, 0.6, Jump.height, 0, 0, 0, 0, true, true, true, true)
         if ENTITY.IS_ENTITY_IN_AIR(players.user_ped()) then
-            ENTITY.APPLY_FORCE_TO_ENTITY_CENTER_OF_MASS(players.user_ped(), 1, 0.0, 0.6, jump.height, 0, 0, 0, 0, true, true, true, true)
+            ENTITY.APPLY_FORCE_TO_ENTITY_CENTER_OF_MASS(players.user_ped(), 1, 0.0, 0.6, Jump.height, 0, 0, 0, 0, true, true, true, true)
         end
     end
 end)
 
 menu.slider(selfroot, T('Ultra Jump Amount'), {'tpslider'}, T('Adjust the amount you move upwards by'), 6, 1000, 6, 1, function (a)
-    jump.height = a*0.1
+    Jump.height = a*0.1
 end)
 
 menu.toggle_loop(selfroot, T('Turn Radio Off'), {'radoff'}, T('Turn off the radio completely(only for you)'), function ()
@@ -3657,7 +3905,7 @@ menu.toggle_loop(vehroot, T('Horn Boost'), {'horn'}, T('Boost the car when the h
     end
 end)
 
-menu.slider(vehroot, T('Change Speed for Horn Boost'), {''}, T('Change Speed for Horn Boost (actual speed is roughly double the number in MPH)'), 10, 2147483647, 40, 10, function (s)
+menu.slider(vehroot, T('Change Speed for Horn Boost'), {''}, T('Change Speed for Horn Boost (actual speed is roughly double the number in MPH)'), 10, max_int, 40, 10, function (s)
     horn.speed = s
  end)
 
@@ -3749,7 +3997,7 @@ end, function ()
     ENTITY.SET_ENTITY_HAS_GRAVITY(curcar, true)
 end)
 
-menu.slider(flyroot, T('Change how fast you fly'), {'flyspeed'}, T('Change Speed for Vehicle Flight (actual speed is roughly double the number in MPH)'), 10, 2147483647, 150, 10, function (s)
+menu.slider(flyroot, T('Change how fast you fly'), {'flyspeed'}, T('Change Speed for Vehicle Flight (actual speed is roughly double the number in MPH)'), 10, max_int, 150, 10, function (s)
    fly.speed = s
  end)
 
@@ -4038,7 +4286,7 @@ menus.speedruns = menu.list(onlineroot, T('Speed Run'), {}, '')
 
 menu.toggle_loop(menus.speedruns, T('Instant Finish Criminal Damage'), {'instacrimdam'}, T('Instantly win Criminal Damage Session Event'), function ()
     if SCRIPT.GET_NUMBER_OF_THREADS_RUNNING_THE_SCRIPT_WITH_THIS_HASH(util.joaat("am_criminal_damage")) != 0 then
-        SET_INT_LOCAL('am_criminal_damage', 105,  2147483647)
+        SET_INT_LOCAL('am_criminal_damage', 105,  max_int)
         util.yield(3000)
         SET_INT_LOCAL('am_criminal_damage', 110 + 39, 0)
     end
