@@ -12,6 +12,10 @@ local LOADING_START = util.current_time_millis()
 LOADING_SCRIPT = true
 Script = {}
 Script.Version = "0.24.0"
+
+
+  
+
 ---
 --- Auto-Updater Lib Install
 ---
@@ -85,17 +89,19 @@ local CONFIG_DIR = filesystem.resources_dir() .. 'AcjokerScript\\'
 filesystem.mkdirs(CONFIG_DIR)
 local Fav_Vehicles = CONFIG_DIR .. "FavVehicles.json"
 local Kill_List = CONFIG_DIR .. "Kill_List.json"
+local Superman_Setting = CONFIG_DIR .. "Superman.txt"
 
-menu.action(my, T('Player Options'), {}, T('Redirects you to the Player list in Stand for the Trolling and Friendly options'), function ()
+
+my:action(T('Player Options'), {}, T('Redirects you to the Player list in Stand for the Trolling and Friendly options'), function ()
     menu.ref_by_path("Players"):trigger()
 end)
 
-local selfroot = menu.list(my, T('Self'), {}, '')
-local onlineroot = menu.list(my, T('Online'), {}, '')
-local vehroot = menu.list(my, T('Vehicles'), {}, '')
-local setroot = menu.list(my, T('Settings'), {}, '')
+local selfroot = my:list(T('Self'), {}, '')
+local onlineroot = my:list(T('Online'), {}, '')
+local vehroot = my:list(T('Vehicles'), {}, '')
+local setroot = my:list(T('Settings'), {}, '')
 
-menu.toggle(setroot, T('Alerts Off'), {'ACAlert'}, T('Turn off the alerts you get from AcjokerScript'), function (on)
+setroot:toggle(T('Alerts Off'), {'ACAlert'}, T('Turn off the alerts you get from AcjokerScript'), function (on)
     set.alert = not on
 end)
 
@@ -1587,35 +1593,74 @@ function GetSpec(pid)
     end
 end
 
+local function save_settings(files, settings)
+    local file = io.open(files, "wb")
+    if file == nil then ACutil(Str_trans("Error opening file for writing: ")..files, TOAST_ALL) return end
+    file:write(soup.json.encode(settings))
+    file:close()
+end
+
+local function load_settings(files)
+    local file = io.open(files)
+    if file then
+        local version = file:read()
+        file:close()
+        local status, list = pcall(soup.json.decode, version)
+        if not status then
+            error("Could not decode list file")
+        end
+        return list
+    else
+        return {}
+    end
+end
+
 
 
 
 -------------------------------------------------------------------------------------------------------
-local superman = {multi = 0.0, running = 0.0, friction = nil, speed = 3.0, height = 0.6, crosshair = true, exp = false,
+Current_settings = {}
+local superman = {multi = nil, running = nil, friction = nil, speed = 3.0, height = 0.6, crosshair = true, exp = false,
 bull = 'WEAPON_TACTICALRIFLE', godmode = nil, breath = 1, nodam = true}
 local super = selfroot:list(T('Superman Mode'), {''}, 'Turn yourself into Superman')
+local fricref = menu.ref_by_path('Self>Movement>Increased Friction')
+local runref = menu.ref_by_path('Self>Movement>Walk And Run Speed')
+local multiref = menu.ref_by_path('Self>Weapons>Damage Multiplier')
+local immorref = menu.ref_by_path('Self>Immortality')
 super:toggle_loop(T('Superman Mode'), {'superman'}, T('Turn on Superman Mode'), function (on)
-    if superman.multi <= 0.0 then
-        superman.multi = menu.get_value(menu.ref_by_path('Self>Weapons>Damage Multiplier'))
+    if superman.multi == nil  then
+        superman.multi = multiref.value
     else
     end
-    if superman.running <= 0.0 then
-        superman.running = menu.get_value(menu.ref_by_path('Self>Movement>Walk And Run Speed'))
+    if superman.running == nil then
+        superman.running = runref.value
     else
     end
     if superman.friction == nil then
-        superman.friction = menu.get_value(menu.ref_by_path('Self>Movement>Increased Friction'))
+        superman.friction = fricref.value
     else
     end
     if superman.godmode == nil then
-        superman.godmode = menu.get_value(menu.ref_by_path('Self>Immortality'))
+        superman.godmode = immorref.value
     else
     end
+
+    Current_settings = {
+        ['Immortality'] = superman.godmode,
+        ['Damage Multiplier'] = superman.multi,
+        ['Walk And Run Speed'] = superman.running,
+        ['Increased Friction'] = superman.friction,
+    }
+    if not filesystem.is_regular_file(Superman_Setting) then
+        util.write_colons_file(Superman_Setting, Current_settings)
+    end
+
+
     SFsuper()
-    menu.set_value(menu.ref_by_path('Self>Weapons>Damage Multiplier'), 10000000)
-    menu.set_value(menu.ref_by_path('Self>Movement>Walk And Run Speed'), 500)
-    menu.set_value(menu.ref_by_path('Self>Movement>Increased Friction'), 'On')
-    menu.set_value(menu.ref_by_path('Self>Immortality'), 'On')
+    multiref.value = 10000000
+    runref.value = 500
+    fricref.value = true
+    immorref.value = true
     if PAD.IS_CONTROL_PRESSED(0, 22) or PAD.IS_CONTROL_JUST_PRESSED(0, 21) then
         PED.SET_PED_CAN_RAGDOLL(players.user_ped(), false)
         ENTITY.APPLY_FORCE_TO_ENTITY_CENTER_OF_MASS(players.user_ped(), 1, 0.0, 0.6, superman.height, 0, 0, 0, 0, true, true, true, true)
@@ -1706,10 +1751,24 @@ super:toggle_loop(T('Superman Mode'), {'superman'}, T('Turn on Superman Mode'), 
     return superman.multi, superman.running
 end, function ()
     TASK.CLEAR_PED_TASKS(players.user_ped())
-    menu.set_value(menu.ref_by_path('Self>Weapons>Damage Multiplier'), superman.multi)
-    menu.set_value(menu.ref_by_path('Self>Movement>Walk And Run Speed'), superman.running)
-    menu.set_value(menu.ref_by_path('Self>Movement>Increased Friction'), superman.friction)
-    menu.set_value(menu.ref_by_path('Self>Immortality'), superman.godmode)
+    local settings = util.read_colons_and_tabs_file(Superman_Setting)
+    for I, V in settings do
+        switch I do
+            case 'Damage Multiplier' :
+                multiref.value = V
+            break
+            case 'Walk And Run Speed' :
+                runref.value = V
+            break
+            case 'Increased Friction' :
+                menu.trigger_command(menu.ref_by_command_name('friction'), V)
+            break
+            case 'Immortality' :
+                menu.trigger_command(menu.ref_by_command_name('god'), V)
+            break
+        end
+    end
+    io.remove(Superman_Setting)
 end)
 
 super:slider(T('Fly Speed'), {'superfly'}, T('Adjust the speed you fly with Superman'), 6, 1000, 6, 1, function (a)
@@ -2367,47 +2426,27 @@ end
 
  ------------------------------------------
  
-local function save_kill_list(kill_list)
-    local file = io.open(Kill_List, "wb")
-    if file == nil then ACutil(Str_trans("Error opening list file for writing: ")..Kill_List, TOAST_ALL) return end
-    file:write(soup.json.encode(kill_list))
-    file:close()
-end
 
-local function load_kill_list()
-    local file = io.open(Kill_List)
-    if file then
-        local version = file:read()
-        file:close()
-        local load_kill_list_status, kill_list = pcall(soup.json.decode, version)
-        if not load_kill_list_status then
-            error("Could not decode Kill List list file")
-        end
-        return kill_list
-    else
-        return {}
-    end
-end
 
 local function add_victim(name)
     local new_victim = {name=name}
-    local kill_list = load_kill_list()
+    local kill_list = load_settings(Kill_List)
     for kill_list as victim do
         if victim.name == new_victim.name then
             return true
         end
     end
     table.insert(kill_list, new_victim)
-    save_kill_list(kill_list)
+    save_settings(Kill_List, kill_list)
     return true
 end
 
 local function remove_victim(name)
-    local kill_list = load_kill_list()
+    local kill_list = load_settings(Kill_List)
     for index, victim in kill_list do
         if victim.name == name then
             kill_list[index] = nil
-            save_kill_list(kill_list)
+            save_settings(Kill_List, kill_list)
             return true
         end
     end
@@ -2417,7 +2456,7 @@ end
 local kill_list_menus = {}
 
 local function regen_kill_list(root)
-    local kload = load_kill_list()
+    local kload = load_settings(Kill_List)
     for kill_list_menus as kill_list_menu do
         if menu.is_ref_valid(kill_list_menu) then menu.delete(kill_list_menu) end
     end
@@ -2444,7 +2483,7 @@ local function rebuild_player_list()
     for players_list as pid do
         local pname = PLAYER.GET_PLAYER_NAME(pid)
         local players_list_menu = menu.action(menus.aimbotkilla, pname, {''}, Str_trans('Add or Remove Player to the Kill List'), function ()
-            for load_kill_list() as name do
+            for load_settings(Kill_List) as name do
                 if name.name == pname then
                     remove_victim(pname)
                     if set.alert then
@@ -2556,7 +2595,7 @@ function Ped_aim_pool(fov)
             if PED.IS_PED_A_PLAYER(ped) and aimbot.kill_list then
                 local pid = NETWORK.NETWORK_GET_PLAYER_INDEX_FROM_PED(ped)
                 local pname = PLAYER.GET_PLAYER_NAME(pid)
-                for load_kill_list() as Names do
+                for load_settings(Kill_List) as Names do
                     for Names as name do
                         if name == pname then
                             target = true
@@ -2670,7 +2709,7 @@ menu.toggle_loop(menus.aimbotkillist, T('Add Strangers to Kill List'), {''}, T('
         local hdl = pid_to_handle(pid)
         if not NETWORK.NETWORK_IS_FRIEND(hdl) then
             local pname = PLAYER.GET_PLAYER_NAME(pid)
-            for load_kill_list() as name do
+            for load_settings(Kill_List) as name do
                 if name.name == pname then
                     return
                 end
@@ -2820,7 +2859,7 @@ local function objshots(hash, obj, camcoords)
     local rot = CAM.GET_GAMEPLAY_CAM_ROT(0)
     if STREAMING.IS_MODEL_A_VEHICLE(hash) then
         vshot(hash, camcoords, CV, rot)
-        for i, car in ipairs(objtab) do
+        for i, car in objtab do
             if obj.expl then
                 if ENTITY.HAS_ENTITY_COLLIDED_WITH_ANYTHING(car) then
                     local expcoor = ENTITY.GET_ENTITY_COORDS(car)
@@ -4101,51 +4140,27 @@ local function add_preview(vehicle)
 end
 
 
-
-
-local function save_vehicles(vehicles_list)
-    local file = io.open(Fav_Vehicles, "wb")
-    if file == nil then ACutil(Str_trans("Error opening vehicles list file for writing: ")..Fav_Vehicles, TOAST_ALL) return end
-    file:write(soup.json.encode(vehicles_list))
-    file:close()
-end
-    
-local function load_vehicles()
-    local file = io.open(Fav_Vehicles)
-    if file then
-        local version = file:read()
-        file:close()
-        local load_vehicles_status, vehicles_list = pcall(soup.json.decode, version)
-        if not load_vehicles_status then
-            error("Could not decode vehicles list file")
-        end
-        return vehicles_list
-    else
-        return {}
-    end
-end
-
     
 local function add_vehicle(hash)
     local new_vehicle = {hash=hash}
-    local vehicles_list = load_vehicles()
+    local vehicles_list = load_settings(Fav_Vehicles)
     for vehicles_list as vehicle do
         if vehicle.hash == new_vehicle.hash then
             return true
         end
     end
     table.insert(vehicles_list, new_vehicle)
-    save_vehicles(vehicles_list)
+    save_settings(Fav_Vehicles, vehicles_list)
     return true
 end
     
 local function remove_vehicle(hash)
     
-    local vehicles_list = load_vehicles()
+    local vehicles_list = load_settings(Fav_Vehicles)
     for index, vehicle in vehicles_list do
         if vehicle.hash == hash then
             vehicles_list[index] = nil
-            save_vehicles(vehicles_list)
+            save_settings(Fav_Vehicles, vehicles_list)
             return true
         end
     end
@@ -4167,7 +4182,7 @@ local function build_curated_constructs_menu(root_menu, curated_item)
                 AUDIO.FORCE_USE_AUDIO_GAME_OBJECT(entities.get_user_vehicle_as_handle(),  util.reverse_joaat(curated_item.hash))
                 ACutil(Str_trans('Vehicle Sound changed to ')..util.reverse_joaat(curated_item.hash))
                 if util.reverse_joaat(curated_item.hash) != "" then
-                    local vehicles_list = load_vehicles()
+                    local vehicles_list = load_settings(Fav_Vehicles)
                     for vehicles_list as vehicle do
                         if vehicle.hash == util.reverse_joaat(curated_item.hash) then
                             remove_vehicle(util.reverse_joaat(curated_item.hash))
@@ -4208,7 +4223,7 @@ end)
 local vehicle_menus = {}
     
 local function regen_veh_tab(root)
-    local vload = load_vehicles()
+    local vload = load_settings(Fav_Vehicles)
     for vehicle_menus as vehicle_menu do
         if menu.is_ref_valid(vehicle_menu) then menu.delete(vehicle_menu) end
     end
@@ -4240,7 +4255,7 @@ end
 
 menu.text_input(vlistroot, T('Add/Remove a Favorite vehicle'), {'favveh'}, T('Add/Remove a Favorite Vehicle to the list'), function (favveh)
     if favveh != "" then
-        local vehicles_list = load_vehicles()
+        local vehicles_list = load_settings(Fav_Vehicles)
         for vehicles_list as vehicle do
             if vehicle.hash == favveh then
                 remove_vehicle(favveh)
@@ -4915,7 +4930,7 @@ players.on_join(function(pid)
 
     menu.action(trollm, T('Add or Remove from Kill List'), {''}, T('Add or Remove Player to the Kill List'), function ()
         local pname = PLAYER.GET_PLAYER_NAME(pid)
-        for load_kill_list() as name do
+        for load_settings(Kill_List) as name do
             if name.name == pname then
                 remove_victim(pname)
                 if set.alert then
