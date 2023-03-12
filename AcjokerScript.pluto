@@ -11,7 +11,7 @@ require ('resources/AcjokerScript/translations')
 local LOADING_START = util.current_time_millis()
 LOADING_SCRIPT = true
 Script = {}
-Script.Version = "0.24.01"
+Script.Version = "0.24.02"
 
 
   
@@ -1773,6 +1773,10 @@ end, function ()
     end
     util.yield(250)
     io.remove(Superman_Setting)
+    superman.multi = nil
+    superman.running = nil
+    superman.friction = nil
+    superman.godmode = nil 
 end)
 
 super:slider(T('Fly Speed'), {'superfly'}, T('Adjust the speed you fly with Superman'), 6, 1000, 6, 1, function (a)
