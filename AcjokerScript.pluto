@@ -11,7 +11,7 @@ require ('resources/AcjokerScript/translations')
 local LOADING_START = util.current_time_millis()
 LOADING_SCRIPT = true
 Script = {}
-Script.Version = "0.24.0"
+Script.Version = "0.24.01"
 
 
   
@@ -91,6 +91,9 @@ local Fav_Vehicles = CONFIG_DIR .. "FavVehicles.json"
 local Kill_List = CONFIG_DIR .. "Kill_List.json"
 local Superman_Setting = CONFIG_DIR .. "Superman.txt"
 
+menu.action(my, T('test button'), {''}, '', function ()
+menu.set_value(immorref, false)
+end)
 
 my:action(T('Player Options'), {}, T('Redirects you to the Player list in Stand for the Trolling and Friendly options'), function ()
     menu.ref_by_path("Players"):trigger()
@@ -1768,6 +1771,7 @@ end, function ()
             break
         end
     end
+    util.yield(250)
     io.remove(Superman_Setting)
 end)
 
