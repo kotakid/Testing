@@ -11,7 +11,7 @@ require ('resources/AcjokerScript/translations')
 local LOADING_START = util.current_time_millis()
 LOADING_SCRIPT = true
 Script = {}
-Script.Version = "0.24.02"
+Script.Version = "0.24.03"
 
 
   
@@ -91,9 +91,6 @@ local Fav_Vehicles = CONFIG_DIR .. "FavVehicles.json"
 local Kill_List = CONFIG_DIR .. "Kill_List.json"
 local Superman_Setting = CONFIG_DIR .. "Superman.txt"
 
-menu.action(my, T('test button'), {''}, '', function ()
-menu.set_value(immorref, false)
-end)
 
 my:action(T('Player Options'), {}, T('Redirects you to the Player list in Stand for the Trolling and Friendly options'), function ()
     menu.ref_by_path("Players"):trigger()
@@ -250,6 +247,7 @@ function SFsuper()
     sf.SET_DATA_SLOT(5,PAD.GET_CONTROL_INSTRUCTIONAL_BUTTONS_STRING(0, 33, true), Str_trans('Fly faster'))
     sf.SET_DATA_SLOT(6,PAD.GET_CONTROL_INSTRUCTIONAL_BUTTONS_STRING(0, 44, true), Str_trans('Land'))
     sf.SET_DATA_SLOT(7,PAD.GET_CONTROL_INSTRUCTIONAL_BUTTONS_STRING(0, 73, true), Str_trans('Super Breath'))
+    sf.SET_DATA_SLOT(8,PAD.GET_CONTROL_INSTRUCTIONAL_BUTTONS_STRING(0, 153, true), Str_trans('X-Ray Vision'))
     sf.DRAW_INSTRUCTIONAL_BUTTONS()
     sf:draw_fullscreen()
 end
@@ -1618,18 +1616,252 @@ local function load_settings(files)
     end
 end
 
+local ESPrgb = {color= {r= 0, g = 1, b = 0, a = 1}}
+local ESPcolor = {
+    r = math.floor(ESPrgb.color.r * 255),
+    g = math.floor(ESPrgb.color.g * 255),
+    b = math.floor(ESPrgb.color.b * 255),
+    a = math.floor(ESPrgb.color.a * 255)
+}
 
+
+local aim_target
+local target = true
+function Ped_aim_pool(fov)
+    local ped_handles = entities.get_all_peds_as_handles()
+    for ped_handles as ped do
+        if players.user_ped() != ped and not PED.IS_PED_DEAD_OR_DYING(ped, 1) and ENTITY.DOES_ENTITY_EXIST(ped) then
+            local ped_coor = ENTITY.GET_ENTITY_COORDS(ped, true)
+            local player_coor = ENTITY.GET_ENTITY_COORDS(players.user_ped(), true)
+            local disbet = SYSTEM.VDIST2(ped_coor.x, ped_coor.y, ped_coor.z, player_coor.x, player_coor.y, player_coor.z)
+            local too_far = 60000
+                
+            if not PED.IS_PED_FACING_PED(players.user_ped(), ped, fov) then
+                target = false
+            else
+                target = true
+            end
+
+            if disbet >= too_far then
+                target = false
+            end
+
+            if PED.IS_PED_A_PLAYER(ped) and not aimbot.tarplayers or aimbot.kill_list then
+                target = false
+            end
+
+            if not PED.IS_PED_A_PLAYER(ped) and not aimbot.tarnpcs or aimbot.kill_list then
+                target = false
+            end
+
+            if PED.IS_PED_IN_ANY_VEHICLE(ped, true) and not aimbot.targetveh then
+                target = false
+            end
+
+            if not ENTITY.HAS_ENTITY_CLEAR_LOS_TO_ENTITY(players.user_ped(), ped, 17) and not aimbot.stw then
+                target = false
+            end
+            local handle_ptr = memory.alloc(13*8)
+            local function pid_to_handle(pid)--credits to lance
+                NETWORK.NETWORK_HANDLE_FROM_PLAYER(pid, handle_ptr, 13)
+                return handle_ptr
+            end
+            if PED.IS_PED_A_PLAYER(ped) and aimbot.tarplayers and not aimbot.tarfriends then
+                local pid = NETWORK.NETWORK_GET_PLAYER_INDEX_FROM_PED(ped)
+                local hdl = pid_to_handle(pid)
+                if NETWORK.NETWORK_IS_FRIEND(hdl) then
+                    target = false
+                end
+            end
+            if PED.IS_PED_A_PLAYER(ped) and aimbot.kill_list then
+                local pid = NETWORK.NETWORK_GET_PLAYER_INDEX_FROM_PED(ped)
+                local pname = PLAYER.GET_PLAYER_NAME(pid)
+                for load_settings(Kill_List) as Names do
+                    for Names as name do
+                        if name == pname then
+                            target = true
+                        end
+                    end
+                end       
+            end
+            if target and PLAYER.IS_PLAYER_FREE_AIMING(players.user()) then
+                aim_target = ped
+                AimbotTarget(aimbot, aim_target, ESPrgb)
+                if aim_target > 1 then
+                    break
+                end
+            else 
+                aim_target = 0
+            end
+        end
+    end
+    return aim_target
+end
+
+function Xraytarget(xray, aim_target, ESPrgb)
+    if xray.espline then
+        Draw_esp(aim_target)
+    end
+    if xray.espbox then
+        local color = {
+            r = ESPrgb.color.r * 255,
+            g = ESPrgb.color.g * 255,
+            b = ESPrgb.color.b * 255,
+            a = ESPrgb.color.a * 255
+        }
+        draw_bounding_box(aim_target, color)
+    end
+    if xray.espbones then
+        hxcoor = memory.alloc(4)
+        hycoor = memory.alloc(4)
+        nxcoor = memory.alloc(4)
+        nycoor = memory.alloc(4)
+        lexcoor = memory.alloc(4)
+        leycoor = memory.alloc(4)
+        rexcoor = memory.alloc(4)
+        reycoor = memory.alloc(4)
+        lhxcoor = memory.alloc(4)
+        lhycoor = memory.alloc(4)
+        rhxcoor = memory.alloc(4)
+        rhycoor = memory.alloc(4)
+        pxcoor = memory.alloc(4)
+        pycoor = memory.alloc(4)
+        lkxcoor = memory.alloc(4)
+        lkycoor = memory.alloc(4)
+        rkxcoor = memory.alloc(4)
+        rkycoor = memory.alloc(4)
+        lfxcoor = memory.alloc(4)
+        lfycoor = memory.alloc(4)
+        rfxcoor = memory.alloc(4)
+        rfycoor = memory.alloc(4)
+
+        local head = ENTITY.GET_WORLD_POSITION_OF_ENTITY_BONE(aim_target, PED.GET_PED_BONE_INDEX(aim_target, 0x796E))
+        local neck = ENTITY.GET_WORLD_POSITION_OF_ENTITY_BONE(aim_target, PED.GET_PED_BONE_INDEX(aim_target, 0x9995))
+        local left_elbow = ENTITY.GET_WORLD_POSITION_OF_ENTITY_BONE(aim_target, PED.GET_PED_BONE_INDEX(aim_target, 0x58b7))
+        local right_elbow = ENTITY.GET_WORLD_POSITION_OF_ENTITY_BONE(aim_target, PED.GET_PED_BONE_INDEX(aim_target, 0xbb0))
+        local left_hand = ENTITY.GET_WORLD_POSITION_OF_ENTITY_BONE(aim_target, PED.GET_PED_BONE_INDEX(aim_target, 0x49d9))
+        local right_hand = ENTITY.GET_WORLD_POSITION_OF_ENTITY_BONE(aim_target, PED.GET_PED_BONE_INDEX(aim_target, 0xdead))
+        local pelvis = ENTITY.GET_WORLD_POSITION_OF_ENTITY_BONE(aim_target, PED.GET_PED_BONE_INDEX(aim_target, 0x60F0))
+        local left_knee = ENTITY.GET_WORLD_POSITION_OF_ENTITY_BONE(aim_target, PED.GET_PED_BONE_INDEX(aim_target, 0xb3fe))
+        local right_knee = ENTITY.GET_WORLD_POSITION_OF_ENTITY_BONE(aim_target, PED.GET_PED_BONE_INDEX(aim_target, 0x3fcf))
+        local left_foot = ENTITY.GET_WORLD_POSITION_OF_ENTITY_BONE(aim_target, PED.GET_PED_BONE_INDEX(aim_target, 0x3779))
+        local right_foot = ENTITY.GET_WORLD_POSITION_OF_ENTITY_BONE(aim_target, PED.GET_PED_BONE_INDEX(aim_target, 0xcc4d))
+
+        GRAPHICS.GET_SCREEN_COORD_FROM_WORLD_COORD(head.x, head.y, head.z, hxcoor, hycoor)
+        GRAPHICS.GET_SCREEN_COORD_FROM_WORLD_COORD(neck.x, neck.y, neck.z, nxcoor, nycoor)
+        GRAPHICS.GET_SCREEN_COORD_FROM_WORLD_COORD(left_elbow.x, left_elbow.y, left_elbow.z, lexcoor, leycoor)
+        GRAPHICS.GET_SCREEN_COORD_FROM_WORLD_COORD(right_elbow.x, right_elbow.y, right_elbow.z, rexcoor, reycoor)
+        GRAPHICS.GET_SCREEN_COORD_FROM_WORLD_COORD(left_hand.x, left_hand.y, left_hand.z, lhxcoor, lhycoor)
+        GRAPHICS.GET_SCREEN_COORD_FROM_WORLD_COORD(right_hand.x, right_hand.y, right_hand.z, rhxcoor, rhycoor)
+        GRAPHICS.GET_SCREEN_COORD_FROM_WORLD_COORD(pelvis.x, pelvis.y, pelvis.z, pxcoor, pycoor)
+        GRAPHICS.GET_SCREEN_COORD_FROM_WORLD_COORD(left_knee.x, left_knee.y, left_knee.z, lkxcoor, lkycoor)
+        GRAPHICS.GET_SCREEN_COORD_FROM_WORLD_COORD(right_knee.x, right_knee.y, right_knee.z, rkxcoor, rkycoor)
+        GRAPHICS.GET_SCREEN_COORD_FROM_WORLD_COORD(left_foot.x, left_foot.y, left_foot.z, lfxcoor, lfycoor)
+        GRAPHICS.GET_SCREEN_COORD_FROM_WORLD_COORD(right_foot.x, right_foot.y, right_foot.z, rfxcoor, rfycoor)
+
+        directx.draw_line(memory.read_float(hxcoor), memory.read_float(hycoor), memory.read_float(nxcoor), memory.read_float(nycoor), ESPrgb.color)
+        directx.draw_line(memory.read_float(lexcoor), memory.read_float(leycoor), memory.read_float(nxcoor), memory.read_float(nycoor), ESPrgb.color)
+        directx.draw_line(memory.read_float(rexcoor), memory.read_float(reycoor), memory.read_float(nxcoor), memory.read_float(nycoor), ESPrgb.color)
+        directx.draw_line(memory.read_float(lexcoor), memory.read_float(leycoor), memory.read_float(lhxcoor), memory.read_float(lhycoor), ESPrgb.color)
+        directx.draw_line(memory.read_float(rexcoor), memory.read_float(reycoor), memory.read_float(rhxcoor), memory.read_float(rhycoor), ESPrgb.color)
+        directx.draw_line(memory.read_float(nxcoor), memory.read_float(nycoor),  memory.read_float(pxcoor), memory.read_float(pycoor), ESPrgb.color) 
+        directx.draw_line(memory.read_float(lkxcoor), memory.read_float(lkycoor),  memory.read_float(pxcoor), memory.read_float(pycoor), ESPrgb.color)
+        directx.draw_line(memory.read_float(rkxcoor), memory.read_float(rkycoor),  memory.read_float(pxcoor), memory.read_float(pycoor), ESPrgb.color)
+        directx.draw_line(memory.read_float(lkxcoor), memory.read_float(lkycoor),  memory.read_float(lfxcoor), memory.read_float(lfycoor), ESPrgb.color)
+        directx.draw_line(memory.read_float(rkxcoor), memory.read_float(rkycoor),  memory.read_float(rfxcoor), memory.read_float(rfycoor), ESPrgb.color)  
+    end
+end
+
+local xray_target
+local xrtarget = true
+function Xrayvision(xray)
+    local ped_hndles = entities.get_all_peds_as_handles()
+    for ped_hndles as ped do
+        if players.user_ped() != ped and not PED.IS_PED_DEAD_OR_DYING(ped, 1) and ENTITY.DOES_ENTITY_EXIST(ped) then
+            local ped_coor = ENTITY.GET_ENTITY_COORDS(ped, true)
+            local player_coor = ENTITY.GET_ENTITY_COORDS(players.user_ped(), true)
+            local disbet = SYSTEM.VDIST2(ped_coor.x, ped_coor.y, ped_coor.z, player_coor.x, player_coor.y, player_coor.z)
+            local too_far = 60000
+                
+            if not PED.IS_PED_FACING_PED(players.user_ped(), ped, xray.fov) then
+                xrtarget = false
+            else
+                xrtarget = true
+            end
+
+            if disbet >= too_far then
+                xrtarget = false
+            end
+
+            if PED.IS_PED_A_PLAYER(ped) and not xray.players then
+                xrtarget = false
+            end
+
+            if not PED.IS_PED_A_PLAYER(ped) and not xray.npcs then
+                xrtarget = false
+            end
+
+            if PED.IS_PED_IN_ANY_VEHICLE(ped, true) and not xray.targetveh then
+                xrtarget = false
+            end
+
+            local handle_ptr = memory.alloc(13*8)
+            local function pid_to_handle(pid)--credits to lance
+                NETWORK.NETWORK_HANDLE_FROM_PLAYER(pid, handle_ptr, 13)
+                return handle_ptr
+            end
+            if PED.IS_PED_A_PLAYER(ped) and xray.players and not xray.friends then
+                local pid = NETWORK.NETWORK_GET_PLAYER_INDEX_FROM_PED(ped)
+                local hdl = pid_to_handle(pid)
+                if NETWORK.NETWORK_IS_FRIEND(hdl) then
+                    xrtarget = false
+                end
+            end
+            if xrtarget and PAD.IS_CONTROL_PRESSED(0, 153) then
+                xray_target = ped
+                Xraytarget(xray, xray_target, ESPrgb)
+            else 
+                xray_target = 0
+            end
+        end
+    end
+    return xray_target
+end
+
+
+function Draw_esp(ped) --credits to Totaw Annihiwation
+    local screenX = memory.alloc(4)
+    local screenY = memory.alloc(4)
+    local pos = ENTITY.GET_ENTITY_COORDS(ped)
+    GRAPHICS.GET_SCREEN_COORD_FROM_WORLD_COORD(pos.x, pos.y, pos.z, screenX, screenY)
+    directx.draw_line(0.5, 0.5, memory.read_float(screenX), memory.read_float(screenY), ESPrgb.color) 
+end
+
+
+function ShootPed(ped, weap)
+    local bone_coor = PED.GET_PED_BONE_COORDS(ped, aimbot.bone, 0, 0, 0)
+    local bone_coor2 = PED.GET_PED_BONE_COORDS(ped, aimbot.bone, -0.1, 0, 0)
+    local bone_coor3 = PED.GET_PED_BONE_COORDS(ped, aimbot.bone, 0.1, 0, 0)
+    for i = 1, 3 do
+        MISC.SHOOT_SINGLE_BULLET_BETWEEN_COORDS(bone_coor2.x, bone_coor2.y, bone_coor2.z, bone_coor3.x, bone_coor3.y, bone_coor3.z, aimbot.damage, 0, weap, aimbot.owner, false, false, 1000)
+        MISC.SHOOT_SINGLE_BULLET_BETWEEN_COORDS(bone_coor.x, bone_coor.y, bone_coor.z + 1 , bone_coor.x, bone_coor.y, bone_coor.z - 1, aimbot.damage, 0, weap, aimbot.owner , false, false, 1000)
+        MISC.SHOOT_SINGLE_BULLET_BETWEEN_COORDS(bone_coor.x, bone_coor.y, bone_coor.z - 1 , bone_coor.x, bone_coor.y, bone_coor.z + 1, aimbot.damage, 0, weap, aimbot.owner , false, false, 1000)
+    end
+end
 
 
 -------------------------------------------------------------------------------------------------------
 Current_settings = {}
-local superman = {multi = nil, running = nil, friction = nil, speed = 3.0, height = 0.6, crosshair = true, exp = false,
-bull = 'WEAPON_TACTICALRIFLE', godmode = nil, breath = 1, nodam = true}
-local super = selfroot:list(T('Superman Mode'), {''}, 'Turn yourself into Superman')
+local superman = {multi = nil, running = nil, friction = nil, speed = 3.0, height = 0.6, crosshair = true,
+exp = false, bull = 'WEAPON_TACTICALRIFLE', godmode = nil, breath = 1, nodam = true}
+local xray = {npcs = true, players = true, fov = 3, targetveh = true, espline = true, espbox = false,
+espbones = true}
+local super = selfroot:list(T('Superman Mode'), {''}, T('Turn yourself into Superman'))
 local fricref = menu.ref_by_path('Self>Movement>Increased Friction')
 local runref = menu.ref_by_path('Self>Movement>Walk And Run Speed')
 local multiref = menu.ref_by_path('Self>Weapons>Damage Multiplier')
 local immorref = menu.ref_by_path('Self>Immortality')
+local xrayref = menu.ref_by_path('Stand>Lua Scripts>AcjokerScript>Self>Superman Mode>X-Ray>Activate X-Ray')
 super:toggle_loop(T('Superman Mode'), {'superman'}, T('Turn on Superman Mode'), function (on)
     if superman.multi == nil  then
         superman.multi = multiref.value
@@ -1654,6 +1886,7 @@ super:toggle_loop(T('Superman Mode'), {'superman'}, T('Turn on Superman Mode'), 
         ['Walk And Run Speed'] = superman.running,
         ['Increased Friction'] = superman.friction,
     }
+
     if not filesystem.is_regular_file(Superman_Setting) then
         util.write_colons_file(Superman_Setting, Current_settings)
     end
@@ -1748,7 +1981,9 @@ super:toggle_loop(T('Superman Mode'), {'superman'}, T('Turn on Superman Mode'), 
     else
         ENTITY.FREEZE_ENTITY_POSITION(players.user_ped(), false)
     end
-
+    if PAD.IS_CONTROL_PRESSED(0, 153) then
+        Xrayvision(xray)
+    end
 
     
     return superman.multi, superman.running
@@ -1779,6 +2014,33 @@ end, function ()
     superman.godmode = nil 
 end)
 
+local super_xray = super:list(T('X-Ray Settings'), {''}, '')
+
+
+super_xray:toggle(T('Do not include NPCs'), {''}, T('Turn off including NPCs with X-Ray Vision'), function (on)
+    xray.npcs = not on
+end)
+
+super_xray:toggle(T('Do not include Players'), {''}, T('Turn off including Players with X-Ray Vision'), function (on)
+    xray.players = not on
+end)
+
+super_xray:toggle(T('Do not include Vehicles'), {''}, T('Turn off including Players or NPCS in vehicles with X-Ray Vision'), function (on)
+    xray.targetveh = not on
+end)
+
+super_xray:toggle(T('Turn off Line ESP'), {''}, T('Turn off Line ESP used with X-Ray Vision'), function (on)
+    xray.espline = not on
+end)
+
+super_xray:toggle(T('Turn on Box ESP'), {''}, T('Turn on Box ESP used with X-Ray Vision'), function (on)
+    xray.espbox = on
+end)
+
+super_xray:slider_float(T('Field of View'), {'tpslider'}, T('Adjust the amount of your Field of View is with X-Ray Vision'), 100, 36000, 300, 100, function (s)
+    xray.fov = s*.01
+end)
+
 super:slider(T('Fly Speed'), {'superfly'}, T('Adjust the speed you fly with Superman'), 6, 1000, 6, 1, function (a)
     superman.speed = a*0.1
 end)
@@ -1806,6 +2068,8 @@ end)
 super:list_select(T('Change Bullets'), {'superbullets'}, T('Change the Bullets used for Lazer eyes'), Leyen, 1, function (bulsel)
     superman.bull = Leyel[bulsel] 
 end)
+
+
 
 -------------------------------- Teleports---------------------------------------------------
 TeleRoot = menu.list(selfroot, T('Teleports'), {}, '')
@@ -2540,112 +2804,11 @@ end
 
 
 
+
 menus.aimbot = menu.list(selfroot, T('Aimbot'), {''}, '')
 local aimbot = {esp = true, box = true, bone = 31086, curweap = true, weapon = 'WEAPON_TACTICALRIFLE', damage = 200, targetveh = true,
 fov = 3, tarplayers = true, tarnpcs = true, tarfriends = false, owner = players.user_ped(), stw = false, kill_list = false, alert = true}
-local ESPrgb = {color= {r= 0, g = 1, b = 0, a = 1}}
-local ESPcolor = {
-    r = math.floor(ESPrgb.color.r * 255),
-    g = math.floor(ESPrgb.color.g * 255),
-    b = math.floor(ESPrgb.color.b * 255),
-    a = math.floor(ESPrgb.color.a * 255)
-}
 
-
-local aim_target
-local target = true
-function Ped_aim_pool(fov)
-    local ped_handles = entities.get_all_peds_as_handles()
-    for ped_handles as ped do
-        if players.user_ped() != ped and not PED.IS_PED_DEAD_OR_DYING(ped, 1) and ENTITY.DOES_ENTITY_EXIST(ped) then
-            local ped_coor = ENTITY.GET_ENTITY_COORDS(ped, true)
-            local player_coor = ENTITY.GET_ENTITY_COORDS(players.user_ped(), true)
-            local disbet = SYSTEM.VDIST2(ped_coor.x, ped_coor.y, ped_coor.z, player_coor.x, player_coor.y, player_coor.z)
-            local too_far = 60000
-                
-            if not PED.IS_PED_FACING_PED(players.user_ped(), ped, fov) then
-                target = false
-            else
-                target = true
-            end
-
-            if disbet >= too_far then
-                target = false
-            end
-
-            if PED.IS_PED_A_PLAYER(ped) and not aimbot.tarplayers or aimbot.kill_list then
-                target = false
-            end
-
-            if not PED.IS_PED_A_PLAYER(ped) and not aimbot.tarnpcs or aimbot.kill_list then
-                target = false
-            end
-
-            if PED.IS_PED_IN_ANY_VEHICLE(ped, true) and not aimbot.targetveh then
-                target = false
-            end
-
-            if not ENTITY.HAS_ENTITY_CLEAR_LOS_TO_ENTITY(players.user_ped(), ped, 17) and not aimbot.stw then
-                target = false
-            end
-            local handle_ptr = memory.alloc(13*8)
-            local function pid_to_handle(pid)--credits to lance
-                NETWORK.NETWORK_HANDLE_FROM_PLAYER(pid, handle_ptr, 13)
-                return handle_ptr
-            end
-            if PED.IS_PED_A_PLAYER(ped) and aimbot.tarplayers and not aimbot.tarfriends then
-                local pid = NETWORK.NETWORK_GET_PLAYER_INDEX_FROM_PED(ped)
-                local hdl = pid_to_handle(pid)
-                if NETWORK.NETWORK_IS_FRIEND(hdl) then
-                    target = false
-                end
-            end
-            if PED.IS_PED_A_PLAYER(ped) and aimbot.kill_list then
-                local pid = NETWORK.NETWORK_GET_PLAYER_INDEX_FROM_PED(ped)
-                local pname = PLAYER.GET_PLAYER_NAME(pid)
-                for load_settings(Kill_List) as Names do
-                    for Names as name do
-                        if name == pname then
-                            target = true
-                        end
-                    end
-                end       
-            end
-            if target and PLAYER.IS_PLAYER_FREE_AIMING(players.user()) then
-                aim_target = ped
-                AimbotTarget(aimbot, aim_target, ESPrgb)
-                if aim_target > 1 then
-                    break
-                end
-            else 
-                aim_target = 0
-            end
-        end
-    end
-    return aim_target
-end
-
-
-
-function Draw_esp(ped) --credits to Totaw Annihiwation
-    local screenX = memory.alloc(4)
-    local screenY = memory.alloc(4)
-    local pos = ENTITY.GET_ENTITY_COORDS(ped)
-    GRAPHICS.GET_SCREEN_COORD_FROM_WORLD_COORD(pos.x, pos.y, pos.z, screenX, screenY)
-    directx.draw_line(0.5, 0.5, memory.read_float(screenX), memory.read_float(screenY), ESPrgb.color) 
-end
-
-
-function ShootPed(ped, weap)
-    local bone_coor = PED.GET_PED_BONE_COORDS(ped, aimbot.bone, 0, 0, 0)
-    local bone_coor2 = PED.GET_PED_BONE_COORDS(ped, aimbot.bone, -0.1, 0, 0)
-    local bone_coor3 = PED.GET_PED_BONE_COORDS(ped, aimbot.bone, 0.1, 0, 0)
-    for i = 1, 3 do
-        MISC.SHOOT_SINGLE_BULLET_BETWEEN_COORDS(bone_coor2.x, bone_coor2.y, bone_coor2.z, bone_coor3.x, bone_coor3.y, bone_coor3.z, aimbot.damage, 0, weap, aimbot.owner, false, false, 1000)
-        MISC.SHOOT_SINGLE_BULLET_BETWEEN_COORDS(bone_coor.x, bone_coor.y, bone_coor.z + 1 , bone_coor.x, bone_coor.y, bone_coor.z - 1, aimbot.damage, 0, weap, aimbot.owner , false, false, 1000)
-        MISC.SHOOT_SINGLE_BULLET_BETWEEN_COORDS(bone_coor.x, bone_coor.y, bone_coor.z - 1 , bone_coor.x, bone_coor.y, bone_coor.z + 1, aimbot.damage, 0, weap, aimbot.owner , false, false, 1000)
-    end
-end
 
 menu.toggle_loop(menus.aimbot, T('Activate Aimbot'), {'aimbotact'}, T('Activates Aimbot with your settings'), function ()
     if PLAYER.IS_PLAYER_FREE_AIMING(players.user()) then
@@ -2675,8 +2838,10 @@ menu.toggle(menus.aimbot, T('Turn on Shoot Through Walls'), {''}, T('Turns on Sh
     aimbot.stw = on
 end)
 
-menu.toggle(menus.aimbot, Str_trans('Make Kills Anonymous'), {''}, T('Makes kills anonymous made with Aimbot *WARNING* to kill players also activate current weapon off and railgun or rockets because bullets wont hurt players anonymously'), function (on)
+menu.toggle_loop(menus.aimbot, Str_trans('Make Kills Anonymous'), {''}, T('Makes kills anonymous made with Aimbot *WARNING* to kill players also activate current weapon off and railgun or rockets because bullets wont hurt players anonymously'), function (on)
     aimbot.owner = 0
+end, function ()
+    aimbot.owner = players.user_ped()
 end)
 
 
