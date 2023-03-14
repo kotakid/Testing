@@ -11,7 +11,7 @@ require ('resources/AcjokerScript/translations')
 local LOADING_START = util.current_time_millis()
 LOADING_SCRIPT = true
 Script = {}
-Script.Version = "0.24.04"
+Script.Version = "0.24.05"
 
 
   
@@ -1084,7 +1084,99 @@ function AddBlip(entity, blipSprite, colour)-- wiri function
 end
 
 
+-- From GridSpawn credits to Tonk
+local  colour = {r=0,g=255,b=0,a=255}
+if colour == nil then
+  colour = {r=255,g=0,b=0,a=255}
+end
+local minimum = memory.alloc()
+local maximum = memory.alloc()
+local upVector_pointer = memory.alloc()
+local rightVector_pointer = memory.alloc()
+local forwardVector_pointer = memory.alloc()
+local position_pointer = memory.alloc()
+local draw_bounding_box = function (entity, colour)
+  ENTITY.GET_ENTITY_MATRIX(entity, rightVector_pointer, forwardVector_pointer, upVector_pointer, position_pointer);
+  local forward_vector = v3.new(forwardVector_pointer)
+  local right_vector = v3.new(rightVector_pointer)
+  local up_vector = v3.new(upVector_pointer)
 
+  MISC.GET_MODEL_DIMENSIONS(ENTITY.GET_ENTITY_MODEL(entity), minimum, maximum)
+  local minimum_vec = v3.new(minimum)
+  local maximum_vec = v3.new(maximum)
+  local dimensions = {x = maximum_vec.y - minimum_vec.y, y = maximum_vec.x - minimum_vec.x, z = maximum_vec.z - minimum_vec.z}
+
+  local top_right =           ENTITY.GET_OFFSET_FROM_ENTITY_IN_WORLD_COORDS(entity,       maximum_vec.x, maximum_vec.y, maximum_vec.z)
+  local top_right_back =      {x = forward_vector.x * -dimensions.y + top_right.x,        y = forward_vector.y * -dimensions.y + top_right.y,         z = forward_vector.z * -dimensions.y + top_right.z}
+  local bottom_right_back =   {x = up_vector.x * -dimensions.z + top_right_back.x,        y = up_vector.y * -dimensions.z + top_right_back.y,         z = up_vector.z * -dimensions.z + top_right_back.z}
+  local bottom_left_back =    {x = -right_vector.x * dimensions.x + bottom_right_back.x,  y = -right_vector.y * dimensions.x + bottom_right_back.y,   z = -right_vector.z * dimensions.x + bottom_right_back.z}
+  local top_left =            {x = -right_vector.x * dimensions.x + top_right.x,          y = -right_vector.y * dimensions.x + top_right.y,           z = -right_vector.z * dimensions.x + top_right.z}
+  local bottom_right =        {x = -up_vector.x * dimensions.z + top_right.x,             y = -up_vector.y * dimensions.z + top_right.y,              z = -up_vector.z * dimensions.z + top_right.z}
+  local bottom_left =         {x = forward_vector.x * dimensions.y + bottom_left_back.x,  y = forward_vector.y * dimensions.y + bottom_left_back.y,   z = forward_vector.z * dimensions.y + bottom_left_back.z}
+  local top_left_back =       {x = up_vector.x * dimensions.z + bottom_left_back.x,       y = up_vector.y * dimensions.z + bottom_left_back.y,        z = up_vector.z * dimensions.z + bottom_left_back.z}
+
+  GRAPHICS.DRAW_LINE(
+      top_right.x, top_right.y, top_right.z,
+      top_right_back.x, top_right_back.y, top_right_back.z,
+     colour.r, colour.g, colour.b, colour.a
+  )
+  GRAPHICS.DRAW_LINE(
+      top_right.x, top_right.y, top_right.z,
+      top_left.x, top_left.y, top_left.z,
+     colour.r, colour.g, colour.b, colour.a
+  )
+  GRAPHICS.DRAW_LINE(
+      top_right.x, top_right.y, top_right.z,
+      bottom_right.x, bottom_right.y, bottom_right.z,
+     colour.r, colour.g, colour.b, colour.a
+  )
+  GRAPHICS.DRAW_LINE(
+      bottom_left_back.x, bottom_left_back.y, bottom_left_back.z,
+      bottom_right_back.x, bottom_right_back.y, bottom_right_back.z,
+     colour.r, colour.g, colour.b, colour.a
+  )
+  GRAPHICS.DRAW_LINE(
+      bottom_left_back.x, bottom_left_back.y, bottom_left_back.z,
+      bottom_left.x, bottom_left.y, bottom_left.z,
+     colour.r, colour.g, colour.b, colour.a
+  )
+  GRAPHICS.DRAW_LINE(
+      bottom_left_back.x, bottom_left_back.y, bottom_left_back.z,
+      top_left_back.x, top_left_back.y, top_left_back.z,
+     colour.r, colour.g, colour.b, colour.a
+  )
+  GRAPHICS.DRAW_LINE(
+      top_left_back.x, top_left_back.y, top_left_back.z,
+      top_right_back.x, top_right_back.y, top_right_back.z,
+     colour.r, colour.g, colour.b, colour.a
+  )
+  GRAPHICS.DRAW_LINE(
+      top_left_back.x, top_left_back.y, top_left_back.z,
+      top_left.x, top_left.y, top_left.z,
+     colour.r, colour.g, colour.b, colour.a
+  )
+  GRAPHICS.DRAW_LINE(
+      bottom_right_back.x, bottom_right_back.y, bottom_right_back.z,
+      top_right_back.x, top_right_back.y, top_right_back.z,
+     colour.r, colour.g, colour.b, colour.a
+  )
+  GRAPHICS.DRAW_LINE(
+      bottom_left.x, bottom_left.y, bottom_left.z,
+      top_left.x, top_left.y, top_left.z,
+     colour.r, colour.g, colour.b, colour.a
+  )
+  GRAPHICS.DRAW_LINE(
+      bottom_left.x, bottom_left.y, bottom_left.z,
+      bottom_right.x, bottom_right.y, bottom_right.z,
+     colour.r, colour.g, colour.b, colour.a
+  )
+  GRAPHICS.DRAW_LINE(
+      bottom_right_back.x, bottom_right_back.y, bottom_right_back.z,
+      bottom_right.x, bottom_right.y, bottom_right.z,
+     colour.r, colour.g, colour.b, colour.a
+  )
+end
+    
 
 
 
@@ -1616,6 +1708,8 @@ local function load_settings(files)
     end
 end
 
+
+
 local ESPrgb = {color= {r= 0, g = 1, b = 0, a = 1}}
 local ESPcolor = {
     r = math.floor(ESPrgb.color.r * 255),
@@ -1623,8 +1717,6 @@ local ESPcolor = {
     b = math.floor(ESPrgb.color.b * 255),
     a = math.floor(ESPrgb.color.a * 255)
 }
-
-
 local aim_target
 local target = true
 function Ped_aim_pool(fov)
@@ -1697,78 +1789,29 @@ function Ped_aim_pool(fov)
     end
     return aim_target
 end
+local SuperESPrgb = {color= {r= 0, g = 1, b = 0, a = 1}}
+local SuperESPcolor = {
+    r = math.floor(ESPrgb.color.r * 255),
+    g = math.floor(ESPrgb.color.g * 255),
+    b = math.floor(ESPrgb.color.b * 255),
+    a = math.floor(ESPrgb.color.a * 255)
+}
 
-function Xraytarget(xray, aim_target, ESPrgb)
+function Xraytarget(xray, aim_target, rgb)
     if xray.espline then
-        Draw_esp(aim_target)
+        Draw_esp(aim_target, rgb)
     end
     if xray.espbox then
         local color = {
-            r = ESPrgb.color.r * 255,
-            g = ESPrgb.color.g * 255,
-            b = ESPrgb.color.b * 255,
-            a = ESPrgb.color.a * 255
+            r = rgb.color.r * 255,
+            g = rgb.color.g * 255,
+            b = rgb.color.b * 255,
+            a = rgb.color.a * 255
         }
         draw_bounding_box(aim_target, color)
     end
     if xray.espbones then
-        hxcoor = memory.alloc(4)
-        hycoor = memory.alloc(4)
-        nxcoor = memory.alloc(4)
-        nycoor = memory.alloc(4)
-        lexcoor = memory.alloc(4)
-        leycoor = memory.alloc(4)
-        rexcoor = memory.alloc(4)
-        reycoor = memory.alloc(4)
-        lhxcoor = memory.alloc(4)
-        lhycoor = memory.alloc(4)
-        rhxcoor = memory.alloc(4)
-        rhycoor = memory.alloc(4)
-        pxcoor = memory.alloc(4)
-        pycoor = memory.alloc(4)
-        lkxcoor = memory.alloc(4)
-        lkycoor = memory.alloc(4)
-        rkxcoor = memory.alloc(4)
-        rkycoor = memory.alloc(4)
-        lfxcoor = memory.alloc(4)
-        lfycoor = memory.alloc(4)
-        rfxcoor = memory.alloc(4)
-        rfycoor = memory.alloc(4)
-
-        local head = ENTITY.GET_WORLD_POSITION_OF_ENTITY_BONE(aim_target, PED.GET_PED_BONE_INDEX(aim_target, 0x796E))
-        local neck = ENTITY.GET_WORLD_POSITION_OF_ENTITY_BONE(aim_target, PED.GET_PED_BONE_INDEX(aim_target, 0x9995))
-        local left_elbow = ENTITY.GET_WORLD_POSITION_OF_ENTITY_BONE(aim_target, PED.GET_PED_BONE_INDEX(aim_target, 0x58b7))
-        local right_elbow = ENTITY.GET_WORLD_POSITION_OF_ENTITY_BONE(aim_target, PED.GET_PED_BONE_INDEX(aim_target, 0xbb0))
-        local left_hand = ENTITY.GET_WORLD_POSITION_OF_ENTITY_BONE(aim_target, PED.GET_PED_BONE_INDEX(aim_target, 0x49d9))
-        local right_hand = ENTITY.GET_WORLD_POSITION_OF_ENTITY_BONE(aim_target, PED.GET_PED_BONE_INDEX(aim_target, 0xdead))
-        local pelvis = ENTITY.GET_WORLD_POSITION_OF_ENTITY_BONE(aim_target, PED.GET_PED_BONE_INDEX(aim_target, 0x60F0))
-        local left_knee = ENTITY.GET_WORLD_POSITION_OF_ENTITY_BONE(aim_target, PED.GET_PED_BONE_INDEX(aim_target, 0xb3fe))
-        local right_knee = ENTITY.GET_WORLD_POSITION_OF_ENTITY_BONE(aim_target, PED.GET_PED_BONE_INDEX(aim_target, 0x3fcf))
-        local left_foot = ENTITY.GET_WORLD_POSITION_OF_ENTITY_BONE(aim_target, PED.GET_PED_BONE_INDEX(aim_target, 0x3779))
-        local right_foot = ENTITY.GET_WORLD_POSITION_OF_ENTITY_BONE(aim_target, PED.GET_PED_BONE_INDEX(aim_target, 0xcc4d))
-
-        GRAPHICS.GET_SCREEN_COORD_FROM_WORLD_COORD(head.x, head.y, head.z, hxcoor, hycoor)
-        GRAPHICS.GET_SCREEN_COORD_FROM_WORLD_COORD(neck.x, neck.y, neck.z, nxcoor, nycoor)
-        GRAPHICS.GET_SCREEN_COORD_FROM_WORLD_COORD(left_elbow.x, left_elbow.y, left_elbow.z, lexcoor, leycoor)
-        GRAPHICS.GET_SCREEN_COORD_FROM_WORLD_COORD(right_elbow.x, right_elbow.y, right_elbow.z, rexcoor, reycoor)
-        GRAPHICS.GET_SCREEN_COORD_FROM_WORLD_COORD(left_hand.x, left_hand.y, left_hand.z, lhxcoor, lhycoor)
-        GRAPHICS.GET_SCREEN_COORD_FROM_WORLD_COORD(right_hand.x, right_hand.y, right_hand.z, rhxcoor, rhycoor)
-        GRAPHICS.GET_SCREEN_COORD_FROM_WORLD_COORD(pelvis.x, pelvis.y, pelvis.z, pxcoor, pycoor)
-        GRAPHICS.GET_SCREEN_COORD_FROM_WORLD_COORD(left_knee.x, left_knee.y, left_knee.z, lkxcoor, lkycoor)
-        GRAPHICS.GET_SCREEN_COORD_FROM_WORLD_COORD(right_knee.x, right_knee.y, right_knee.z, rkxcoor, rkycoor)
-        GRAPHICS.GET_SCREEN_COORD_FROM_WORLD_COORD(left_foot.x, left_foot.y, left_foot.z, lfxcoor, lfycoor)
-        GRAPHICS.GET_SCREEN_COORD_FROM_WORLD_COORD(right_foot.x, right_foot.y, right_foot.z, rfxcoor, rfycoor)
-
-        directx.draw_line(memory.read_float(hxcoor), memory.read_float(hycoor), memory.read_float(nxcoor), memory.read_float(nycoor), ESPrgb.color)
-        directx.draw_line(memory.read_float(lexcoor), memory.read_float(leycoor), memory.read_float(nxcoor), memory.read_float(nycoor), ESPrgb.color)
-        directx.draw_line(memory.read_float(rexcoor), memory.read_float(reycoor), memory.read_float(nxcoor), memory.read_float(nycoor), ESPrgb.color)
-        directx.draw_line(memory.read_float(lexcoor), memory.read_float(leycoor), memory.read_float(lhxcoor), memory.read_float(lhycoor), ESPrgb.color)
-        directx.draw_line(memory.read_float(rexcoor), memory.read_float(reycoor), memory.read_float(rhxcoor), memory.read_float(rhycoor), ESPrgb.color)
-        directx.draw_line(memory.read_float(nxcoor), memory.read_float(nycoor),  memory.read_float(pxcoor), memory.read_float(pycoor), ESPrgb.color) 
-        directx.draw_line(memory.read_float(lkxcoor), memory.read_float(lkycoor),  memory.read_float(pxcoor), memory.read_float(pycoor), ESPrgb.color)
-        directx.draw_line(memory.read_float(rkxcoor), memory.read_float(rkycoor),  memory.read_float(pxcoor), memory.read_float(pycoor), ESPrgb.color)
-        directx.draw_line(memory.read_float(lkxcoor), memory.read_float(lkycoor),  memory.read_float(lfxcoor), memory.read_float(lfycoor), ESPrgb.color)
-        directx.draw_line(memory.read_float(rkxcoor), memory.read_float(rkycoor),  memory.read_float(rfxcoor), memory.read_float(rfycoor), ESPrgb.color)  
+        Bone_Esp(aim_target, SuperESPrgb)  
     end
 end
 
@@ -1819,7 +1862,7 @@ function Xrayvision(xray)
             end
             if xrtarget and PAD.IS_CONTROL_PRESSED(0, 119) then
                 xray_target = ped
-                Xraytarget(xray, xray_target, ESPrgb)
+                Xraytarget(xray, xray_target, SuperESPrgb)
             else 
                 xray_target = 0
             end
@@ -1829,12 +1872,12 @@ function Xrayvision(xray)
 end
 
 
-function Draw_esp(ped) --credits to Totaw Annihiwation
+function Draw_esp(ped, rgb) --credits to Totaw Annihiwation
     local screenX = memory.alloc(4)
     local screenY = memory.alloc(4)
     local pos = ENTITY.GET_ENTITY_COORDS(ped)
     GRAPHICS.GET_SCREEN_COORD_FROM_WORLD_COORD(pos.x, pos.y, pos.z, screenX, screenY)
-    directx.draw_line(0.5, 0.5, memory.read_float(screenX), memory.read_float(screenY), ESPrgb.color) 
+    directx.draw_line(0.5, 0.5, memory.read_float(screenX), memory.read_float(screenY), rgb.color) 
 end
 
 
@@ -1849,6 +1892,47 @@ function ShootPed(ped, weap)
     end
 end
 
+function Bone_Esp (aim_target, rgb)
+    hxcoor,hycoor,nxcoor,nycoor,lexcoor,leycoor,rexcoor,reycoor,lhxcoor,lhycoor,
+    rhxcoor,rhycoor,pxcoor,pycoor,lkxcoor,lkycoor,rkxcoor,rkycoor,lfxcoor,lfycoor,rfxcoor,rfycoor = 
+    memory.alloc(4),memory.alloc(4),memory.alloc(4),memory.alloc(4),memory.alloc(4),memory.alloc(4),memory.alloc(4),memory.alloc(4),memory.alloc(4),memory.alloc(4),memory.alloc(4),
+    memory.alloc(4),memory.alloc(4),memory.alloc(4),memory.alloc(4),memory.alloc(4),memory.alloc(4),memory.alloc(4),memory.alloc(4),memory.alloc(4),memory.alloc(4),memory.alloc(4)
+
+        local head = ENTITY.GET_WORLD_POSITION_OF_ENTITY_BONE(aim_target, PED.GET_PED_BONE_INDEX(aim_target, 0x796E))
+        local neck = ENTITY.GET_WORLD_POSITION_OF_ENTITY_BONE(aim_target, PED.GET_PED_BONE_INDEX(aim_target, 0x9995))
+        local left_elbow = ENTITY.GET_WORLD_POSITION_OF_ENTITY_BONE(aim_target, PED.GET_PED_BONE_INDEX(aim_target, 0x58b7))
+        local right_elbow = ENTITY.GET_WORLD_POSITION_OF_ENTITY_BONE(aim_target, PED.GET_PED_BONE_INDEX(aim_target, 0xbb0))
+        local left_hand = ENTITY.GET_WORLD_POSITION_OF_ENTITY_BONE(aim_target, PED.GET_PED_BONE_INDEX(aim_target, 0x49d9))
+        local right_hand = ENTITY.GET_WORLD_POSITION_OF_ENTITY_BONE(aim_target, PED.GET_PED_BONE_INDEX(aim_target, 0xdead))
+        local pelvis = ENTITY.GET_WORLD_POSITION_OF_ENTITY_BONE(aim_target, PED.GET_PED_BONE_INDEX(aim_target, 0x60F0))
+        local left_knee = ENTITY.GET_WORLD_POSITION_OF_ENTITY_BONE(aim_target, PED.GET_PED_BONE_INDEX(aim_target, 0xb3fe))
+        local right_knee = ENTITY.GET_WORLD_POSITION_OF_ENTITY_BONE(aim_target, PED.GET_PED_BONE_INDEX(aim_target, 0x3fcf))
+        local left_foot = ENTITY.GET_WORLD_POSITION_OF_ENTITY_BONE(aim_target, PED.GET_PED_BONE_INDEX(aim_target, 0x3779))
+        local right_foot = ENTITY.GET_WORLD_POSITION_OF_ENTITY_BONE(aim_target, PED.GET_PED_BONE_INDEX(aim_target, 0xcc4d))
+
+        GRAPHICS.GET_SCREEN_COORD_FROM_WORLD_COORD(head.x, head.y, head.z, hxcoor, hycoor)
+        GRAPHICS.GET_SCREEN_COORD_FROM_WORLD_COORD(neck.x, neck.y, neck.z, nxcoor, nycoor)
+        GRAPHICS.GET_SCREEN_COORD_FROM_WORLD_COORD(left_elbow.x, left_elbow.y, left_elbow.z, lexcoor, leycoor)
+        GRAPHICS.GET_SCREEN_COORD_FROM_WORLD_COORD(right_elbow.x, right_elbow.y, right_elbow.z, rexcoor, reycoor)
+        GRAPHICS.GET_SCREEN_COORD_FROM_WORLD_COORD(left_hand.x, left_hand.y, left_hand.z, lhxcoor, lhycoor)
+        GRAPHICS.GET_SCREEN_COORD_FROM_WORLD_COORD(right_hand.x, right_hand.y, right_hand.z, rhxcoor, rhycoor)
+        GRAPHICS.GET_SCREEN_COORD_FROM_WORLD_COORD(pelvis.x, pelvis.y, pelvis.z, pxcoor, pycoor)
+        GRAPHICS.GET_SCREEN_COORD_FROM_WORLD_COORD(left_knee.x, left_knee.y, left_knee.z, lkxcoor, lkycoor)
+        GRAPHICS.GET_SCREEN_COORD_FROM_WORLD_COORD(right_knee.x, right_knee.y, right_knee.z, rkxcoor, rkycoor)
+        GRAPHICS.GET_SCREEN_COORD_FROM_WORLD_COORD(left_foot.x, left_foot.y, left_foot.z, lfxcoor, lfycoor)
+        GRAPHICS.GET_SCREEN_COORD_FROM_WORLD_COORD(right_foot.x, right_foot.y, right_foot.z, rfxcoor, rfycoor)
+
+        directx.draw_line(memory.read_float(hxcoor), memory.read_float(hycoor), memory.read_float(nxcoor), memory.read_float(nycoor), rgb.color)
+        directx.draw_line(memory.read_float(lexcoor), memory.read_float(leycoor), memory.read_float(nxcoor), memory.read_float(nycoor), rgb.color)
+        directx.draw_line(memory.read_float(rexcoor), memory.read_float(reycoor), memory.read_float(nxcoor), memory.read_float(nycoor), rgb.color)
+        directx.draw_line(memory.read_float(lexcoor), memory.read_float(leycoor), memory.read_float(lhxcoor), memory.read_float(lhycoor), rgb.color)
+        directx.draw_line(memory.read_float(rexcoor), memory.read_float(reycoor), memory.read_float(rhxcoor), memory.read_float(rhycoor), rgb.color)
+        directx.draw_line(memory.read_float(nxcoor), memory.read_float(nycoor),  memory.read_float(pxcoor), memory.read_float(pycoor), rgb.color) 
+        directx.draw_line(memory.read_float(lkxcoor), memory.read_float(lkycoor),  memory.read_float(pxcoor), memory.read_float(pycoor), rgb.color)
+        directx.draw_line(memory.read_float(rkxcoor), memory.read_float(rkycoor),  memory.read_float(pxcoor), memory.read_float(pycoor), rgb.color)
+        directx.draw_line(memory.read_float(lkxcoor), memory.read_float(lkycoor),  memory.read_float(lfxcoor), memory.read_float(lfycoor), rgb.color)
+        directx.draw_line(memory.read_float(rkxcoor), memory.read_float(rkycoor),  memory.read_float(rfxcoor), memory.read_float(rfycoor), rgb.color)
+end
 
 -------------------------------------------------------------------------------------------------------
 Current_settings = {}
@@ -1861,14 +1945,13 @@ local fricref = menu.ref_by_path('Self>Movement>Increased Friction')
 local runref = menu.ref_by_path('Self>Movement>Walk And Run Speed')
 local multiref = menu.ref_by_path('Self>Weapons>Damage Multiplier')
 local immorref = menu.ref_by_path('Self>Immortality')
-local xrayref = menu.ref_by_path('Stand>Lua Scripts>AcjokerScript>Self>Superman Mode>X-Ray>Activate X-Ray')
-super:toggle_loop(T('Superman Mode'), {'superman'}, T('Turn on Superman Mode'), function (on)
+super:toggle_loop(T('Superman Mode'), {'superman'}, T('Turn on Superman Mode with Super Strength, Super Speed, Super Breath, X-Ray Vision, Lazer Eyes, Flight, and Invulnerability'), function (on)
     if superman.multi == nil  then
         superman.multi = multiref.value
     else
     end
     if superman.running == nil then
-        superman.running = Runspeedref.value
+        superman.running = runref.value
     else
     end
     if superman.friction == nil then
@@ -1894,7 +1977,7 @@ super:toggle_loop(T('Superman Mode'), {'superman'}, T('Turn on Superman Mode'), 
 
     SFsuper()
     multiref.value = 10000000
-    runref.value = superman.running
+    runref.value = Runspeedref.value
     fricref.value = true
     immorref.value = true
     if PAD.IS_CONTROL_PRESSED(0, 22) or PAD.IS_CONTROL_JUST_PRESSED(0, 21) then
@@ -2037,6 +2120,10 @@ super_xray:toggle(T('Turn on Box ESP'), {''}, T('Turn on Box ESP used with X-Ray
     xray.espbox = on
 end)
 
+super_xray:colour(T('Box and ESP Color'), {''}, T('Choose the Box and ESP color to be changed to'), SuperESPrgb.color, false, function(bcolor)
+    SuperESPrgb.color = bcolor
+end)
+
 super_xray:slider_float(T('Field of View'), {'tpslider'}, T('Adjust the amount of your Field of View is with X-Ray Vision'), 100, 36000, 1000, 100, function (s)
     xray.fov = s*.01
 end)
@@ -2045,11 +2132,11 @@ Runspeedref = super:slider_float(T('Run Speed'), {''}, T('Adjust the speed you r
     superman.running = a
 end)
 
-super:slider(T('Fly Speed'), {'superfly'}, T('Adjust the speed you fly with Superman'), 6, 1000, 6, 1, function (a)
+super:slider(T('Fly Speed'), {'superfly'}, T('Adjust the speed you fly with Superman'), 6, 100, 6, 1, function (a)
     superman.fspeed = a*0.1
 end)
 
-super:slider(T('Jump Height'), {''}, T('Adjust the amount you move upwards by'), 6, 1000, 6, 1, function (a)
+super:slider(T('Jump Height'), {''}, T('Adjust the amount you move upwards by'), 6, 100, 6, 1, function (a)
     superman.height = a*0.1
 end)
 
@@ -2608,99 +2695,7 @@ menu.toggle_loop(TeleRoot, T('Levitate Toggle'), {''}, T('Levitate toggle for yo
 end)
 
 
--- From GridSpawn credits to Tonk
-local  colour = {r=0,g=255,b=0,a=255}
-if colour == nil then
-  colour = {r=255,g=0,b=0,a=255}
-end
-local minimum = memory.alloc()
-local maximum = memory.alloc()
-local upVector_pointer = memory.alloc()
-local rightVector_pointer = memory.alloc()
-local forwardVector_pointer = memory.alloc()
-local position_pointer = memory.alloc()
-local draw_bounding_box = function (entity, colour)
-  ENTITY.GET_ENTITY_MATRIX(entity, rightVector_pointer, forwardVector_pointer, upVector_pointer, position_pointer);
-  local forward_vector = v3.new(forwardVector_pointer)
-  local right_vector = v3.new(rightVector_pointer)
-  local up_vector = v3.new(upVector_pointer)
 
-  MISC.GET_MODEL_DIMENSIONS(ENTITY.GET_ENTITY_MODEL(entity), minimum, maximum)
-  local minimum_vec = v3.new(minimum)
-  local maximum_vec = v3.new(maximum)
-  local dimensions = {x = maximum_vec.y - minimum_vec.y, y = maximum_vec.x - minimum_vec.x, z = maximum_vec.z - minimum_vec.z}
-
-  local top_right =           ENTITY.GET_OFFSET_FROM_ENTITY_IN_WORLD_COORDS(entity,       maximum_vec.x, maximum_vec.y, maximum_vec.z)
-  local top_right_back =      {x = forward_vector.x * -dimensions.y + top_right.x,        y = forward_vector.y * -dimensions.y + top_right.y,         z = forward_vector.z * -dimensions.y + top_right.z}
-  local bottom_right_back =   {x = up_vector.x * -dimensions.z + top_right_back.x,        y = up_vector.y * -dimensions.z + top_right_back.y,         z = up_vector.z * -dimensions.z + top_right_back.z}
-  local bottom_left_back =    {x = -right_vector.x * dimensions.x + bottom_right_back.x,  y = -right_vector.y * dimensions.x + bottom_right_back.y,   z = -right_vector.z * dimensions.x + bottom_right_back.z}
-  local top_left =            {x = -right_vector.x * dimensions.x + top_right.x,          y = -right_vector.y * dimensions.x + top_right.y,           z = -right_vector.z * dimensions.x + top_right.z}
-  local bottom_right =        {x = -up_vector.x * dimensions.z + top_right.x,             y = -up_vector.y * dimensions.z + top_right.y,              z = -up_vector.z * dimensions.z + top_right.z}
-  local bottom_left =         {x = forward_vector.x * dimensions.y + bottom_left_back.x,  y = forward_vector.y * dimensions.y + bottom_left_back.y,   z = forward_vector.z * dimensions.y + bottom_left_back.z}
-  local top_left_back =       {x = up_vector.x * dimensions.z + bottom_left_back.x,       y = up_vector.y * dimensions.z + bottom_left_back.y,        z = up_vector.z * dimensions.z + bottom_left_back.z}
-
-  GRAPHICS.DRAW_LINE(
-      top_right.x, top_right.y, top_right.z,
-      top_right_back.x, top_right_back.y, top_right_back.z,
-     colour.r, colour.g, colour.b, colour.a
-  )
-  GRAPHICS.DRAW_LINE(
-      top_right.x, top_right.y, top_right.z,
-      top_left.x, top_left.y, top_left.z,
-     colour.r, colour.g, colour.b, colour.a
-  )
-  GRAPHICS.DRAW_LINE(
-      top_right.x, top_right.y, top_right.z,
-      bottom_right.x, bottom_right.y, bottom_right.z,
-     colour.r, colour.g, colour.b, colour.a
-  )
-  GRAPHICS.DRAW_LINE(
-      bottom_left_back.x, bottom_left_back.y, bottom_left_back.z,
-      bottom_right_back.x, bottom_right_back.y, bottom_right_back.z,
-     colour.r, colour.g, colour.b, colour.a
-  )
-  GRAPHICS.DRAW_LINE(
-      bottom_left_back.x, bottom_left_back.y, bottom_left_back.z,
-      bottom_left.x, bottom_left.y, bottom_left.z,
-     colour.r, colour.g, colour.b, colour.a
-  )
-  GRAPHICS.DRAW_LINE(
-      bottom_left_back.x, bottom_left_back.y, bottom_left_back.z,
-      top_left_back.x, top_left_back.y, top_left_back.z,
-     colour.r, colour.g, colour.b, colour.a
-  )
-  GRAPHICS.DRAW_LINE(
-      top_left_back.x, top_left_back.y, top_left_back.z,
-      top_right_back.x, top_right_back.y, top_right_back.z,
-     colour.r, colour.g, colour.b, colour.a
-  )
-  GRAPHICS.DRAW_LINE(
-      top_left_back.x, top_left_back.y, top_left_back.z,
-      top_left.x, top_left.y, top_left.z,
-     colour.r, colour.g, colour.b, colour.a
-  )
-  GRAPHICS.DRAW_LINE(
-      bottom_right_back.x, bottom_right_back.y, bottom_right_back.z,
-      top_right_back.x, top_right_back.y, top_right_back.z,
-     colour.r, colour.g, colour.b, colour.a
-  )
-  GRAPHICS.DRAW_LINE(
-      bottom_left.x, bottom_left.y, bottom_left.z,
-      top_left.x, top_left.y, top_left.z,
-     colour.r, colour.g, colour.b, colour.a
-  )
-  GRAPHICS.DRAW_LINE(
-      bottom_left.x, bottom_left.y, bottom_left.z,
-      bottom_right.x, bottom_right.y, bottom_right.z,
-     colour.r, colour.g, colour.b, colour.a
-  )
-  GRAPHICS.DRAW_LINE(
-      bottom_right_back.x, bottom_right_back.y, bottom_right_back.z,
-      bottom_right.x, bottom_right.y, bottom_right.z,
-     colour.r, colour.g, colour.b, colour.a
-  )
-end
-    
 
  ------------------------------------------
  
@@ -2780,7 +2775,7 @@ local function rebuild_player_list()
    end
 end
 
-local function AimbotTarget(aimbot, aim_target, ESPrgb)
+local function AimbotTarget(aimbot, aim_target, rgb)
     if PED.IS_PED_A_PLAYER(aim_target) then
         local pid = NETWORK.NETWORK_GET_PLAYER_INDEX_FROM_PED(aim_target)
         local pname = PLAYER.GET_PLAYER_NAME(pid)
@@ -2789,14 +2784,14 @@ local function AimbotTarget(aimbot, aim_target, ESPrgb)
         end
     end
     if aimbot.esp then
-        Draw_esp(aim_target)
+        Draw_esp(aim_target, ESPrgb)
     end
     if aimbot.box then
         local color = {
-            r = ESPrgb.color.r * 255,
-            g = ESPrgb.color.g * 255,
-            b = ESPrgb.color.b * 255,
-            a = ESPrgb.color.a * 255
+            r = rgb.color.r * 255,
+            g = rgb.color.g * 255,
+            b = rgb.color.b * 255,
+            a = rgb.color.a * 255
         }
         draw_bounding_box(aim_target, color)
     end
