@@ -2706,7 +2706,13 @@ translations.lang["pt"] = {
     ['Instantly win Checkpoint Collection Session Event'] = "Ganhe instantaneamente o evento Checkpoint Collection Session",
     ['Change Buttons'] = "Alterar Botões",
     ['Change the Button used for Lazer eyes'] = "Altere o Botão usado para os olhos de Laser",
-    
+    ['Takeover Seat'] = "Assumir o Assento",
+    ['Aim'] = "Aim",
+    ['Pickup/Horn'] = "Escolher/Buzina",
+    ['Auto Start Vehicle'] = "Ligar Veículo Automatico",
+    ['Auto Start any vehicle you get into'] = "Liga automaticamente qualquer Veículo em que você entrar",
+    ['Pickup/Horn'] = "Coletar/Buzina",
+
     }
     --end Portuguese
 
