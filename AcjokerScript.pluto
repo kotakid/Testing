@@ -11,7 +11,7 @@ require ('resources/AcjokerScript/translations')
 local LOADING_START = util.current_time_millis()
 LOADING_SCRIPT = true
 Script = {}
-Script.Version = "0.24.03"
+Script.Version = "0.24.04"
 
 
   
@@ -247,7 +247,7 @@ function SFsuper()
     sf.SET_DATA_SLOT(5,PAD.GET_CONTROL_INSTRUCTIONAL_BUTTONS_STRING(0, 33, true), Str_trans('Fly faster'))
     sf.SET_DATA_SLOT(6,PAD.GET_CONTROL_INSTRUCTIONAL_BUTTONS_STRING(0, 44, true), Str_trans('Land'))
     sf.SET_DATA_SLOT(7,PAD.GET_CONTROL_INSTRUCTIONAL_BUTTONS_STRING(0, 73, true), Str_trans('Super Breath'))
-    sf.SET_DATA_SLOT(8,PAD.GET_CONTROL_INSTRUCTIONAL_BUTTONS_STRING(0, 153, true), Str_trans('X-Ray Vision'))
+    sf.SET_DATA_SLOT(8,PAD.GET_CONTROL_INSTRUCTIONAL_BUTTONS_STRING(0, 119, true), Str_trans('X-Ray Vision'))
     sf.DRAW_INSTRUCTIONAL_BUTTONS()
     sf:draw_fullscreen()
 end
@@ -1781,7 +1781,7 @@ function Xrayvision(xray)
             local ped_coor = ENTITY.GET_ENTITY_COORDS(ped, true)
             local player_coor = ENTITY.GET_ENTITY_COORDS(players.user_ped(), true)
             local disbet = SYSTEM.VDIST2(ped_coor.x, ped_coor.y, ped_coor.z, player_coor.x, player_coor.y, player_coor.z)
-            local too_far = 60000
+            local too_far = 600000
                 
             if not PED.IS_PED_FACING_PED(players.user_ped(), ped, xray.fov) then
                 xrtarget = false
@@ -1817,7 +1817,7 @@ function Xrayvision(xray)
                     xrtarget = false
                 end
             end
-            if xrtarget and PAD.IS_CONTROL_PRESSED(0, 153) then
+            if xrtarget and PAD.IS_CONTROL_PRESSED(0, 119) then
                 xray_target = ped
                 Xraytarget(xray, xray_target, ESPrgb)
             else 
@@ -1852,8 +1852,8 @@ end
 
 -------------------------------------------------------------------------------------------------------
 Current_settings = {}
-local superman = {multi = nil, running = nil, friction = nil, speed = 3.0, height = 0.6, crosshair = true,
-exp = false, bull = 'WEAPON_TACTICALRIFLE', godmode = nil, breath = 1, nodam = true}
+local superman = {multi = nil, running = nil, friction = nil, fspeed = 3.0, height = 0.6, crosshair = true,
+exp = false, bull = 'WEAPON_TACTICALRIFLE', godmode = nil, breath = 1, nodam = true, vehicle = true}
 local xray = {npcs = true, players = true, fov = 3, targetveh = true, espline = true, espbox = false,
 espbones = true}
 local super = selfroot:list(T('Superman Mode'), {''}, T('Turn yourself into Superman'))
@@ -1868,7 +1868,7 @@ super:toggle_loop(T('Superman Mode'), {'superman'}, T('Turn on Superman Mode'), 
     else
     end
     if superman.running == nil then
-        superman.running = runref.value
+        superman.running = Runspeedref.value
     else
     end
     if superman.friction == nil then
@@ -1894,7 +1894,7 @@ super:toggle_loop(T('Superman Mode'), {'superman'}, T('Turn on Superman Mode'), 
 
     SFsuper()
     multiref.value = 10000000
-    runref.value = 500
+    runref.value = superman.running
     fricref.value = true
     immorref.value = true
     if PAD.IS_CONTROL_PRESSED(0, 22) or PAD.IS_CONTROL_JUST_PRESSED(0, 21) then
@@ -1906,9 +1906,9 @@ super:toggle_loop(T('Superman Mode'), {'superman'}, T('Turn on Superman Mode'), 
     end
     if ENTITY.IS_ENTITY_IN_AIR(players.user_ped()) and PAD.IS_CONTROL_PRESSED(0, 22) then
         if PAD.IS_CONTROL_PRESSED(0, 32) then
-            ENTITY.APPLY_FORCE_TO_ENTITY_CENTER_OF_MASS(players.user_ped(), 1, 0.0, superman.speed, superman.height, 0, 0, 0, 0, true, true, true, true)
+            ENTITY.APPLY_FORCE_TO_ENTITY_CENTER_OF_MASS(players.user_ped(), 1, 0.0, superman.fspeed, superman.height, 0, 0, 0, 0, true, true, true, true)
         elseif PAD.IS_CONTROL_PRESSED(0, 33) then
-            ENTITY.APPLY_FORCE_TO_ENTITY_CENTER_OF_MASS(players.user_ped(), 1, 0.0, superman.speed, 0.0, 0, 0, 0, 0, true, true, true, true)
+            ENTITY.APPLY_FORCE_TO_ENTITY_CENTER_OF_MASS(players.user_ped(), 1, 0.0, superman.fspeed, 0.0, 0, 0, 0, 0, true, true, true, true)
         end
     end
 
@@ -1935,7 +1935,7 @@ super:toggle_loop(T('Superman Mode'), {'superman'}, T('Turn on Superman Mode'), 
     local camrot = CAM.GET_FINAL_RENDERED_CAM_ROT(2)
     WEAPON.REQUEST_WEAPON_ASSET(weap)
     local impact = v3.new()
-    if PED.IS_PED_IN_ANY_VEHICLE(players.user_ped()) and PAD.IS_CONTROL_PRESSED(0, 68) and PAD.IS_CONTROL_PRESSED(0, 69) then
+    if PED.IS_PED_IN_ANY_VEHICLE(players.user_ped()) and PAD.IS_CONTROL_PRESSED(0, 68) and PAD.IS_CONTROL_PRESSED(0, 69) and superman.vehicle then
         Super_Breath(superman)
         ENTITY.SET_ENTITY_ROTATION(entities.get_user_vehicle_as_handle(), 0, 0, camrot.z, 2, true)
     elseif not PED.IS_PED_IN_ANY_VEHICLE(players.user_ped()) and PAD.IS_CONTROL_PRESSED(0, 73) then
@@ -1957,7 +1957,7 @@ super:toggle_loop(T('Superman Mode'), {'superman'}, T('Turn on Superman Mode'), 
         end
 
 
-    elseif PED.IS_PED_IN_ANY_VEHICLE(players.user_ped()) and PAD.IS_CONTROL_PRESSED(0, 68) then
+    elseif PED.IS_PED_IN_ANY_VEHICLE(players.user_ped()) and PAD.IS_CONTROL_PRESSED(0, 68) and superman.vehicle then
         Leyes(superman, impact, camrot, weap)
         ENTITY.SET_ENTITY_ROTATION(entities.get_user_vehicle_as_handle(), 0, 0, camrot.z, 2, true)
     elseif not PED.IS_PED_IN_ANY_VEHICLE(players.user_ped()) and PAD.IS_CONTROL_PRESSED(0, 25) then
@@ -1981,7 +1981,7 @@ super:toggle_loop(T('Superman Mode'), {'superman'}, T('Turn on Superman Mode'), 
     else
         ENTITY.FREEZE_ENTITY_POSITION(players.user_ped(), false)
     end
-    if PAD.IS_CONTROL_PRESSED(0, 153) then
+    if PAD.IS_CONTROL_PRESSED(0, 119) then
         Xrayvision(xray)
     end
 
@@ -2037,12 +2037,16 @@ super_xray:toggle(T('Turn on Box ESP'), {''}, T('Turn on Box ESP used with X-Ray
     xray.espbox = on
 end)
 
-super_xray:slider_float(T('Field of View'), {'tpslider'}, T('Adjust the amount of your Field of View is with X-Ray Vision'), 100, 36000, 300, 100, function (s)
+super_xray:slider_float(T('Field of View'), {'tpslider'}, T('Adjust the amount of your Field of View is with X-Ray Vision'), 100, 36000, 1000, 100, function (s)
     xray.fov = s*.01
 end)
 
+Runspeedref = super:slider_float(T('Run Speed'), {''}, T('Adjust the speed you run with Superman'), 100, 1000000, 500, 100, function (a)
+    superman.running = a
+end)
+
 super:slider(T('Fly Speed'), {'superfly'}, T('Adjust the speed you fly with Superman'), 6, 1000, 6, 1, function (a)
-    superman.speed = a*0.1
+    superman.fspeed = a*0.1
 end)
 
 super:slider(T('Jump Height'), {''}, T('Adjust the amount you move upwards by'), 6, 1000, 6, 1, function (a)
@@ -2069,7 +2073,9 @@ super:list_select(T('Change Bullets'), {'superbullets'}, T('Change the Bullets u
     superman.bull = Leyel[bulsel] 
 end)
 
-
+super:toggle(T('Turn off Vehicle use'), {''}, T('Turn off Superman Mode when in a vehicle'), function (on)
+    superman.vehicle = not on
+end)
 
 -------------------------------- Teleports---------------------------------------------------
 TeleRoot = menu.list(selfroot, T('Teleports'), {}, '')
@@ -3166,7 +3172,7 @@ local lsrmenu = menu.list(selfroot, T('Lazer Eyes'), {}, '')
 
 Lazer = {buttons = {68, 25}}
 Lazer_buttons = {Str_trans('Aim'), Str_trans('Pickup/Horn')}
-local lazer = {exp = false, bull = 'WEAPON_TACTICALRIFLE', crosshair = true}
+local lazer = {exp = false, bull = 'WEAPON_TACTICALRIFLE', crosshair = true, vehicle = true}
 menu.toggle_loop(lsrmenu, T('Lazer Eyes'), {'Leyeson'}, T('Shoot lazers out of your eyes also works in vehicles'), function (on)
 
     if lazer.crosshair then
@@ -3190,7 +3196,7 @@ menu.toggle_loop(lsrmenu, T('Lazer Eyes'), {'Leyeson'}, T('Shoot lazers out of y
         end
     end
     local impact = v3.new()
-    if PED.IS_PED_IN_ANY_VEHICLE(players.user_ped()) and PAD.IS_CONTROL_PRESSED(0, Lazer.buttons[1]) then
+    if PED.IS_PED_IN_ANY_VEHICLE(players.user_ped()) and PAD.IS_CONTROL_PRESSED(0, Lazer.buttons[1]) and lazer.vehicle then
         Leyes(lazer, impact, camrot, weap)
         ENTITY.SET_ENTITY_ROTATION(entities.get_user_vehicle_as_handle(), 0, 0, camrot.z, 2, true)
     elseif not PED.IS_PED_IN_ANY_VEHICLE(players.user_ped()) and PAD.IS_CONTROL_PRESSED(0, Lazer.buttons[2]) then
@@ -3209,6 +3215,10 @@ end)
 
 menu.toggle(lsrmenu, T('No Crosshair'), {''}, T('Turn off crosshair with Lazer Eyes'), function (on)
     lazer.crosshair = not on
+end)
+
+lsrmenu:toggle(T('Turn off Vehicle use'), {''}, T('Turn off Lazer Eyes when in a vehicle'), function (on)
+    lazer.vehicle = not on
 end)
 
 
@@ -3238,7 +3248,7 @@ menu.action(selfroot, T('Stop Spectating'), {'sspect'}, T('Stop Spectating anyon
     Specoff(players.user())
 end)
 
-menu.action(selfroot, T('Stop Sounds'), {'ssound'}, T('Stop all sounds incase they are going off constantly'), function ()
+menu.toggle_loop(selfroot, T('Stop Sounds'), {'ssound'}, T('Stop all sounds incase they are going off constantly'), function ()
     Stopsound()
 end)
 
