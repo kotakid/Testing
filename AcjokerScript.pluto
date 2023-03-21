@@ -29,7 +29,6 @@ SEC = ENTITY.SET_ENTITY_COORDS
 local set = {alert = true}
 local my = menu.my_root() 
 local menus = {}
-local player_veh = entities.get_user_vehicle_as_handle()
 local CONFIG_DIR = filesystem.resources_dir() .. 'AcjokerScript\\'
 filesystem.mkdirs(CONFIG_DIR)
 local Fav_Vehicles = CONFIG_DIR .. "FavVehicles.json"
@@ -3369,6 +3368,7 @@ end)
  ------------------------------------------
 vehmove:toggle_loop(T('Drift'), {'drift'}, T('Hold shift or A on controller to drift your vehicle'), function ()
     SFdrift()
+    local player_veh = entities.get_user_vehicle_as_handle()
     if PAD.IS_CONTROL_PRESSED(0, 21) then
         VEHICLE.SET_VEHICLE_REDUCE_GRIP(player_veh, true)
         VEHICLE.SET_VEHICLE_REDUCE_GRIP_LEVEL(player_veh, 0.0)
