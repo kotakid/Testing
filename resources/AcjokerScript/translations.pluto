@@ -2,7 +2,7 @@
 
 local translations = {}
 Lang = {}
-Lang.Version = "0.24.1"
+Lang.Version = "0.24.9"
 Template = false
 translations.lang = {}
 translations.current_translations = {}
@@ -1188,6 +1188,8 @@ translations.lang["zh"] = {
     ['Turn on Superman Mode with Super Strength, Super Speed, Super Breath, X-Ray Vision, Lazer Eyes, Flight, and Invulnerability'] = "成为超人 (获得超能力)",
     ['Error opening file for writing: '] = "打开文件时发生写入错误",
     ['Makes kills anonymous made with Aimbot *WARNING* to kill players also activate current weapon off and railgun or rockets because bullets wont hurt players anonymously'] = "*警告* 杀死玩家时也会关闭当前武器,因为使用子弹匿名将会失效",
+    ['X-Ray Vision'] = "透视"
+
 }
 
     --end Chinese
