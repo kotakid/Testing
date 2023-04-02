@@ -11,14 +11,14 @@ require ('resources/AcjokerScript/translations')
 local LOADING_START = util.current_time_millis()
 LOADING_SCRIPT = true
 Script = {}
-Script.Version = "0.25.9"
+Script.Version = "0.25.91"
 
 local max_int = 2147483647
 local min_int = -2147483647
 util.require_natives(1663599433)
 util.ensure_package_is_installed('lua/ScaleformLib')
-
 require ('resources/AcjokerScript/ACJSTables')
+
 LANG_SETTINGS = {}
 LANG_SETTINGS.LANG_DIR = filesystem.resources_dir() .. 'AcjokerScript\\Languages\\'
 LANG_SETTINGS.STRING_FILES = {
@@ -26,7 +26,7 @@ LANG_SETTINGS.STRING_FILES = {
 }
 
 SEC = ENTITY.SET_ENTITY_COORDS
-local set = {alert = true}
+local set = {alert = true, scale = true}
 local my = menu.my_root() 
 local menus = {}
 local clone = {}
@@ -38,7 +38,6 @@ local Kill_List = CONFIG_DIR .. "Kill_List.json"
 local Superman_Setting = CONFIG_DIR .. "Superman.txt"
 local CloneVeh_Setting = CONFIG_DIR .. "CloneVeh.json"
 local CloneVehtog_Setting = CONFIG_DIR .. "CloneVehtog.json"
-local Stock_Ped_Config = CONFIG_DIR .. "Stock_Ped_Config.json"
 
 
 my:action(T('Player Options'), {}, T('Redirects you to the Player list in Stand for the Trolling and Friendly options'), function ()
@@ -55,9 +54,14 @@ setroot:toggle(T('Alerts Off'), {'ACAlert'}, T('Turn off the alerts you get from
     set.alert = not on
 end)
 
+setroot:toggle(T('Instructional Buttons Off'), {'ACButtons'}, T('Turn off the Instructional Buttons used in some of the features'), function (on)
+    set.scale = not on
+end)
+
 
 
  ------------------ 
+
 ---
 --- Auto-Updater Lib Install
 ---
@@ -111,75 +115,10 @@ local auto_update_config = {
 auto_updater.run_auto_update(auto_update_config)
 
 
-
  --------------------Functions-------------------------------------
 function ACutil(text)
    return util.toast(text)
 end
-
-function Add_ped(name, number, id)
-    local new_clothing = {name=name, number=number, id=id}
-    local list = Load_settings(Stock_Ped_Config)
-    for _, clothing in pairs(list) do
-        if clothing.name == new_clothing.name then
-            return true
-        end
-    end
-    table.insert(list, new_clothing)
-    Save_settings(Stock_Ped_Config, list)
-
-    return true
-end
-
-
-function PED_CLO(ped)
-  
-    Ped_clothing = {
-        {name = 'head', number =  PED.GET_PED_DRAWABLE_VARIATION(ped, 0), id = 0},
-        {name = 'beard_mask', number =  PED.GET_PED_DRAWABLE_VARIATION(ped, 1), id = 1},
-        {name = 'hair', number = PED.GET_PED_DRAWABLE_VARIATION(ped, 2), id = 2},
-        {name = 'torso', number = PED.GET_PED_DRAWABLE_VARIATION(ped, 3), id = 3},
-        {name = 'legs', number =  PED.GET_PED_DRAWABLE_VARIATION(ped, 4), id = 4},
-        {name = 'hands', number = PED.GET_PED_DRAWABLE_VARIATION(ped, 5), id = 5},
-        {name = 'foot', number = PED.GET_PED_DRAWABLE_VARIATION(ped, 6), id = 6},
-        {name = 'accessories', number = PED.GET_PED_DRAWABLE_VARIATION(ped, 7), id = 7},
-        {name = 'acc1', number =  PED.GET_PED_DRAWABLE_VARIATION(ped, 8), id = 8},
-        {name = 'acc2', number =  PED.GET_PED_DRAWABLE_VARIATION(ped, 9), id = 9},
-        {name = 'decals', number =  PED.GET_PED_DRAWABLE_VARIATION(ped, 10), id = 10},
-        {name = 'auxtorso', number =  PED.GET_PED_DRAWABLE_VARIATION(ped, 11), id = 11},
-        {name = 'hats', number = PED.GET_PED_PROP_INDEX(ped, 0), id = 0},
-        {name = 'glasses', number = PED.GET_PED_PROP_INDEX(ped, 1), id = 1},
-        {name = 'ears', number = PED.GET_PED_PROP_INDEX(ped, 2), id = 2},
-        {name = 'watches', number = PED.GET_PED_PROP_INDEX(ped, 6), id = 6},
-        {name = 'braclets', number = PED.GET_PED_PROP_INDEX(ped, 7), id = 7},
-
-    }
-        return Ped_clothing
-end
-    function PED_CLO_TEX(ped)
-        Ped_clothing_tex = {
-        {name = 'head_tex', number =  PED.GET_PED_TEXTURE_VARIATION(ped, 0), id = 0},
-        {name = 'beard_mask_tex', number =  PED.GET_PED_TEXTURE_VARIATION(ped, 1), id = 1},
-        {name = 'hair_tex', number = PED.GET_PED_TEXTURE_VARIATION(ped, 2), id = 2},
-        {name = 'torso_tex', number = PED.GET_PED_TEXTURE_VARIATION(ped, 3), id = 3},
-        {name = 'legs_tex', number =  PED.GET_PED_TEXTURE_VARIATION(ped, 4), id = 4},
-        {name = 'hands_tex', number = PED.GET_PED_TEXTURE_VARIATION(ped, 5), id = 5},
-        {name = 'foot_tex', number = PED.GET_PED_TEXTURE_VARIATION(ped, 6), id = 6},
-        {name = 'accessories_tex', number = PED.GET_PED_TEXTURE_VARIATION(ped, 7), id = 7},
-        {name = 'acc1_tex', number =  PED.GET_PED_TEXTURE_VARIATION(ped, 8), id = 8},
-        {name = 'acc2_tex', number =  PED.GET_PED_TEXTURE_VARIATION(ped, 9), id = 9},
-        {name = 'decals_tex', number =  PED.GET_PED_TEXTURE_VARIATION(ped, 10), id = 10},
-        {name = 'auxtorso_tex', number =  PED.GET_PED_TEXTURE_VARIATION(ped, 11), id = 11},
-        {name = 'hats_tex', number = PED.GET_PED_PROP_TEXTURE_INDEX(ped, 0), id = 0},
-        {name = 'glasses_tex', number = PED.GET_PED_PROP_TEXTURE_INDEX(ped, 1), id = 1},
-        {name = 'ears_tex', number = PED.GET_PED_PROP_TEXTURE_INDEX(ped, 2), id = 2},
-        {name = 'watches_tex', number = PED.GET_PED_PROP_TEXTURE_INDEX(ped, 6), id = 6},
-        {name = 'braclets_tex', number = PED.GET_PED_PROP_TEXTURE_INDEX(ped, 7), id = 7},
-        }
-        return Ped_clothing_tex
-    end
-
-
 
 --wiriscript functions
 function SetBit(bits, place) 
@@ -243,7 +182,7 @@ function Get_raycast_result(dist, flag)
 end
 
 
----
+---end of wiris functions
 
 
 function Add_mod(number, index)
@@ -279,10 +218,13 @@ function GetCloneVeh(veh)
     clone.tar1 = ENTITY.GET_ENTITY_COORDS(players.user_ped())
     clone.vh = ENTITY.GET_ENTITY_HEADING(veh)
     clone.plate = VEHICLE.GET_VEHICLE_NUMBER_PLATE_TEXT(veh)
+    clone.plate_type = VEHICLE.GET_VEHICLE_NUMBER_PLATE_TEXT_INDEX(veh)
     clone.vel = ENTITY.GET_ENTITY_VELOCITY(veh)
     clone.rpm = entities.get_rpm(entities.handle_to_pointer(veh))
     clone.gear = entities.get_current_gear(entities.handle_to_pointer(veh))
     clone.speed = ENTITY.GET_ENTITY_SPEED(veh)
+    clone.livery1 = VEHICLE.GET_VEHICLE_LIVERY(veh)
+    clone.livery2 = VEHICLE.GET_VEHICLE_LIVERY2(veh)
     for Vehopts as v do
         local current = VEHICLE.GET_VEHICLE_MOD(veh, v[1] -1)
         local maxmods = VEHICLE.GET_NUM_VEHICLE_MODS(veh, v[1] - 1)
@@ -333,9 +275,12 @@ function SetCloneVeh(clone, clomem)
     VEHICLE.SET_VEHICLE_EXTRA_COLOURS(cloneveh, memory.read_int(clomem.pear), memory.read_int(clomem.whe))
     VEHICLE.SET_VEHICLE_EXTRA_COLOUR_5(cloneveh, memory.read_int(clomem.int))
     VEHICLE.SET_VEHICLE_WINDOW_TINT(cloneveh, clone.tint_type)
+    VEHICLE.SET_VEHICLE_NUMBER_PLATE_TEXT_INDEX(cloneveh, clone.plate_type)
     VEHICLE.SET_VEHICLE_NUMBER_PLATE_TEXT(cloneveh, clone.plate)
     VEHICLE.SET_VEHICLE_TYRE_SMOKE_COLOR(cloneveh, memory.read_int(clomem.tred), memory.read_int(clomem.tgreen), memory.read_int(clomem.tblue))
     VEHICLE.SET_VEHICLE_ENGINE_ON(cloneveh, true, true, false)
+    VEHICLE.SET_VEHICLE_LIVERY(cloneveh, clone.livery1)
+    VEHICLE.SET_VEHICLE_LIVERY2(cloneveh, clone.livery2)
     entities.set_rpm(entities.handle_to_pointer(cloneveh), clone.rpm)
     entities.set_current_gear(entities.handle_to_pointer(cloneveh), clone.gear)
     ENTITY.SET_ENTITY_VELOCITY(cloneveh, clone.vel.x, clone.vel.y, clone.vel.z)
@@ -2271,7 +2216,9 @@ local function vehflight(curcar, speed)
 
 
     if fly.contr then
-        SFfly2()
+        if set.scale then
+            SFfly2()
+        end
         if PAD.IS_CONTROL_PRESSED(0, 61) then
             ENTITY.FREEZE_ENTITY_POSITION(curcar, false)
             ENTITY.APPLY_FORCE_TO_ENTITY_CENTER_OF_MASS(curcar, 1, 0, 0, speed, 0, true, true, true, true)
@@ -2286,7 +2233,9 @@ local function vehflight(curcar, speed)
             ENTITY.APPLY_FORCE_TO_ENTITY_CENTER_OF_MASS(curcar, 1, - speed/2, 0, 0, 0, true, true, true, true)
         end
     else 
-        SFfly()
+        if set.scale then
+            SFfly()
+        end
     end
 end
 
@@ -2330,8 +2279,9 @@ super:toggle_loop(T('Superman Mode'), {'superman'}, T('Turn on Superman Mode wit
         util.write_colons_file(Superman_Setting, Current_settings)
     end
 
-
-    SFsuper()
+    if set.scale then
+        SFsuper()
+    end
     multiref.value = 10000000
     runref.value = Runspeedref.value
     fricref.value = true
@@ -3599,15 +3549,23 @@ menu.toggle_loop(lsrmenu, T('Lazer Eyes'), {'Leyeson'}, T('Shoot lazers out of y
     WEAPON.REQUEST_WEAPON_ASSET(weap)
     if PED.IS_PED_IN_ANY_VEHICLE(players.user_ped()) then
         if Lazer.buttons[1] == 68 then
-            SFlevaim()
+            if set.scale then
+                SFlevaim()
+            end
         else
-            SFlevhorn()
+            if set.scale then
+                SFlevhorn()
+            end
         end
     else
         if Lazer.buttons[1] == 38 then
-            SFlepickup()
+            if set.scale then
+                SFlepickup()
+            end
         else
-            SFleaim()
+            if set.scale then
+                SFleaim()
+            end
         end
     end
     local impact = v3.new()
@@ -3689,52 +3647,56 @@ end)
 
 Clone_player = {}
 local pclone = selfroot:list(T('Player Clone'), {''}, '')
-pclone:toggle_loop(T('Player Clone'), {}, T('Clone Player by pointing at them'), function ()
+pclone:toggle_loop(T('Player Clone'), {'Playerclone'}, T('Clone Player by pointing at them'), function ()
     local targetEntity
-    if Is_player_pointing() then
-        if not menus.clonemenu.value then
-            menus.clonemenu.value = true
-            ACutil(Str_trans('No Revert Clone has been made making one now (will show as friend on the map)'))
-        end
-        local raycastResult = Get_raycast_result(500.0, 8)
-        if raycastResult.didHit and ENTITY.DOES_ENTITY_EXIST(raycastResult.hitEntity) then
-            targetEntity = raycastResult.hitEntity
-        end
-        if STREAMING.IS_MODEL_A_PED(ENTITY.GET_ENTITY_MODEL(targetEntity)) then
-            if PED.IS_PED_A_PLAYER(targetEntity) then
-                local hash = util.reverse_joaat(ENTITY.GET_ENTITY_MODEL(targetEntity))
-                if hash == 'mp_f_freemode_01' then
-                    menu.trigger_commands('mpfemale')
-                elseif hash == 'mp_m_freemode_01' then
-                    menu.trigger_commands('mpmale')
-                end
-                util.yield(250)
-                PED.CLONE_PED_TO_TARGET(targetEntity, players.user_ped())
-                ACutil(Str_trans('Player Cloned'))
-                targetEntity = nil
+    if util.is_session_started() then
+        if Is_player_pointing() then
+            if not menus.clonemenu.value then
+                menus.clonemenu.value = true
+                ACutil(Str_trans('No Revert Clone has been made making one now (will show as friend on the map)'))
             end
-            for Clone_player as player do
-                local pos1 = ENTITY.GET_ENTITY_COORDS(player)
-                local pos2 = ENTITY.GET_ENTITY_COORDS(players.user_ped())
-                local disbet = SYSTEM.VDIST2(pos2.x, pos2.y, pos2.z, pos1.x, pos1.y, pos1.z)
-                if ENTITY.DOES_ENTITY_EXIST(player) and disbet < 5 then
-                    if STATS.GET_PACKED_STAT_INT_CODE(386, util.get_char_slot()) == 1 then
+            local raycastResult = Get_raycast_result(500.0, 8)
+            if raycastResult.didHit and ENTITY.DOES_ENTITY_EXIST(raycastResult.hitEntity) then
+                targetEntity = raycastResult.hitEntity
+            end
+            if STREAMING.IS_MODEL_A_PED(ENTITY.GET_ENTITY_MODEL(targetEntity)) then
+                if PED.IS_PED_A_PLAYER(targetEntity) then
+                    local hash = util.reverse_joaat(ENTITY.GET_ENTITY_MODEL(targetEntity))
+                    if hash == 'mp_f_freemode_01' then
                         menu.trigger_commands('mpfemale')
-                    elseif STATS.GET_PACKED_STAT_INT_CODE(386, util.get_char_slot()) == 0 then
+                    elseif hash == 'mp_m_freemode_01' then
                         menu.trigger_commands('mpmale')
                     end
                     util.yield(250)
                     PED.CLONE_PED_TO_TARGET(targetEntity, players.user_ped())
-                    ACutil(Str_trans('Reverted back to original'))
-                    ENTITY.SET_ENTITY_VISIBLE(targetEntity, false)
-                    ENTITY.SET_ENTITY_COLLISION(targetEntity, false, 0)
-                    SEC(targetEntity, pos2.x + 250, pos2.y + 250, pos2.z, false, true, true, false)
+                    ACutil(Str_trans('Player Cloned'))
                     targetEntity = nil
                 end
+                for Clone_player as player do
+                    local pos1 = ENTITY.GET_ENTITY_COORDS(player)
+                    local pos2 = ENTITY.GET_ENTITY_COORDS(players.user_ped())
+                    local disbet = SYSTEM.VDIST2(pos2.x, pos2.y, pos2.z, pos1.x, pos1.y, pos1.z)
+                    if ENTITY.DOES_ENTITY_EXIST(player) and disbet < 5 then
+                        if STATS.GET_PACKED_STAT_INT_CODE(386, util.get_char_slot()) == 1 then
+                            menu.trigger_commands('mpfemale')
+                        elseif STATS.GET_PACKED_STAT_INT_CODE(386, util.get_char_slot()) == 0 then
+                            menu.trigger_commands('mpmale')
+                        end
+                        util.yield(250)
+                        PED.CLONE_PED_TO_TARGET(targetEntity, players.user_ped())
+                        ACutil(Str_trans('Reverted back to original'))
+                        ENTITY.SET_ENTITY_VISIBLE(targetEntity, false)
+                        ENTITY.SET_ENTITY_COLLISION(targetEntity, false, 0)
+                        SEC(targetEntity, pos2.x + 250, pos2.y + 250, pos2.z, false, true, true, false)
+                        targetEntity = nil
+                    end
+                end
             end
+        else
+            targetEntity = nil
+            util.yield()   
         end
     else
-        targetEntity = nil
         util.yield()   
     end
     
@@ -3743,31 +3705,38 @@ end, function ()
 end)
 
 menus.clonemenu = pclone:toggle(T('Clone Current Ped Model'), {'clonecur'}, T('Clone your current Ped to be able to revert back to it (clone will disappear and appear as friend on the map teleport them back to bring them back)'), function (on)
-    if on then
-        local player = players.user_ped()
-        local hash
-        if STATS.GET_PACKED_STAT_INT_CODE(386, util.get_char_slot()) == 1 then
-            hash = 'mp_f_freemode_01'
-        elseif STATS.GET_PACKED_STAT_INT_CODE(386, util.get_char_slot()) == 0 then
-            hash = 'mp_m_freemode_01'
+    if util.is_session_started() then
+        if on then
+            local player = players.user_ped()
+            local hash
+            if STATS.GET_PACKED_STAT_INT_CODE(386, util.get_char_slot()) == 1 then
+                hash = 'mp_f_freemode_01'
+            elseif STATS.GET_PACKED_STAT_INT_CODE(386, util.get_char_slot()) == 0 then
+                hash = 'mp_m_freemode_01'
+            end
+            local loc = ENTITY.GET_OFFSET_FROM_ENTITY_IN_WORLD_COORDS(player, 1, 1, -1)
+            local pedhash = util.joaat(hash)
+            Streament(pedhash)
+            local clone_ped = Pedspawn(pedhash, loc)
+            entities.set_can_migrate(entities.handle_to_pointer(clone_ped), false)
+            PED.CLONE_PED_TO_TARGET(player, clone_ped)
+            util.yield(1000)
+            ENTITY.SET_ENTITY_VISIBLE(clone_ped, false)
+            ENTITY.SET_ENTITY_COLLISION(clone_ped, false, 0)
+            local curloc = ENTITY.GET_OFFSET_FROM_ENTITY_IN_WORLD_COORDS(players.user_ped(), 0, 1, -1)
+            AddBlip(clone_ped, 1, 3)
+            SEC(clone_ped, curloc.x + 250, curloc.y + 250, curloc.z, false, true, true, false)
+            table.insert(Clone_player, clone_ped)
+        else
+            DelEnt(Clone_player)
         end
-        local loc = ENTITY.GET_OFFSET_FROM_ENTITY_IN_WORLD_COORDS(player, 1, 1, -1)
-        local pedhash = util.joaat(hash)
-        Streament(pedhash)
-        local clone_ped = Pedspawn(pedhash, loc)
-        entities.set_can_migrate(entities.handle_to_pointer(clone_ped), false)
-        PED.CLONE_PED_TO_TARGET(player, clone_ped)
-        util.yield(1000)
-        ENTITY.SET_ENTITY_VISIBLE(clone_ped, false)
-        ENTITY.SET_ENTITY_COLLISION(clone_ped, false, 0)
-        local curloc = ENTITY.GET_OFFSET_FROM_ENTITY_IN_WORLD_COORDS(players.user_ped(), 0, 1, -1)
-        AddBlip(clone_ped, 1, 3)
-        SEC(clone_ped, curloc.x + 250, curloc.y + 250, curloc.z, false, true, true, false)
-        table.insert(Clone_player, clone_ped)
     else
-        DelEnt(Clone_player)
+        menus.clonemenu.value = false
     end
 end)
+
+
+
 pclone:action(T('Teleport to me'), {''}, T('Teleport the clone you made back to you'), function ()
     local curloc = ENTITY.GET_OFFSET_FROM_ENTITY_IN_WORLD_COORDS(players.user_ped(), 0, 1, -1)
     for Clone_player as player do
@@ -3788,7 +3757,7 @@ end)
  ------------------------------------------
 
 
-vehroot:toggle_loop(T('Car Duplicate'), {''}, T('Duplicate any car by pointing at it'), function ()
+vehroot:toggle_loop(T('Car Duplicate'), {'Cardupe'}, T('Duplicate any car by pointing at it'), function ()
     local targetEntity
     if Is_player_pointing() then
         local raycastResult = Get_raycast_result(500.0, 2)
@@ -3810,7 +3779,9 @@ local vehhandle = vehroot:list(T('Handling Flags'), {}, T('NOTE: not all flags c
 
 
 vehmove:toggle_loop(T('Drift'), {'drift'}, T('Hold shift or A on controller to drift your vehicle'), function ()
-    SFdrift()
+    if set.scale then
+        SFdrift()
+    end
     local player_veh = entities.get_user_vehicle_as_handle()
     if PAD.IS_CONTROL_PRESSED(0, 21) then
         VEHICLE.SET_VEHICLE_REDUCE_GRIP(player_veh, true)
@@ -4563,7 +4534,9 @@ local function SDcreate(pCoor, pedSi)
             VEHICLE.SET_VEHICLE_DIRT_LEVEL(Lsdcar, 0)
             ENTITY.SET_ENTITY_INVINCIBLE(Lsdcar, true)
             VEHICLE.SET_VEHICLE_CAN_BE_VISIBLY_DAMAGED(Lsdcar, false)
-            SFlsd()
+            if set.scale then
+                SFlsd()
+            end
         end
     end)
 end
@@ -4752,7 +4725,9 @@ util.create_tick_handler(function ()
             VEHICLE.SET_VEHICLE_DIRT_LEVEL(FFchar, 0)
             ENTITY.SET_ENTITY_INVINCIBLE(FFchar, true)
             VEHICLE.SET_VEHICLE_CAN_BE_VISIBLY_DAMAGED(FFchar, false)
-            SF()
+            if set.scale then
+                SF()
+            end
         end
     end)
 end
@@ -5806,13 +5781,16 @@ players.on_join(function(pid)
         menu.trigger_commands("EXPL".. players.get_name(pid))
         menu.trigger_commands("PCAGE".. players.get_name(pid))
         menu.trigger_commands("ObjCage".. players.get_name(pid))
+        menu.trigger_commands("CloneCAGE".. players.get_name(pid))
+        menu.trigger_commands("RandomCAGE".. players.get_name(pid))
         menu.trigger_commands("ptfxloop".. players.get_name(pid))
         mir.weap = 'WEAPON_RPG'
+        mir.speed = 100
         menu.trigger_commands("rain".. players.get_name(pid))
         menu.trigger_commands("SmashPla".. players.get_name(pid))
-        menu.set_value(menus.assaultrate, 100)
+        menus.assaultrate.value = 100
         menu.trigger_commands("JuggleC".. players.get_name(pid))
-        menu.set_value(menus.jugglerate, 100)
+        menus.jugglerate.value = 100
         set.alert = false
     end)
 
@@ -5859,14 +5837,16 @@ players.on_join(function(pid)
     trollm:action(T('Stop the Madness'), {}, T('Turn off The Full Monty and Katy Perry and stop them from being targeted'), function ()
         menu.trigger_commands("FreePedcage".. players.get_name(pid))
         menu.trigger_commands("FreeObjcage".. players.get_name(pid))
+        menu.trigger_commands("FreeRPedcage".. players.get_name(pid))
+        menu.trigger_commands("FreeCPedcage".. players.get_name(pid))
         menu.trigger_commands("EXPL".. players.get_name(pid)..' off')
         menu.trigger_commands("rain".. players.get_name(pid)..' off')
         mir.weap = 'WEAPON_SNOWBALL'
         menu.trigger_commands("JuggleC".. players.get_name(pid)..' off')
         menu.trigger_commands("ptfxloop".. players.get_name(pid)..' off')
         menu.trigger_commands("SmashPla".. players.get_name(pid)..' off')
-        menu.set_value(menus.assaultrate, 1000)
-        menu.set_value(menus.jugglerate, 1000)
+        menus.assaultrate.value = 1000
+        menus.jugglerate.value = 1000
         set.alert = true
     end)
 
@@ -6665,7 +6645,7 @@ players.on_join(function(pid)
 
     
     local rcage_table = {}
-    local rpedca =  menu.toggle_loop(pcagem, T('Random Ped Cage'), {'PCAGE'}, T('Traps Player in a Cage of Random Peds'), function ()
+    local rpedca =  menu.toggle_loop(pcagem, T('Random Ped Cage'), {'RandomCAGE'}, T('Traps Player in a Cage of Random Peds'), function ()
         local targets = PLAYER.GET_PLAYER_PED_SCRIPT_INDEX(pid)
         local tar1 = ENTITY.GET_ENTITY_COORDS(targets, true)
         local pname = PLAYER.GET_PLAYER_NAME(pid)
@@ -6771,14 +6751,15 @@ players.on_join(function(pid)
     end)
 
     local ccage_table = {}
-    local cpedca =  menu.toggle_loop(pcagem, T('Clone Ped Cage'), {'PCAGE'}, T('Traps Player in a Cage of Cloned Peds'), function ()
+    local cpedca =  menu.toggle_loop(pcagem, T('Clone Ped Cage'), {'CloneCAGE'}, T('Traps Player in a Cage of Cloned Peds'), function ()
         local targets = PLAYER.GET_PLAYER_PED_SCRIPT_INDEX(pid)
         local tar1 = ENTITY.GET_ENTITY_COORDS(targets, true)
         local pname = PLAYER.GET_PLAYER_NAME(pid)
         local target_ped
-        if not PED.IS_PED_MALE(targets) then
+        local hash = util.reverse_joaat(ENTITY.GET_ENTITY_MODEL(targets))
+        if hash == 'mp_f_freemode_01' then
             target_ped = 2627665880
-        else
+        elseif hash == 'mp_m_freemode_01' then
             target_ped = 1885233650
         end
         Streament(target_ped)
