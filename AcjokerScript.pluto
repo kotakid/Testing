@@ -11,7 +11,7 @@ require ('resources/AcjokerScript/translations')
 local LOADING_START = util.current_time_millis()
 LOADING_SCRIPT = true
 Script = {}
-Script.Version = "0.25.91"
+Script.Version = "0.25.92"
 
 local max_int = 2147483647
 local min_int = -2147483647
@@ -29,8 +29,6 @@ SEC = ENTITY.SET_ENTITY_COORDS
 local set = {alert = true, scale = true}
 local my = menu.my_root() 
 local menus = {}
-local clone = {}
-local clomem = {}
 local CONFIG_DIR = filesystem.resources_dir() .. 'AcjokerScript\\'
 filesystem.mkdirs(CONFIG_DIR)
 local Fav_Vehicles = CONFIG_DIR .. "FavVehicles.json"
@@ -38,6 +36,7 @@ local Kill_List = CONFIG_DIR .. "Kill_List.json"
 local Superman_Setting = CONFIG_DIR .. "Superman.txt"
 local CloneVeh_Setting = CONFIG_DIR .. "CloneVeh.json"
 local CloneVehtog_Setting = CONFIG_DIR .. "CloneVehtog.json"
+local CloneVehextra_Setting = CONFIG_DIR .. "CloneVehextra.json"
 
 
 my:action(T('Player Options'), {}, T('Redirects you to the Player list in Stand for the Trolling and Friendly options'), function ()
@@ -60,8 +59,7 @@ end)
 
 
 
- ------------------ 
-
+ ------------------
 ---
 --- Auto-Updater Lib Install
 ---
@@ -113,6 +111,7 @@ local auto_update_config = {
 
 
 auto_updater.run_auto_update(auto_update_config)
+
 
 
  --------------------Functions-------------------------------------
@@ -184,11 +183,23 @@ end
 
 ---end of wiris functions
 
+local ped_hash =  {SPC, AMC, AfC, CSP, GM, Mpp, MSF, MCM, SMC, Ssf, Ssm, Dlcp}
+local ped_names = {SPClist, AMClist, AfClist, Csplist, GM, Mpplist, MSFlist, MCMlist, SMClist, Ssflist, Ssmlist, Dlcplist}
+
+function PedList(menusel, action_function)
+    for i, description in Pedlistname do
+        menusel:list_action(description[1], {''}, description[2], ped_names[i], function(pedsel)
+            action_function(ped_hash[i][pedsel])
+        end)
+    end
+end
+
+
 
 function Add_mod(number, index)
     local new_mod = {index=index, number=number}
     local list = Load_settings(CloneVeh_Setting)
-    for _, mod in pairs(list) do
+    for list as mod do
         if mod.index == new_mod.index then
             return true
         end
@@ -201,7 +212,7 @@ end
 function Add_tog(tog, index)
     local new_mod = {index=index, tog=tog}
     local list = Load_settings(CloneVehtog_Setting)
-    for _, mod in pairs(list) do
+    for list as mod do
         if mod.index == new_mod.index then
             return true
         end
@@ -209,6 +220,32 @@ function Add_tog(tog, index)
     table.insert(list, new_mod)
     Save_settings(CloneVehtog_Setting, list)
     return true
+end
+
+function Add_extra(tog, id)
+    local new_mod = {id=id, tog=tog}
+    local list = Load_settings(CloneVehextra_Setting)
+    for list as mod do
+        if mod.id == new_mod.id then
+            return true
+        end
+    end
+    table.insert(list, new_mod)
+    Save_settings(CloneVehextra_Setting, list)
+    return true
+end
+
+local clone = {}
+local clomem = {}
+local cloneextras = {}
+
+function Dlc(veh)
+    dlc = {}
+    for i = 0, FILES.GET_NUM_DLC_VEHICLES() - 1 do--credits to SoulReaper
+        local veh = FILES.GET_DLC_VEHICLE_MODEL(i)
+        dlc[veh] = veh
+    end
+    return dlc[veh]
 end
 
 function GetCloneVeh(veh)
@@ -223,8 +260,9 @@ function GetCloneVeh(veh)
     clone.rpm = entities.get_rpm(entities.handle_to_pointer(veh))
     clone.gear = entities.get_current_gear(entities.handle_to_pointer(veh))
     clone.speed = ENTITY.GET_ENTITY_SPEED(veh)
-    clone.livery1 = VEHICLE.GET_VEHICLE_LIVERY(veh)
     clone.livery2 = VEHICLE.GET_VEHICLE_LIVERY2(veh)
+    clone.enveff = VEHICLE.GET_VEHICLE_ENVEFF_SCALE(veh)
+    clone.xenonindex = VEHICLE.GET_VEHICLE_XENON_LIGHT_COLOR_INDEX(veh)
     for Vehopts as v do
         local current = VEHICLE.GET_VEHICLE_MOD(veh, v[1] -1)
         local maxmods = VEHICLE.GET_NUM_VEHICLE_MODS(veh, v[1] - 1)
@@ -237,15 +275,36 @@ function GetCloneVeh(veh)
         local current = VEHICLE.IS_TOGGLE_MOD_ON(veh, t[1] -1) 
         Add_tog(current, t[1] -1)  
     end
-
-    clomem.red, clomem.green, clomem.blue, clomem.int  = memory.alloc(), memory.alloc(), memory.alloc(), memory.alloc()
+    if Dlc(ENTITY.GET_ENTITY_MODEL(veh)) then
+        for Bennysopts as v do
+            local current = VEHICLE.GET_VEHICLE_MOD(veh, v[1] -1)
+            local maxmods = VEHICLE.GET_NUM_VEHICLE_MODS(veh, v[1] - 1)
+            if maxmods > 0 then
+                local modnames = v[2]
+                Add_mod(current, v[1] -1)
+            end
+        end
+    end
+    for i = 1, 14 do
+        if VEHICLE.IS_VEHICLE_EXTRA_TURNED_ON(veh, i) then
+            Add_extra(false, i)
+        end
+    end
+    clomem.red, clomem.green, clomem.blue  = memory.alloc(), memory.alloc(), memory.alloc(), memory.alloc()
     VEHICLE.GET_VEHICLE_CUSTOM_PRIMARY_COLOUR(veh, clomem.red, clomem.green, clomem.blue)
-    clomem.sred, clomem.sgreen, clomem.sblue, clomem.whe, clomem.pear  = memory.alloc(), memory.alloc(), memory.alloc(), memory.alloc(), memory.alloc()
+    clomem.sred, clomem.sgreen, clomem.sblue  = memory.alloc(), memory.alloc(), memory.alloc()
     VEHICLE.GET_VEHICLE_CUSTOM_SECONDARY_COLOUR(veh, clomem.sred, clomem.sgreen, clomem.sblue)
     clomem.tred, clomem.tgreen, clomem.tblue = memory.alloc(), memory.alloc(), memory.alloc()
     VEHICLE.GET_VEHICLE_TYRE_SMOKE_COLOR(veh, clomem.tred, clomem.tgreen, clomem.tblue)
+    clomem.nred, clomem.ngreen, clomem.nblue, clomem.dash = memory.alloc(), memory.alloc(), memory.alloc(), memory.alloc()
+    clomem.whe, clomem.pear, clomem.int = memory.alloc(), memory.alloc(), memory.alloc(), memory.alloc()
+    VEHICLE.GET_VEHICLE_NEON_COLOUR(veh, clomem.nred, clomem.ngreen, clomem.nblue)
     VEHICLE.GET_VEHICLE_EXTRA_COLOURS(veh, clomem.pear, clomem.whe)
     VEHICLE.GET_VEHICLE_EXTRA_COLOUR_5(veh, clomem.int)
+    VEHICLE.GET_VEHICLE_EXTRA_COLOUR_6(veh, clomem.dash)
+    clomem.modtype, clomem.modcolor, clomem.modpear, clomem.modtype2, clomem.modcolor2 = memory.alloc(), memory.alloc(), memory.alloc(), memory.alloc(), memory.alloc()
+    VEHICLE.GET_VEHICLE_MOD_COLOR_1(veh, clomem.modtype, clomem.modcolor, clomem.modpear)
+    VEHICLE.GET_VEHICLE_MOD_COLOR_2(veh, clomem.modtype2, clomem.modcolor2)
     clone.wheelvar1 = VEHICLE.GET_VEHICLE_MOD_VARIATION(veh, 23)
     if VEHICLE.IS_THIS_MODEL_A_BIKE(clone.vhash) then
     clone.wheelvar2 = VEHICLE.GET_VEHICLE_MOD_VARIATION(veh, 24)
@@ -269,17 +328,25 @@ function SetCloneVeh(clone, clomem)
         VEHICLE.SET_VEHICLE_WHEEL_TYPE(cloneveh, clone.wheel_type)
         VEHICLE.SET_VEHICLE_MOD(cloneveh, v.index, v.number, custom.wheel)
     end
-
+    local Extratable = Load_settings(CloneVehextra_Setting)
+    for Extratable as v do
+        VEHICLE.SET_VEHICLE_EXTRA(cloneveh, v.id, v.tog)
+    end
     VEHICLE.SET_VEHICLE_CUSTOM_PRIMARY_COLOUR(cloneveh, memory.read_int(clomem.red), memory.read_int(clomem.green), memory.read_int(clomem.blue))
     VEHICLE.SET_VEHICLE_CUSTOM_SECONDARY_COLOUR(cloneveh, memory.read_int(clomem.sred), memory.read_int(clomem.sgreen), memory.read_int(clomem.sblue))
+    VEHICLE.SET_VEHICLE_NEON_COLOUR(cloneveh, memory.read_int(clomem.nred), memory.read_int(clomem.ngreen), memory.read_int(clomem.nblue))
     VEHICLE.SET_VEHICLE_EXTRA_COLOURS(cloneveh, memory.read_int(clomem.pear), memory.read_int(clomem.whe))
     VEHICLE.SET_VEHICLE_EXTRA_COLOUR_5(cloneveh, memory.read_int(clomem.int))
+    VEHICLE.SET_VEHICLE_EXTRA_COLOUR_6(cloneveh, memory.read_int(clomem.dash))
+    VEHICLE.SET_VEHICLE_MOD_COLOR_1(cloneveh, memory.read_int(clomem.modtype), memory.read_int(clomem.modcolor), memory.read_int(clomem.modpear))
+    VEHICLE.SET_VEHICLE_MOD_COLOR_2(cloneveh, memory.read_int(clomem.modtype2), memory.read_int(clomem.modcolor2))
+    VEHICLE.SET_VEHICLE_ENVEFF_SCALE(clone, clone.enveff)
     VEHICLE.SET_VEHICLE_WINDOW_TINT(cloneveh, clone.tint_type)
     VEHICLE.SET_VEHICLE_NUMBER_PLATE_TEXT_INDEX(cloneveh, clone.plate_type)
     VEHICLE.SET_VEHICLE_NUMBER_PLATE_TEXT(cloneveh, clone.plate)
+    VEHICLE.SET_VEHICLE_XENON_LIGHT_COLOR_INDEX(cloneveh, clone.xenonindex)
     VEHICLE.SET_VEHICLE_TYRE_SMOKE_COLOR(cloneveh, memory.read_int(clomem.tred), memory.read_int(clomem.tgreen), memory.read_int(clomem.tblue))
     VEHICLE.SET_VEHICLE_ENGINE_ON(cloneveh, true, true, false)
-    VEHICLE.SET_VEHICLE_LIVERY(cloneveh, clone.livery1)
     VEHICLE.SET_VEHICLE_LIVERY2(cloneveh, clone.livery2)
     entities.set_rpm(entities.handle_to_pointer(cloneveh), clone.rpm)
     entities.set_current_gear(entities.handle_to_pointer(cloneveh), clone.gear)
@@ -627,23 +694,44 @@ function SetObjCo(objS, tarx, tary, tarz)
     SEC(objS, tarx, tary, tarz, false, true, true, false)
 end
 
+function Vextras(vmod)
+    for i = 1, 14 do
+        if VEHICLE.DOES_EXTRA_EXIST(vmod, i) then
+            VEHICLE.SET_VEHICLE_EXTRA(vmod, i, false)
+        end
+    end
+end
+
 function Vmod(vmod, plate, max, top)
     VEHICLE.SET_VEHICLE_FIXED(vmod)
-    for M=0, 49 do
-        local modn = VEHICLE.GET_NUM_VEHICLE_MODS(vmod, M)
-        VEHICLE.SET_VEHICLE_MOD(vmod, M, modn -1, false)
-        VEHICLE.SET_VEHICLE_NUMBER_PLATE_TEXT(vmod, plate)
-        VEHICLE.GET_VEHICLE_MOD_KIT(vmod, 0)
-        VEHICLE.SET_VEHICLE_MOD_KIT(vmod, 0)
-        VEHICLE.SET_VEHICLE_MOD(vmod, 14, 0)
-        VEHICLE.TOGGLE_VEHICLE_MOD(vmod, 22, true)
-        VEHICLE.TOGGLE_VEHICLE_MOD(vmod, 18, true)
-        VEHICLE.TOGGLE_VEHICLE_MOD(vmod, 20, true)
-        VEHICLE.SET_VEHICLE_TYRE_SMOKE_COLOR(vmod, 0, 0, 0)
-        VEHICLE.SET_VEHICLE_MAX_SPEED(vmod, max)
-        VEHICLE.MODIFY_VEHICLE_TOP_SPEED(vmod, top)
-        VEHICLE.SET_VEHICLE_BURNOUT(vmod, false)
+    for Vehopts as v do
+    local maxmods = VEHICLE.GET_NUM_VEHICLE_MODS(vmod, v[1] - 1)
+        if maxmods > 0 then
+            VEHICLE.SET_VEHICLE_MOD(vmod, v[1] - 1, maxmods - 1 , false)
+        end
     end
+    for Vehtogs as v do
+    local maxmods = VEHICLE.GET_NUM_VEHICLE_MODS(vmod, v[1])
+        if maxmods > 0 then
+            VEHICLE.TOGGLE_VEHICLE_MOD(vmod, v[1] - 1, on)
+        end
+    end
+    if Dlc(ENTITY.GET_ENTITY_MODEL(vmod)) then
+        for Bennysopts as v do
+            local maxmods = VEHICLE.GET_NUM_VEHICLE_MODS(vmod, v[1] - 1)
+            if maxmods > 0 then
+                VEHICLE.SET_VEHICLE_MOD(vmod, v[1] - 1, maxmods - 1, false)
+            end
+        end
+    end
+    Vextras(vmod)
+    VEHICLE.SET_VEHICLE_NUMBER_PLATE_TEXT(vmod, plate)
+    VEHICLE.SET_VEHICLE_MOD(vmod, 14, 0)
+    VEHICLE.SET_VEHICLE_TYRE_SMOKE_COLOR(vmod, 0, 0, 0)
+    VEHICLE.SET_VEHICLE_MAX_SPEED(vmod, max)
+    VEHICLE.MODIFY_VEHICLE_TOP_SPEED(vmod, top)
+    VEHICLE.SET_VEHICLE_BURNOUT(vmod, false)
+
 end
 
 function Vspawn(mod, pCoor, pedSi, plate)
@@ -1861,16 +1949,7 @@ function Vehatkr(invinc, invis, pid, hash)
     end
 end
 
-local ped_hash =  {SPC, AMC, AfC, CSP, GM, Mpp, MSF, MCM, SMC, Ssf, Ssm, Dlcp}
-local ped_names = {SPClist, AMClist, AfClist, Csplist, GM, Mpplist, MSFlist, MCMlist, SMClist, Ssflist, Ssmlist, Dlcplist}
 
-function PedList(menusel, action_function)
-    for i, description in Pedlistname do
-        menu.list_action(menusel, description[1], {''}, description[2], ped_names[i], function(pedsel)
-            action_function(ped_hash[i][pedsel])
-        end)
-    end
-end
 
 
 function RGBpaintplayer(pid, oprgb, osprgb)
@@ -3767,9 +3846,9 @@ vehroot:toggle_loop(T('Car Duplicate'), {'Cardupe'}, T('Duplicate any car by poi
         if STREAMING.IS_MODEL_A_VEHICLE(ENTITY.GET_ENTITY_MODEL(targetEntity)) then
             GetCloneVeh(targetEntity)
             SetCloneVeh(clone, clomem)
-            util.yield(1000)
             io.remove(CloneVeh_Setting)
             io.remove(CloneVehtog_Setting)
+            io.remove(CloneVehextra_Setting)
         end
     end    
 end)
@@ -3924,15 +4003,11 @@ end)
 
 
 menus.create_advanced_list = vehhandle:list(Str_trans("Advanced Flags"), {}, Str_trans("Change Advanced Flags"), function()
-    dlc = {}
-    for i = 0, FILES.GET_NUM_DLC_VEHICLES() - 1 do--credits to SoulReaper
-        local veh = FILES.GET_DLC_VEHICLE_MODEL(i)
-        dlc[veh] = veh
-    end
+
     for Vehicle_handling_menus as Vehicle_handling_menu do
         if Vehicle_handling_menu:isValid() then Vehicle_handling_menu:delete() end
     end
-    if dlc[players.get_vehicle_model(players.user())] then
+    if Dlc(players.get_vehicle_model(players.user())) then
         if entities.get_user_vehicle_as_pointer(false) != 0 then
             for Advanced_handling_flags as flag do
                 build_veh_handling_menu(menus.create_advanced_list, true, flag, 0x003C)
@@ -3967,12 +4042,12 @@ end)
 
 vehhandle:action(T('Set Flags'), {''}, T('If the flags do not automatically set use this to set them'), function ()
     local curcar = entities.get_user_vehicle_as_handle()
-    local clone, clomem = GetCloneVeh(curcar)
+    GetCloneVeh(curcar)
     entities.delete_by_handle(curcar)
-    local cloneveh = SetCloneVeh(clone, clomem)
-    util.yield(1000)
+    SetCloneVeh(clone, clomem)
     io.remove(CloneVeh_Setting)
     io.remove(CloneVehtog_Setting)
+    io.remove(CloneVehextra_Setting)
 end)
 
 
@@ -4216,7 +4291,7 @@ menu.on_focus(pbodym, function ()
     if PED.IS_PED_IN_ANY_VEHICLE(pedm, false) then
         for Vehopts as v do
             local current = VEHICLE.GET_VEHICLE_MOD(vmod, v[1] -1)
-            local maxmods = Getmodcou(players.user(), v[1] - 1)
+            local maxmods = VEHICLE.GET_NUM_VEHICLE_MODS(vmod, v[1] - 1)
             if maxmods > 0 then
                 local modnames = v[2]
                 local s = menu.slider(pbodym, modnames , {''}, '',  -1, maxmods  , current, 1, function (mod)
@@ -4235,6 +4310,32 @@ menu.on_focus(pbodym, function ()
               end, current)         
             table.insert(vehmenu, t)
             util.yield()
+        end
+        for i = 1, 14 do
+            if VEHICLE.DOES_EXTRA_EXIST(vmod, i) then
+                local current = VEHICLE.IS_VEHICLE_EXTRA_TURNED_ON(vmod, i)
+                local e = menu.toggle(pbodym, Str_trans('Vehicle Extra Number: ')..i, {''}, '', function (tog)
+                    if current then
+                        VEHICLE.SET_VEHICLE_EXTRA(vmod, i, not tog)
+                    else
+                        VEHICLE.SET_VEHICLE_EXTRA(vmod, i, tog)
+                    end
+                end, current)
+                table.insert(vehmenu, e)
+            end
+        end
+        if Dlc(ENTITY.GET_ENTITY_MODEL(vmod)) then
+            for Bennysopts as v do
+                local current = VEHICLE.GET_VEHICLE_MOD(vmod, v[1] -1)
+                local maxmods = VEHICLE.GET_NUM_VEHICLE_MODS(vmod, v[1] - 1)
+                if maxmods > 0 then
+                local modnames = v[2]
+                local s = menu.slider(pbodym, modnames , {''}, '',  -1, maxmods  , current, 1, function (mod)
+                    Changemod(players.user(), v[1] -1, mod)
+                end)
+                table.insert(vehmenu, s)
+                end
+            end
         end
     end
 end)
@@ -4915,10 +5016,10 @@ local eng = { soun = 'monster'}
 local vlistroot = menu.list(vehroot, T('Vehicles Sounds'), {}, T('List of Vehicles to change the sounds to'))
 local function build_curated_constructs_menu(root_menu, curated_item)
         if curated_item.is_folder then
-          local child_menu = menu.list(root_menu, curated_item.name)
-          for curated_item.items as child_item do
-              build_curated_constructs_menu(child_menu, child_item)
-          end
+            local child_menu = menu.list(root_menu, curated_item.name)
+            for curated_item.items as child_item do
+                build_curated_constructs_menu(child_menu, child_item)
+            end
         else
         
           curated_item.load_menu = menu.action(root_menu, curated_item.name or "Unknown", {}, util.reverse_joaat(curated_item.hash) or "", function()
@@ -5406,41 +5507,63 @@ players.on_join(function(pid)
             util.stop_thread()
         end
         GetPlayVeh(pid, function ()
-        local pedm = PLAYER.GET_PLAYER_PED_SCRIPT_INDEX(pid)
-        local vmod = PED.GET_VEHICLE_PED_IS_IN(pedm, false)
-        if PED.IS_PED_IN_ANY_VEHICLE(pedm, false) then    
-           
-            for Vehopts as v do
-                local current = VEHICLE.GET_VEHICLE_MOD(vmod, v[1] -1)
-                local maxmods = Getmodcou(pid, v[1] - 1)
-                if maxmods > 0 then
-                    local modnames = v[2]
-                    local s = menu.slider(bodym, modnames , {''}, '',  -1, maxmods  , current, 1, function (mod)
-                        GetPlayVeh(pid, function ()
-                        Changemod(pid, v[1] -1, mod)
+            local pedm = PLAYER.GET_PLAYER_PED_SCRIPT_INDEX(pid)
+            local vmod = PED.GET_VEHICLE_PED_IS_IN(pedm, false)
+            if PED.IS_PED_IN_ANY_VEHICLE(pedm, false) then    
+                for Vehopts as v do
+                    local current = VEHICLE.GET_VEHICLE_MOD(vmod, v[1] -1)
+                    local maxmods = VEHICLE.GET_NUM_VEHICLE_MODS(vmod, v[1] - 1)
+                    if maxmods > 0 then
+                        local modnames = v[2]
+                        local s = menu.slider(bodym, modnames , {''}, '',  -1, maxmods  , current, 1, function (mod)
+                            GetPlayVeh(pid, function ()
+                                Changemod(pid, v[1] -1, mod)
+                            end)
                         end)
-                    end)
-          
-                 
-                  table.insert(vehmenus, s)
-                util.yield()
+                        table.insert(vehmenus, s)
+                    end
+                end
+
+                for Vehtogs as v do
+                    local current = VEHICLE.IS_TOGGLE_MOD_ON(vmod, v[1] -1)
+                    local tognames = v[2]
+                    local t = menu.toggle(bodym, tognames, {''}, '', function (on)
+                        VEHICLE.TOGGLE_VEHICLE_MOD(vmod, v[1] - 1, on)
+                      end, current)         
+                    table.insert(vehmenus, t)
+                end
+
+                for i = 1, 14 do
+                    if VEHICLE.DOES_EXTRA_EXIST(vmod, i) then
+                        local current = VEHICLE.IS_VEHICLE_EXTRA_TURNED_ON(vmod, i)
+                        local e = menu.toggle(bodym, Str_trans('Vehicle Extra Number: ')..i, {''}, '', function (tog)
+                            if current then
+                                VEHICLE.SET_VEHICLE_EXTRA(vmod, i, not tog)
+                            else
+                                VEHICLE.SET_VEHICLE_EXTRA(vmod, i, tog)
+                            end
+                        end, current)
+                        table.insert(vehmenus, e)
+                    end
+                end
+
+                if Dlc(ENTITY.GET_ENTITY_MODEL(vmod)) then
+                    for Bennysopts as v do
+                        local current = VEHICLE.GET_VEHICLE_MOD(vmod, v[1] -1)
+                        local maxmods = VEHICLE.GET_NUM_VEHICLE_MODS(vmod, v[1] - 1)
+                        if maxmods > 0 then
+                            local modnames = v[2]
+                            local s = menu.slider(bodym, modnames , {''}, '',  -1, maxmods  , current, 1, function (mod)
+                                GetPlayVeh(pid, function ()
+                                    Changemod(pid, v[1] -1, mod)
+                                end)
+                            end)
+                            table.insert(vehmenus, s)
+                        end
+                    end
                 end
             end
-
-              for Vehtogs as v do
-                local current = VEHICLE.IS_TOGGLE_MOD_ON(vmod, v[1] -1)
-                local tognames = v[2]
-                local t = menu.toggle(bodym, tognames, {''}, '', function (on)
-                    VEHICLE.TOGGLE_VEHICLE_MOD(vmod, v[1] - 1, on)
-                  end, current)         
-                table.insert(vehmenus, t)
-              util.yield()
-            end
-
-            
-             end
-            end)
-
+        end)
     end)
            
 

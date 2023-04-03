@@ -1,10 +1,10 @@
 --------------------------------------------Tables-----------------------------------------------------------
  require ('resources/AcjokerScript/translations')
 Table = {}
-Table.Version = "0.25.9"
+Table.Version = "0.25.92"
 
 
---handling flag tables from Murtenb and descriptions from GTAVHandlingInfo githu
+--handling flag tables from Murtenb and descriptions from GTAVHandlingInfo github
 Advanced_handling_flags = {
     {name = "CF_DIFF_FRONT", bit = 1 << 0, desc = Str_trans('Note from Rockstar: If we want torsen diffs they will need to know resistance at the wheel as applying the brakes should apply force back to the wheel on the ground')},
     {name = "CF_DIFF_REAR", bit = 1 << 1, desc = Str_trans('Note from Rockstar: If we want torsen diffs they will need to know resistance at the wheel as applying the brakes should apply force back to the wheel on the ground')},
@@ -3508,7 +3508,6 @@ Curated_attachments = {
 
 
 
-
 Leyen = {
     T('Railgun'),
     T('Tactical Rifle'),
@@ -3759,15 +3758,34 @@ Exlist = {
     {17 , T("Armour")},
     {24 , T("Front Wheels")},
     {25 , T("Motorcycle Back Wheel Design")},
+    {49 , T("Livery")},
+    }
+
+    Bennysopts = {
     {26 , T("Plate Holders")},
+    {27 , T("Vanity Plates")},
     {28 , T("Trim Design")},
     {29 , T("Ornaments")},
+    {30 , T("Dashboard")},
     {31 , T("Dial Design")},
+    {32 , T("Door Speaker")},
+    {33 , T("Seats")},
     {34 , T("Steering Wheel")},
     {35 , T("Shifter Leavers")},
     {36 , T("Plaques")},
+    {37 , T("Speakers")},
+    {38 , T("Trunk")},
     {39 , T("Hydraulics")},
-    {49 , T("Livery")},
+    {40 , T("Engine Block")},
+    {41 , T("Boost / Air Filter")},
+    {42 , T("Struts")},
+    {43 , T("Arch Cover")},
+    {44 , T("Aerials")},
+    {45 , T("Trim")},
+    {46 , T("Tank")},
+    {47 , T("Windows")},
+    {48 , T("Unknown")},
+
     }
 
 
@@ -5105,6 +5123,7 @@ Extob = {
 }
 
 --------------------------NPCS-----------
+
 SPClist = {
     'Lester',
     'Trevor',
