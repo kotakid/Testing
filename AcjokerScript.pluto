@@ -11,7 +11,7 @@ require ('resources/AcjokerScript/translations')
 local LOADING_START = util.current_time_millis()
 LOADING_SCRIPT = true
 Script = {}
-Script.Version = "0.25.92"
+Script.Version = "0.26.0"
 
 local max_int = 2147483647
 local min_int = -2147483647
@@ -60,7 +60,8 @@ end)
 
 
  ------------------
----
+
+ ---
 --- Auto-Updater Lib Install
 ---
 
@@ -111,8 +112,6 @@ local auto_update_config = {
 
 
 auto_updater.run_auto_update(auto_update_config)
-
-
 
  --------------------Functions-------------------------------------
 function ACutil(text)
@@ -351,7 +350,7 @@ function SetCloneVeh(clone, clomem)
     entities.set_rpm(entities.handle_to_pointer(cloneveh), clone.rpm)
     entities.set_current_gear(entities.handle_to_pointer(cloneveh), clone.gear)
     ENTITY.SET_ENTITY_VELOCITY(cloneveh, clone.vel.x, clone.vel.y, clone.vel.z)
-    VEHICLE.SET_VEHICLE_FORWARD_SPEED(cloneveh, clone.speed)
+    VEHICLE.r(cloneveh, clone.speed)
     return cloneveh
 end
 
@@ -373,7 +372,7 @@ local function build_veh_handling_menu(root_menu, advanced, handling, offset)
         CHandlingData = entities.vehicle_get_handling(CAutomobile)
         data = CHandlingData
     end
-    handling.load_menu = menu.toggle(root_menu, name or "Unknown", {}, handling.desc or "", function(on)
+    handling.load_menu = menu.toggle(root_menu, name or "Unknown", {handling.command or ''}, handling.desc or "", function(on)
         if on then
             if CAutomobile != 0 then
                 memory.write_int(data + offset, SetBit(memory.read_int(data + offset), handling.bit))
@@ -4040,7 +4039,7 @@ menus.create_damage_list = vehhandle:list(Str_trans("Damage Flags"), {}, Str_tra
 end)
 
 
-vehhandle:action(T('Set Flags'), {''}, T('If the flags do not automatically set use this to set them'), function ()
+vehhandle:action(T('Set Flags'), {'setflags'}, T('If the flags do not automatically set use this to set them'), function ()
     local curcar = entities.get_user_vehicle_as_handle()
     GetCloneVeh(curcar)
     entities.delete_by_handle(curcar)
@@ -4049,6 +4048,8 @@ vehhandle:action(T('Set Flags'), {''}, T('If the flags do not automatically set 
     io.remove(CloneVehtog_Setting)
     io.remove(CloneVehextra_Setting)
 end)
+
+
 
 
 local function create_cam(veh) --credits to Hexarobi for the cam functions and help with them.
@@ -4915,26 +4916,26 @@ end)
 end
 
 --Vehicle Aliases added by Hexarobi
-menu.toggle(vehroot, T('Vehicle Aliases'), {'Valiases'}, T('Activate the list of vehicle name aliases used for spawning, you can use this to turn it off if mulitple people have it running'), function (on)
+menus.VAliases = vehroot:list(Str_trans('Vehicle Aliases'), {''}, Str_trans('A list of vehicle name aliases used for spawning'))
+menus.VAliases:toggle(Str_trans('Vehicle Aliases'), {'Valiases'}, Str_trans('Activate the list of vehicle name aliases used for spawning, you can use this to turn it off if mulitple people have it running'), function (on)
     menus.vehicle_alias = on
 end)
-menus.vehicle_aliases = menu.list(vehroot, Str_trans('Vehicle Aliases List'), {}, Str_trans('A list of vehicle name aliases used for spawning'))
+menus.vehicle_aliases = menus.VAliases:list(Str_trans('Vehicle Aliases List'), {}, Str_trans('A list of vehicle name aliases used for spawning'))
 
 
 
 for alias, vehicle in VEHICLE_ALIASES do
-local alias_menu_item = menu.action(menus.vehicle_aliases, alias, {alias}, T("Spawn ")..vehicle, function(click_type, pid)
+local alias_menu_item = menus.vehicle_aliases:action(alias, {alias}, T("Spawn ")..vehicle, function(click_type, pid)
         local targets = PLAYER.GET_PLAYER_PED_SCRIPT_INDEX(pid)
         local tar1 = ENTITY.GET_ENTITY_COORDS(targets, true)
         menus.veh = util.joaat(vehicle)
 
         if menus.vehicle_alias then
             Vspawn(menus.veh, tar1, targets, tostring(players.get_name(pid)))
-            else
-                if set.alert then
-                    ACutil(Str_trans('Vehicle Aliases not set'))
-                end
-                 
+        else
+            if set.alert then
+                ACutil(Str_trans('Vehicle Aliases not set'))
+            end    
         end
 end, nil, nil, COMMANDPERM_SPAWN)
 
@@ -5318,6 +5319,7 @@ end, function ()
         end
         curcoords = {}
 end)
+
 
 onlineroot:action(T('Stop Spectating'), {'sspect'}, T('Stop Spectating anyone in the lobby'), function ()
     Specon(players.user())
@@ -6003,6 +6005,11 @@ players.on_join(function(pid)
             Specoff(pid)
         end
     end)
+
+
+
+
+
 
     local bigolist = {} 
     local bigobjset  = {obj= util.joaat('prop_asteroid_01'), ptfx = false, exp = false, speed = 1000}
