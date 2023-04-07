@@ -2,7 +2,7 @@
 
 local translations = {}
 Lang = {}
-Lang.Version = "0.26.0"
+Lang.Version = "0.26.9"
 Template = false
 translations.lang = {}
 translations.current_translations = {}
@@ -1307,7 +1307,10 @@ translations.lang["zh"] = {
     ['Teleport the clone you made back to you'] = "将生成的克隆传送到自己",
     ['Delete Clone'] = "删除克隆",
     ['Once Deleted you must make a new one'] = "一旦删除,请务必创建一个新的",
-
+    ['Vehicle Extra Number: '] = "'载具附加号码: '",
+    ['Instructional Buttons Off'] = "关闭说明按钮",
+    ['Turn off the Instructional Buttons used in some of the features'] = "关闭某些功能中的使用指示按钮",
+    ['Unknown'] = "未知",
 }
 
     --end Chinese
