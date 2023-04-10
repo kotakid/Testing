@@ -11,7 +11,7 @@ require ('resources/AcjokerScript/translations')
 local LOADING_START = util.current_time_millis()
 LOADING_SCRIPT = true
 Script = {}
-Script.Version = "0.26.9"
+Script.Version = "0.26.91"
 
 local max_int = 2147483647
 local min_int = -2147483647
@@ -37,6 +37,9 @@ local Superman_Setting = CONFIG_DIR .. "Superman.txt"
 local CloneVeh_Setting = CONFIG_DIR .. "CloneVeh.json"
 local CloneVehtog_Setting = CONFIG_DIR .. "CloneVehtog.json"
 local CloneVehextra_Setting = CONFIG_DIR .. "CloneVehextra.json"
+local clone = {}
+local clomem = {}
+local cloneextras = {}
 
 
 my:action(T('Player Options'), {}, T('Redirects you to the Player list in Stand for the Trolling and Friendly options'), function ()
@@ -60,6 +63,7 @@ end)
 
 
  ------------------
+
 ---
 --- Auto-Updater Lib Install
 ---
@@ -117,6 +121,11 @@ auto_updater.run_auto_update(auto_update_config)
 function ACutil(text)
    return util.toast(text)
 end
+
+
+
+
+
 
 
 function Timemulti(secs, mins)
@@ -242,9 +251,7 @@ function Add_extra(tog, id)
     return true
 end
 
-local clone = {}
-local clomem = {}
-local cloneextras = {}
+
 
 function Dlc(veh)
     dlc = {}
@@ -254,7 +261,9 @@ function Dlc(veh)
     end
     return dlc[veh]
 end
-
+local clone_attributes = {paint = { secon = {}, int ={}, dash = {}, extra = {}, extra5 ={}, extra6 ={},
+modcolor1 = {}, modcolor2 = {} }, tire = {}, neon = {}}
+local neonindexes = {}
 function GetCloneVeh(veh)
     clone.wheel_type = VEHICLE.GET_VEHICLE_WHEEL_TYPE(veh)
     clone.tint_type = VEHICLE.GET_VEHICLE_WINDOW_TINT(veh)
@@ -297,21 +306,30 @@ function GetCloneVeh(veh)
             Add_extra(false, i)
         end
     end
-    clomem.red, clomem.green, clomem.blue  = memory.alloc(), memory.alloc(), memory.alloc(), memory.alloc()
+    for i = 0, 3 do
+        if VEHICLE.GET_VEHICLE_NEON_ENABLED(veh, i) then
+            table.insert(neonindexes, i)
+        end
+    end
+    clomem = {red = memory.alloc(8), green = memory.alloc(8), blue = memory.alloc(8)}
     VEHICLE.GET_VEHICLE_CUSTOM_PRIMARY_COLOUR(veh, clomem.red, clomem.green, clomem.blue)
-    clomem.sred, clomem.sgreen, clomem.sblue  = memory.alloc(), memory.alloc(), memory.alloc()
-    VEHICLE.GET_VEHICLE_CUSTOM_SECONDARY_COLOUR(veh, clomem.sred, clomem.sgreen, clomem.sblue)
-    clomem.tred, clomem.tgreen, clomem.tblue = memory.alloc(), memory.alloc(), memory.alloc()
-    VEHICLE.GET_VEHICLE_TYRE_SMOKE_COLOR(veh, clomem.tred, clomem.tgreen, clomem.tblue)
-    clomem.nred, clomem.ngreen, clomem.nblue, clomem.dash = memory.alloc(), memory.alloc(), memory.alloc(), memory.alloc()
-    clomem.whe, clomem.pear, clomem.int = memory.alloc(), memory.alloc(), memory.alloc(), memory.alloc()
-    VEHICLE.GET_VEHICLE_NEON_COLOUR(veh, clomem.nred, clomem.ngreen, clomem.nblue)
-    VEHICLE.GET_VEHICLE_EXTRA_COLOURS(veh, clomem.pear, clomem.whe)
-    VEHICLE.GET_VEHICLE_EXTRA_COLOUR_5(veh, clomem.int)
-    VEHICLE.GET_VEHICLE_EXTRA_COLOUR_6(veh, clomem.dash)
-    clomem.modtype, clomem.modcolor, clomem.modpear, clomem.modtype2, clomem.modcolor2 = memory.alloc(), memory.alloc(), memory.alloc(), memory.alloc(), memory.alloc()
-    VEHICLE.GET_VEHICLE_MOD_COLOR_1(veh, clomem.modtype, clomem.modcolor, clomem.modpear)
-    VEHICLE.GET_VEHICLE_MOD_COLOR_2(veh, clomem.modtype2, clomem.modcolor2)
+    clone_attributes.paint.prim = {r = memory.read_int(clomem.red), g = memory.read_int(clomem.green), b = memory.read_int(clomem.blue)}
+    VEHICLE.GET_VEHICLE_CUSTOM_SECONDARY_COLOUR(veh, clomem.red, clomem.green, clomem.blue)
+    clone_attributes.paint.secon = {r = memory.read_int(clomem.red), g = memory.read_int(clomem.green), b = memory.read_int(clomem.blue)}
+    VEHICLE.GET_VEHICLE_TYRE_SMOKE_COLOR(veh, clomem.red, clomem.green, clomem.blue)
+    clone_attributes.tire = {r = memory.read_int(clomem.red), g = memory.read_int(clomem.green), b = memory.read_int(clomem.blue)}
+    VEHICLE.GET_VEHICLE_NEON_COLOUR(veh, clomem.red, clomem.green, clomem.blue)
+    clone_attributes.neon = {r = memory.read_int(clomem.red), g = memory.read_int(clomem.green), b = memory.read_int(clomem.blue)}
+    VEHICLE.GET_VEHICLE_EXTRA_COLOURS(veh, clomem.red, clomem.green)
+    clone_attributes.paint.extra = {r = memory.read_int(clomem.red), g = memory.read_int(clomem.green)}
+    VEHICLE.GET_VEHICLE_EXTRA_COLOUR_5(veh, clomem.red)
+    clone_attributes.paint.extra5 = {r = memory.read_int(clomem.red)}
+    VEHICLE.GET_VEHICLE_EXTRA_COLOUR_6(veh, clomem.red)
+    clone_attributes.paint.extra6 = {r = memory.read_int(clomem.red)}
+    VEHICLE.GET_VEHICLE_MOD_COLOR_1(veh, clomem.red, clomem.green, clomem.blue)
+    clone_attributes.paint.modcolor1 = {r = memory.read_int(clomem.red), g = memory.read_int(clomem.green), b = memory.read_int(clomem.blue)}
+    VEHICLE.GET_VEHICLE_MOD_COLOR_2(veh, clomem.red, clomem.green)
+    clone_attributes.paint.modcolor2 = {r = memory.read_int(clomem.red), g = memory.read_int(clomem.green)}
     clone.wheelvar1 = VEHICLE.GET_VEHICLE_MOD_VARIATION(veh, 23)
     if VEHICLE.IS_THIS_MODEL_A_BIKE(clone.vhash) then
     clone.wheelvar2 = VEHICLE.GET_VEHICLE_MOD_VARIATION(veh, 24)
@@ -339,26 +357,30 @@ function SetCloneVeh(clone, clomem)
     for Extratable as v do
         VEHICLE.SET_VEHICLE_EXTRA(cloneveh, v.id, v.tog)
     end
-    VEHICLE.SET_VEHICLE_CUSTOM_PRIMARY_COLOUR(cloneveh, memory.read_int(clomem.red), memory.read_int(clomem.green), memory.read_int(clomem.blue))
-    VEHICLE.SET_VEHICLE_CUSTOM_SECONDARY_COLOUR(cloneveh, memory.read_int(clomem.sred), memory.read_int(clomem.sgreen), memory.read_int(clomem.sblue))
-    VEHICLE.SET_VEHICLE_NEON_COLOUR(cloneveh, memory.read_int(clomem.nred), memory.read_int(clomem.ngreen), memory.read_int(clomem.nblue))
-    VEHICLE.SET_VEHICLE_EXTRA_COLOURS(cloneveh, memory.read_int(clomem.pear), memory.read_int(clomem.whe))
-    VEHICLE.SET_VEHICLE_EXTRA_COLOUR_5(cloneveh, memory.read_int(clomem.int))
-    VEHICLE.SET_VEHICLE_EXTRA_COLOUR_6(cloneveh, memory.read_int(clomem.dash))
-    VEHICLE.SET_VEHICLE_MOD_COLOR_1(cloneveh, memory.read_int(clomem.modtype), memory.read_int(clomem.modcolor), memory.read_int(clomem.modpear))
-    VEHICLE.SET_VEHICLE_MOD_COLOR_2(cloneveh, memory.read_int(clomem.modtype2), memory.read_int(clomem.modcolor2))
+    for neonindexes as n do
+        VEHICLE.SET_VEHICLE_NEON_ENABLED(cloneveh, n, true)
+    end
+    VEHICLE.SET_VEHICLE_CUSTOM_PRIMARY_COLOUR(cloneveh, clone_attributes.paint.prim.r, clone_attributes.paint.prim.g, clone_attributes.paint.prim.b)
+    VEHICLE.SET_VEHICLE_CUSTOM_SECONDARY_COLOUR(cloneveh, clone_attributes.paint.secon.r, clone_attributes.paint.secon.g, clone_attributes.paint.secon.b)
+    VEHICLE.SET_VEHICLE_NEON_COLOUR(cloneveh, clone_attributes.neon.r, clone_attributes.neon.g, clone_attributes.neon.b)
+    VEHICLE.SET_VEHICLE_EXTRA_COLOURS(cloneveh, clone_attributes.paint.extra.r, clone_attributes.paint.extra.g)
+    VEHICLE.SET_VEHICLE_EXTRA_COLOUR_5(cloneveh, clone_attributes.paint.extra5.r)
+    VEHICLE.SET_VEHICLE_EXTRA_COLOUR_6(cloneveh, clone_attributes.paint.extra6.r)
+    VEHICLE.SET_VEHICLE_MOD_COLOR_1(cloneveh, clone_attributes.paint.modcolor1.r, clone_attributes.paint.modcolor1.g, clone_attributes.paint.modcolor1.b)
+    VEHICLE.SET_VEHICLE_MOD_COLOR_2(cloneveh, clone_attributes.paint.modcolor2.r, clone_attributes.paint.modcolor2.g)
     VEHICLE.SET_VEHICLE_ENVEFF_SCALE(clone, clone.enveff)
     VEHICLE.SET_VEHICLE_WINDOW_TINT(cloneveh, clone.tint_type)
     VEHICLE.SET_VEHICLE_NUMBER_PLATE_TEXT_INDEX(cloneveh, clone.plate_type)
     VEHICLE.SET_VEHICLE_NUMBER_PLATE_TEXT(cloneveh, clone.plate)
     VEHICLE.SET_VEHICLE_XENON_LIGHT_COLOR_INDEX(cloneveh, clone.xenonindex)
-    VEHICLE.SET_VEHICLE_TYRE_SMOKE_COLOR(cloneveh, memory.read_int(clomem.tred), memory.read_int(clomem.tgreen), memory.read_int(clomem.tblue))
+    VEHICLE.SET_VEHICLE_TYRE_SMOKE_COLOR(cloneveh, clone_attributes.tire.r, clone_attributes.tire.g, clone_attributes.tire.b)
     VEHICLE.SET_VEHICLE_ENGINE_ON(cloneveh, true, true, false)
     VEHICLE.SET_VEHICLE_LIVERY2(cloneveh, clone.livery2)
     entities.set_rpm(entities.handle_to_pointer(cloneveh), clone.rpm)
     entities.set_current_gear(entities.handle_to_pointer(cloneveh), clone.gear)
     ENTITY.SET_ENTITY_VELOCITY(cloneveh, clone.vel.x, clone.vel.y, clone.vel.z)
     VEHICLE.SET_VEHICLE_FORWARD_SPEED(cloneveh, clone.speed)
+    neonindexes = {}
     return cloneveh
 end
 
@@ -415,9 +437,9 @@ function PFP(pedm, playerm)--Ped Facing Player adapted from PhoenixScript
     return ENTITY.SET_ENTITY_HEADING(pedm, head)
 end
 
-function Streament(hash) --Streaming Model
+function Streament(hash) 
     STREAMING.REQUEST_MODEL(hash)
-    while STREAMING.HAS_MODEL_LOADED(hash) ==false do
+    while not STREAMING.HAS_MODEL_LOADED(hash) do
         util.yield()
     end
 end
@@ -430,11 +452,20 @@ function Streamptfx(lib)
     GRAPHICS.USE_PARTICLE_FX_ASSET(lib)
 end
 
-function Streamanim(anim) --Streaming Model
+function Streamanim(anim)
     STREAMING.REQUEST_ANIM_DICT(anim)
-    while STREAMING.HAS_ANIM_DICT_LOADED(anim) ==false do
+    while not STREAMING.HAS_ANIM_DICT_LOADED(anim) do
         STREAMING.REQUEST_ANIM_DICT(anim)
         util.yield()
+    end
+end
+
+function Streamscale(scale)
+    local scaleform = GRAPHICS.REQUEST_SCALEFORM_MOVIE(scale)
+    while not GRAPHICS.HAS_SCALEFORM_MOVIE_LOADED(scale) do
+       scaleform = GRAPHICS.REQUEST_SCALEFORM_MOVIE(scale)
+        util.yield()
+        return scaleform
     end
 end
 
@@ -591,6 +622,23 @@ function Teabagtime(p1, p2, p3, p4, p5, p6, p7, p8)
     end)
 end
 
+function Daxfuckyou(ped_tab)
+    util.create_tick_handler (function ()
+        for ped_tab as pi do
+            AUDIO.PLAY_PED_AMBIENT_SPEECH_WITH_VOICE_NATIVE(pi, 'GENERIC_INSULT_HIGH', 'XM3_DAX', 'SPEECH_PARAMS_FORCE', 1)
+            util.yield(250)
+        end
+    end)
+end
+
+function Lamarstupid(ped_tab)
+    util.create_tick_handler (function ()
+        for ped_tab as pi do
+            AUDIO.PLAY_PED_AMBIENT_SPEECH_WITH_VOICE_NATIVE(pi, 'GENERIC_INSULT_HIGH', 'FIX_LAMAR', 'SPEECH_PARAMS_FORCE', 1)
+            util.yield(250)
+        end
+    end)
+end
 
 
 function Jesuslovesyou(ped_tab)
@@ -755,7 +803,7 @@ function Vspawn(mod, pCoor, pedSi, plate)
 end
 
 function Delcar(vic, spec, pid)
-    if PED.IS_PED_IN_ANY_VEHICLE(vic) ==true then
+    if PED.IS_PED_IN_ANY_VEHICLE(vic) then
         local tarcar = PED.GET_VEHICLE_PED_IS_IN(vic, true)
         GetControl(tarcar, spec, pid)
         ENTITY.SET_ENTITY_AS_MISSION_ENTITY(tarcar)
@@ -1983,6 +2031,12 @@ function RGBpaintplayer(pid, oprgb, osprgb)
 end
 
 
+function Friend_player(pid)-- shadowcat
+    local hndl = memory.alloc(13 * 4)
+    NETWORK.NETWORK_HANDLE_FROM_PLAYER(pid, hndl, 13)
+    return NETWORK.NETWORK_IS_FRIEND(hndl)
+end
+
 function GetSpec(pid)
     if players.exists(pid) then
         local spec = menu.get_value(menu.ref_by_rel_path(menu.player_root(pid), "Spectate>Nuts Method"))
@@ -2061,15 +2115,10 @@ function Ped_aim_pool(fov)
             if not ENTITY.HAS_ENTITY_CLEAR_LOS_TO_ENTITY(players.user_ped(), ped, 17) and not aimbot.stw then
                 target = false
             end
-            local handle_ptr = memory.alloc(13*8)
-            local function pid_to_handle(pid)--credits to lance
-                NETWORK.NETWORK_HANDLE_FROM_PLAYER(pid, handle_ptr, 13)
-                return handle_ptr
-            end
+
             if PED.IS_PED_A_PLAYER(ped) and aimbot.tarplayers and not aimbot.tarfriends then
                 local pid = NETWORK.NETWORK_GET_PLAYER_INDEX_FROM_PED(ped)
-                local hdl = pid_to_handle(pid)
-                if NETWORK.NETWORK_IS_FRIEND(hdl) then
+                if Friend_player(pid) then
                     target = false
                 end
             end
@@ -2156,15 +2205,9 @@ function Xrayvision(xray)
                 xrtarget = false
             end
 
-            local handle_ptr = memory.alloc(13*8)
-            local function pid_to_handle(pid)--credits to lance
-                NETWORK.NETWORK_HANDLE_FROM_PLAYER(pid, handle_ptr, 13)
-                return handle_ptr
-            end
             if PED.IS_PED_A_PLAYER(ped) and xray.players and not xray.friends then
                 local pid = NETWORK.NETWORK_GET_PLAYER_INDEX_FROM_PED(ped)
-                local hdl = pid_to_handle(pid)
-                if NETWORK.NETWORK_IS_FRIEND(hdl) then
+                if Friend_player(pid) then
                     xrtarget = false
                 end
             end
@@ -2326,6 +2369,86 @@ local function vehflight(curcar, speed)
         end
     end
 end
+
+
+
+local function add_victim(name)
+    local new_victim = {name=name}
+    local kill_list = Load_settings(Kill_List)
+    for kill_list as victim do
+        if victim.name == new_victim.name then
+            return true
+        end
+    end
+    table.insert(kill_list, new_victim)
+    Save_settings(Kill_List, kill_list)
+    return true
+end
+
+local function remove_victim(name)
+    local kill_list = Load_settings(Kill_List)
+    for index, victim in kill_list do
+        if victim.name == name then
+            kill_list[index] = nil
+            Save_settings(Kill_List, kill_list)
+            return true
+        end
+    end
+    return false
+end
+
+local kill_list_menus = {}
+
+local function regen_kill_list(root)
+    local kload = Load_settings(Kill_List)
+    for kill_list_menus as kill_list_menu do
+        if menu.is_ref_valid(kill_list_menu) then menu.delete(kill_list_menu) end
+    end
+    kill_list_menus = {}
+    for kload as kill_list_load do
+        for kill_list_load as v do
+            local kill_list_menu = menu.list(root, v, {''}, v)
+            menu.action(kill_list_menu, Str_trans('Remove from Kill List'), {}, Str_trans('Remove Player from Kill List'), function ()
+                remove_victim(v)
+                if set.alert then
+                    ACutil(v..Str_trans(' Removed from Kill List'))
+                end
+                return true
+            end)
+            table.insert(kill_list_menus, kill_list_menu)
+        end
+    end
+end
+
+local players_list_menus = {}
+local function rebuild_player_list()
+    local players_list = players.list(false, true, true)
+    for players_list_menus as players_list_menu do
+        if menu.is_ref_valid(players_list_menu) then menu.delete(players_list_menu) end
+    end
+    for players_list as pid do
+        local pname = PLAYER.GET_PLAYER_NAME(pid)
+        local players_list_menu = menu.action(menus.aimbotkilla, pname, {''}, Str_trans('Add or Remove Player to the Kill List'), function ()
+            for Load_settings(Kill_List) as name do
+                if name.name == pname then
+                    remove_victim(pname)
+                    if set.alert then
+                        ACutil(pname..Str_trans(' Removed from Kill List'))
+                    end
+                    return true
+                end
+            end
+            add_victim(pname)
+            if set.alert then
+                ACutil(pname..Str_trans(' Added to Kill List'))
+            end
+            return true
+        end)
+        table.insert(players_list_menus, players_list_menu)
+   end
+end
+
+
 
 
 
@@ -2523,7 +2646,7 @@ super_xray:colour(T('Box and ESP Color'), {''}, T('Choose the Box and ESP color 
 end)
 
 super_xray:slider_float(T('Field of View'), {'tpslider'}, T('Adjust the amount of your Field of View is with X-Ray Vision'), 100, 36000, 1000, 100, function (s)
-    xray.fov = s*.01
+    xray.fov = s*0.01
 end)
 
 Runspeedref = super:slider_float(T('Run Speed'), {''}, T('Adjust the speed you run with Superman'), 100, 1000000, 500, 100, function (a)
@@ -3125,7 +3248,7 @@ end)
 
 local forwteles = menu.list(TeleRoot, T('TP Forward Teleports'), {}, '')
 
-local forw = {amount = 0.5} --credits to lance
+local forw = {amount = 0.5}
 menu.action(forwteles, T('TP Foward'), {'tpforw'}, T('Teleport Forward your set amount'), function ()
     if PED.IS_PED_IN_ANY_VEHICLE(players.user_ped(), false) then
         return
@@ -3146,8 +3269,8 @@ end)
     util.yield(250)
 end)
 
-menu.slider(forwteles, T('TP Forward Amount'), {'tpslider'}, T('Adjust the amount you teleport forward by'), 1, 10000, 1, 1, function (a)
-    forw.amount = a*0.1
+menu.slider_float(forwteles, T('TP Forward Amount'), {'tpslider'}, T('Adjust the amount you teleport forward by'), 10, 100000, 50, 10, function (s)
+    forw.amount = s*0.01
 end)
 
 
@@ -3169,84 +3292,6 @@ end)
 
  ------------------------------------------
  
-
-
-local function add_victim(name)
-    local new_victim = {name=name}
-    local kill_list = Load_settings(Kill_List)
-    for kill_list as victim do
-        if victim.name == new_victim.name then
-            return true
-        end
-    end
-    table.insert(kill_list, new_victim)
-    Save_settings(Kill_List, kill_list)
-    return true
-end
-
-local function remove_victim(name)
-    local kill_list = Load_settings(Kill_List)
-    for index, victim in kill_list do
-        if victim.name == name then
-            kill_list[index] = nil
-            Save_settings(Kill_List, kill_list)
-            return true
-        end
-    end
-    return false
-end
-
-local kill_list_menus = {}
-
-local function regen_kill_list(root)
-    local kload = Load_settings(Kill_List)
-    for kill_list_menus as kill_list_menu do
-        if menu.is_ref_valid(kill_list_menu) then menu.delete(kill_list_menu) end
-    end
-    kill_list_menus = {}
-    for kload as kill_list_load do
-        for kill_list_load as v do
-            local kill_list_menu = menu.list(root, v, {''}, v)
-            menu.action(kill_list_menu, Str_trans('Remove from Kill List'), {}, Str_trans('Remove Player from Kill List'), function ()
-                remove_victim(v)
-                if set.alert then
-                    ACutil(v..Str_trans(' Removed from Kill List'))
-                end
-                return true
-            end)
-            table.insert(kill_list_menus, kill_list_menu)
-        end
-    end
-end
-
-local players_list_menus = {}
-local function rebuild_player_list()
-    local players_list = players.list(false, true, true)
-    for players_list_menus as players_list_menu do
-        if menu.is_ref_valid(players_list_menu) then menu.delete(players_list_menu) end
-    end
-    for players_list as pid do
-        local pname = PLAYER.GET_PLAYER_NAME(pid)
-        local players_list_menu = menu.action(menus.aimbotkilla, pname, {''}, Str_trans('Add or Remove Player to the Kill List'), function ()
-            for Load_settings(Kill_List) as name do
-                if name.name == pname then
-                    remove_victim(pname)
-                    if set.alert then
-                        ACutil(pname..Str_trans(' Removed from Kill List'))
-                    end
-                    return true
-                end
-            end
-            add_victim(pname)
-            if set.alert then
-                ACutil(pname..Str_trans(' Added to Kill List'))
-            end
-            return true
-        end)
-        table.insert(players_list_menus, players_list_menu)
-   end
-end
-
 
 
 
@@ -3318,17 +3363,11 @@ end)
 menu.toggle_loop(menus.aimbotkillist, T('Add Strangers to Kill List'), {''}, T('Add Strangers that kill you to Kill List'), function (on)
     if PED.IS_PED_DEAD_OR_DYING(players.user_ped()) then
         local killer = PED.GET_PED_SOURCE_OF_DEATH(players.user_ped())
-        local handle_ptr = memory.alloc(13*8)
-        local function pid_to_handle(pid)
-            NETWORK.NETWORK_HANDLE_FROM_PLAYER(pid, handle_ptr, 13)
-            return handle_ptr
-        end
         if not PED.IS_PED_A_PLAYER(killer) then
             return
         end
         local pid = NETWORK.NETWORK_GET_PLAYER_INDEX_FROM_PED(killer)
-        local hdl = pid_to_handle(pid)
-        if not NETWORK.NETWORK_IS_FRIEND(hdl) then
+        if not Friend_player(pid) then
             local pname = PLAYER.GET_PLAYER_NAME(pid)
             for Load_settings(Kill_List) as name do
                 if name.name == pname then
@@ -3493,7 +3532,7 @@ local function objshots(hash, obj, camcoords)
 
             end
             if i >= 150 then
-                for index, vehs in ipairs(objtab) do
+                for index, vehs in objtab do
                     entities.delete_by_handle(vehs)
                     objtab ={}
                 end
@@ -4044,7 +4083,7 @@ end)
 vehmove:action(T('Change Speed Limit'), {}, T('Change Speed Limit to Max if you have not already so you can fly or boost faster'), function ()
     menu.set_value(menu.ref_by_path("Vehicle>Movement>Speed Limit (KMH)"), 10000)
     if set.alert then
-        ACutil(Str_trans('Speed Limit Changed to ')..tostring(menu.get_value(menu.ref_by_path("Vehicle>Movement>Speed Limit (KMH)"))))
+        ACutil(Str_trans('Speed Limit Changed to ')..tostring(menu.ref_by_path("Vehicle>Movement>Speed Limit (KMH)").value))
     end
 end)
 
@@ -4212,6 +4251,32 @@ vehhandle:action(T('Wheelie'), {'Wheelie'}, T('Not every car can do a wheelie'),
     end
     menu.trigger_commands('canwheelie'..' on')
     menu.trigger_commands('setflags')
+end)
+
+vehhandle:action(T('Stance'), {'Stance'}, T('Not every car can be stanced'), function ()
+    for Vehicle_handling_menus as Vehicle_handling_menu do
+        if Vehicle_handling_menu:isValid() then Vehicle_handling_menu:delete() end
+    end
+    if Dlc(players.get_vehicle_model(players.user())) then
+        if entities.get_user_vehicle_as_pointer(false) != 0 then
+            for Advanced_handling_flags as flag do
+                build_veh_handling_menu(menus.create_advanced_list, true, flag, 0x003C)
+            end
+        else
+            if set.alert then
+                ACutil(Str_trans('Not in Vehicle'))
+            end
+        end
+    else
+        if set.alert then
+            ACutil(Str_trans('No Advanced Flags'))
+        end
+    end
+    menu.trigger_commands('fixoldbugs'..' on')
+    menu.trigger_commands('reducedforce'..' on')
+    menu.trigger_commands('setflags')
+    util.yield(250)
+    VEHICLE.SET_REDUCED_SUSPENSION_FORCE(entities.get_user_vehicle_as_handle(), true)
 end)
 
 
@@ -6239,7 +6304,7 @@ players.on_join(function(pid)
     menu.toggle_loop(metmenu, T('Big Object Shower'), {'Oshower'}, T('Make Objects rain down from the sky'), function ()
         
         local targets = PLAYER.GET_PLAYER_PED_SCRIPT_INDEX(pid)
-        local oha = bigobjset.obj --credits to lance#8011 for this function
+        local oha = bigobjset.obj --credits to lance for the coords
         local r1 = ENTITY.GET_OFFSET_FROM_ENTITY_IN_WORLD_COORDS( targets, math.random(-500, 500), math.random(-500, 500), 300.0)
         local r2 = ENTITY.GET_OFFSET_FROM_ENTITY_IN_WORLD_COORDS( targets, math.random(-500, 500), math.random(-500, 500), 0)
         local diff = {}
@@ -6292,10 +6357,10 @@ players.on_join(function(pid)
 
 
     local ptfx = {lib = 'scr_rcbarry2', sel = 'scr_clown_appears', number = 1}
-    local ptfx_names = {{name = Str_trans('PTFX Spam'), command =  'ptfxloop', list = 'Ptfx List', sel = 'scr_clown_appears', lib = 'scr_rcbarry2', scale = 10, scalename = Str_trans('Ptfx Spam Scale')},
-     {name = Str_trans('PTFX Spam 2'), command = 'ptfxloop2', list = 'Ptfx List 2', sel = 'exp_extinguisher', lib = 'core', scale = 10, scalename = Str_trans('Ptfx Spam 2 Scale')},
-      {name = Str_trans('PTFX Spam 3'), command = 'ptfxloop3', list = 'Ptfx List 3', sel = 'veh_respray_smoke', lib = 'core', scale = 10, scalename = Str_trans('Ptfx Spam 3 Scale')}, 
-      {name = Str_trans('PTFX Spam 4'), command = 'ptfxloop4', list = 'Ptfx List 4', sel = 'blood_stab', lib = 'core', scale = 10, scalename = Str_trans('Ptfx Spam 4 Scale')}}
+    local ptfx_names = {{name = Str_trans('PTFX Spam'), command =  'ptfxloop', sel = 'scr_clown_appears', lib = 'scr_rcbarry2', scale = 10, scalename = Str_trans('Ptfx Spam Scale')},
+     {name = Str_trans('PTFX Spam 2'), command = 'ptfxloop2', sel = 'exp_extinguisher', lib = 'core', scale = 10, scalename = Str_trans('Ptfx Spam 2 Scale')},
+      {name = Str_trans('PTFX Spam 3'), command = 'ptfxloop3', sel = 'veh_respray_smoke', lib = 'core', scale = 10, scalename = Str_trans('Ptfx Spam 3 Scale')}, 
+      {name = Str_trans('PTFX Spam 4'), command = 'ptfxloop4', sel = 'blood_stab', lib = 'core', scale = 10, scalename = Str_trans('Ptfx Spam 4 Scale')}}
     for ptfx_names as table do
         menus.ptfxspams = ptfxmenu:list(table.name, {''}, '') 
         menus.ptfxspams:toggle_loop(table.name, {table.command}, Str_trans('Spam your selection of Particle Effects'), function ()
@@ -6891,7 +6956,7 @@ players.on_join(function(pid)
 
     local wall = {invis = false}
     local cage_table = {}
-    local pedset = {mdl = 'u_m_m_jesus_01'}
+    local pedset = {mdl = 'IG_Dax'}
     local pedca =  menu.toggle_loop(pcagem, T('Ped Cage'), {'PCAGE'}, T('Traps Player in a Cage of Peds'), function ()
         local targets = PLAYER.GET_PLAYER_PED_SCRIPT_INDEX(pid)
         local tar1 = ENTITY.GET_ENTITY_COORDS(targets, true)
@@ -6923,7 +6988,11 @@ players.on_join(function(pid)
         elseif pedhash == util.joaat('player_two') then
             Trevortime(peds)
         elseif pedhash == util.joaat('u_m_m_jesus_01') then
-            Jesuslovesyou(peds)  
+            Jesuslovesyou(peds)
+        elseif pedhash == util.joaat('IG_LamarDavis_02') then
+            Lamarstupid(peds)    
+        elseif pedhash == util.joaat('IG_Dax') then 
+            Daxfuckyou(peds)   
         elseif pedhash != util.joaat('IG_LesterCrest') or util.joaat('player_two') then
         if AUDIO.DOES_CONTEXT_EXIST_FOR_THIS_PED(peds[1], 'GENERIC_FUCK_YOU') ==true then
         Fuckyou(peds)
@@ -7035,13 +7104,7 @@ players.on_join(function(pid)
             end
 
             ---------Audio--------------
-            if pedhash == util.joaat('IG_LesterCrest') then
-                Teabagtime(rpeds[1], rpeds[2], rpeds[3], rpeds[4], rpeds[5], rpeds[6], rpeds[7], rpeds[8])
-            elseif pedhash == util.joaat('player_two') then
-                Trevortime(rpeds)
-            elseif pedhash == util.joaat('u_m_m_jesus_01') then
-                Jesuslovesyou(rpeds)  
-            elseif pedhash != util.joaat('IG_LesterCrest') or util.joaat('player_two') then
+            if pedhash != util.joaat('IG_LesterCrest') or util.joaat('player_two') then
             
                 if AUDIO.DOES_CONTEXT_EXIST_FOR_THIS_PED(rpeds[1], 'GENERIC_FUCK_YOU') ==true then 
                     Fuckyou(rpeds)
@@ -7334,7 +7397,6 @@ players.dispatch_on_join()
     menu.action(Troot, T('akatozi and BloodyStall_'), {}, T('For the French translations'), function ()
     end)
   -------------------------------------------------------------------------------------------------------
-
 
 
 util.keep_running()

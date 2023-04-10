@@ -1,7 +1,7 @@
 --------------------------------------------Tables-----------------------------------------------------------
  require ('resources/AcjokerScript/translations')
 Table = {}
-Table.Version = "0.26.9"
+Table.Version = "0.26.91"
 
 
   Wheel_indexs = {
@@ -32,7 +32,7 @@ Advanced_handling_flags = {
     {name = "CF_GEARBOX_ELECTRIC", bit = 1 << 12, desc = Str_trans('Used by the Omnis e-GT')},
     {name = "CF_ASSIST_TRACTION_CONTROL", bit = 1 << 13},
     {name = "CF_ASSIST_STABILITY_CONTROL", bit = 1 << 14},
-    {name = "CF_ALLOW_REDUCED_SUSPENSION_FORCE", bit = 1 << 15, desc = Str_trans('Allows the vehicle to be stanced using the SET_REDUCED_SUSPENSION_FORCE native. Requires the FIX OLD BUGS flag to be enabled')},
+    {name = "CF_ALLOW_REDUCED_SUSPENSION_FORCE", command = 'reducedforce', bit = 1 << 15, desc = Str_trans('Allows the vehicle to be stanced using the SET_REDUCED_SUSPENSION_FORCE native. Requires the FIX OLD BUGS flag to be enabled')},
     {name = "CF_HARD_REV_LIMIT", bit = 1 << 16, desc = Str_trans('Only working for Tuner cars, this uncaps the RPM in last gear which causes the power to drop off and lower the top speed of the car (effectively creating a speed cap in last gear). Previously this flag changed gear shift behaviour to cause earlier upshifts with a hard rev limit per gear, but this was changed with the Criminal Enterprises update')},
     {name = "CF_HOLD_GEAR_WITH_WHEELSPIN", bit = 1 << 17, desc = Str_trans('Later upshifts; usually hits the gears rev limit before shifting')},
     {name = "CF_INCREASE_SUSPENSION_FORCE_WITH_SPEED", bit = 1 << 18, desc = Str_trans('Anti-downforce suspension; increases suspension spring force as vehicle goes faster')},
@@ -43,7 +43,7 @@ Advanced_handling_flags = {
     {name = "CF_ALLOW_TURN_ON_SPOT", bit = 1 << 23, desc = Str_trans('Allows the vehicle to be rotated left or right while parked on the spot. Intended for tanks/tracked vehicles')},
     {name = "CF_CAN_WHEELIE", bit = 1 << 24, command = 'canwheelie', desc = Str_trans('Allows the vehicle to perform a handbrake wheelie. The Muscle vehicle class is hardcoded to use this flag')},
     {name = "CF_ENABLE_WHEEL_BLOCKER_SIDE_IMPACTS", bit = 1 << 25, desc = Str_trans('Makes the wheels much less likely to clip into the ground when the vehicle is tipped over')},
-    {name = "CF_FIX_OLD_BUGS", bit = 1 << 26, desc = Str_trans('Forced stock-tyre clipping boundaries, the sidewall gain/loss from a custom tyre will not matter. Refer to strHandlingFlags 00020000 above. Also prevents lowering the vehicle by shooting at its wheels/suspension. This flag is required in addition to ALLOW REDUCED SUSPENSION FORCE to stance the vehicle through script')},
+    {name = "CF_FIX_OLD_BUGS", bit = 1 << 26, command = 'fixoldbugs', desc = Str_trans('Forced stock-tyre clipping boundaries, the sidewall gain/loss from a custom tyre will not matter. Refer to strHandlingFlags 00020000 above. Also prevents lowering the vehicle by shooting at its wheels/suspension. This flag is required in addition to ALLOW REDUCED SUSPENSION FORCE to stance the vehicle through script')},
     {name = "CF_USE_DOWNFORCE_BIAS", bit = 1 << 27, desc = Str_trans('Changes the way Downforce and spoiler tuning works, uses the setup found on Open-Wheel class vehicles in the vanilla game. Each spoiler/bumper tuning has to be given AdvancedData values to affect downforce. Adjusts initial downforce from fDownforceModifier. Curb - boosting seems to be nullified')},
     {name = "CF_REDUCE_BODY_ROLL_WITH_SUSPENSION_MODS", bit = 1 << 28, desc = Str_trans('Reduces body-roll if suspension upgrades are equipped. In addition, the vehicle gains more grip with each suspension option')},
     {name = "CF_ALLOWS_EXTENDED_MODS", bit = 1 << 29, desc = Str_trans('Requires AdvancedData to work. Adds Turbo-affecting mods for mod slot 20 (VMT_KNOB) parts, and power-affecting mods for mod slot 22 (VMT_ICE) parts')},
@@ -5219,8 +5219,10 @@ SPClist = {
     'Lester',
     'Trevor',
     'Jesus',
-    'Furry',
-    'Yule Monster'
+    'Lamar',
+    'Dax',
+
+
 
 }
 
@@ -5229,8 +5231,8 @@ SPC = {
     'ig_lestercrest',
     'player_two',
     'u_m_m_jesus_01',
-    'IG_Furry',
-    'U_M_M_YuleMonster'
+    'IG_LamarDavis_02',
+    'IG_Dax', 
 }
 
 
