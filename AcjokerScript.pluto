@@ -11,7 +11,7 @@ require ('resources/AcjokerScript/translations')
 local LOADING_START = util.current_time_millis()
 LOADING_SCRIPT = true
 Script = {}
-Script.Version = "0.26.91"
+Script.Version = "0.26.92"
 
 local max_int = 2147483647
 local min_int = -2147483647
@@ -116,17 +116,17 @@ local auto_update_config = {
 
 auto_updater.run_auto_update(auto_update_config)
 
-
  --------------------Functions-------------------------------------
 function ACutil(text)
    return util.toast(text)
 end
 
-
-
-
-
-
+function ReturnPV()-- credits to Mr Robot
+    local slot = memory.script_global(2359296 + 1 + (0 * 5568) + 681 + 2)
+    local data = memory.script_global(1586468 + 1 + (memory.read_int(slot) * 142) + 103)
+    memory.write_int(data, memory.read_int(data) & ~(1 << 0))
+    ACutil(Str_trans('PV returned to storage'))
+end
 
 function Timemulti(secs, mins)
     secs = secs * 1000
@@ -421,6 +421,20 @@ local function getWaterHeightInclRivers(pos_x, pos_y, z_hint = 200.0) --OP funct
     local outHeight = memory.alloc(4)
     if WATER.TEST_VERTICAL_PROBE_AGAINST_ALL_WATER(pos_x, pos_y, z_hint, 0, outHeight) ~= 0 then
         return memory.read_float(outHeight)
+    end
+end
+
+function SetFlags()
+    local curcar = entities.get_user_vehicle_as_handle()
+    GetCloneVeh(curcar)
+    entities.delete_by_handle(curcar)
+    SetCloneVeh(clone, clomem)
+    io.remove(CloneVeh_Setting)
+    io.remove(CloneVehtog_Setting)
+    io.remove(CloneVehextra_Setting)
+    util.yield(250)
+    if entities.get_user_personal_vehicle_as_handle() != -1 then
+        ReturnPV()
     end
 end
 
@@ -4155,7 +4169,14 @@ menus.create_advanced_list = vehhandle:list(Str_trans("Advanced Flags"), {}, Str
     if Dlc(players.get_vehicle_model(players.user())) then
         if entities.get_user_vehicle_as_pointer(false) != 0 then
             for Advanced_handling_flags as flag do
-                build_veh_handling_menu(menus.create_advanced_list, true, flag, 0x003C)
+                local status, err = pcall(function()
+                    build_veh_handling_menu(menus.create_advanced_list, true, flag, 0x003C)
+                    local ezerror = setmetatable({}, ezerror)
+                end)
+                if not status then
+                  ACutil(Str_trans('Those flags can not be set on this vehicle'))
+                  return
+                end
             end
         else
             if set.alert then
@@ -4186,13 +4207,7 @@ end)
 
 
 vehhandle:action(T('Set Flags'), {'setflags'}, T('If the flags do not automatically set use this to set them'), function ()
-    local curcar = entities.get_user_vehicle_as_handle()
-    GetCloneVeh(curcar)
-    entities.delete_by_handle(curcar)
-    SetCloneVeh(clone, clomem)
-    io.remove(CloneVeh_Setting)
-    io.remove(CloneVehtog_Setting)
-    io.remove(CloneVehextra_Setting)
+   SetFlags()
 end)
 
 vehhandle:action(T('4 Wheel Steer'), {'Awheelsteer'}, T('If the flags do not automatically set use this to set them'), function ()
@@ -4237,7 +4252,14 @@ vehhandle:action(T('Wheelie'), {'Wheelie'}, T('Not every car can do a wheelie'),
     if Dlc(players.get_vehicle_model(players.user())) then
         if entities.get_user_vehicle_as_pointer(false) != 0 then
             for Advanced_handling_flags as flag do
-                build_veh_handling_menu(menus.create_advanced_list, true, flag, 0x003C)
+                    local status, err = pcall(function()
+                    build_veh_handling_menu(menus.create_advanced_list, true, flag, 0x003C)
+                    local ezerror = setmetatable({}, ezerror)
+                end)
+                if not status then
+                  ACutil(Str_trans('Those flags can not be set on this vehicle'))
+                  return
+                end
             end
         else
             if set.alert then
@@ -4253,15 +4275,24 @@ vehhandle:action(T('Wheelie'), {'Wheelie'}, T('Not every car can do a wheelie'),
     menu.trigger_commands('setflags')
 end)
 
-vehhandle:action(T('Stance'), {'Stance'}, T('Not every car can be stanced'), function ()
+vehhandle:action(T('Stance'), {'Stance'}, T('Not every car can be stanced (will not work on vehicles before the lowriders update and not all can be stanced)'), function ()
     for Vehicle_handling_menus as Vehicle_handling_menu do
         if Vehicle_handling_menu:isValid() then Vehicle_handling_menu:delete() end
     end
     if Dlc(players.get_vehicle_model(players.user())) then
         if entities.get_user_vehicle_as_pointer(false) != 0 then
             for Advanced_handling_flags as flag do
-                build_veh_handling_menu(menus.create_advanced_list, true, flag, 0x003C)
+                local status, err = pcall(function()
+                    build_veh_handling_menu(menus.create_advanced_list, true, flag, 0x003C)
+                    local ezerror = setmetatable({}, ezerror)
+                end)
+                if not status then
+                  ACutil(Str_trans('Those flags can not be set on this vehicle'))
+                  return
+                end
             end
+
+            
         else
             if set.alert then
                 ACutil(Str_trans('Not in Vehicle'))
