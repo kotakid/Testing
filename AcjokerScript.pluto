@@ -11,7 +11,7 @@ require ('resources/AcjokerScript/translations')
 local LOADING_START = util.current_time_millis()
 LOADING_SCRIPT = true
 Script = {}
-Script.Version = "0.27.9"
+Script.Version = "0.27.91"
 
 local max_int = 2147483647
 local min_int = -2147483647
@@ -2559,7 +2559,7 @@ end
 local appear = selfroot:list(T('Appearance'), {''}, T('Change your apperance'))
 
 
-appear:slider(T('Set Player Alpha'), {''}, T('Set your player invisible'), 0, 100, 100, 20, function (s)
+appear:slider(T('Set Player Alpha'), {''}, T('Set your player transparent'), 0, 100, 100, 20, function (s)
     ENTITY.SET_ENTITY_ALPHA(players.user_ped(), alphas[s / 20 + 1], false)
 end)
 
@@ -5781,7 +5781,7 @@ mxvmenu:action(T('Randomize Wheels'), {''}, T('Randomize the Wheels on the vehic
 end)
 
 
-vehroot:slider(T('Set Vehicle Alpha'), {''}, T('Set your vehicle invisible'), 0, 100, 100, 20, function (s)
+vehroot:slider(T('Set Vehicle Alpha'), {''}, T('Set your vehicle transparent'), 0, 100, 100, 20, function (s)
     ENTITY.SET_ENTITY_ALPHA(entities.get_user_vehicle_as_handle(), alphas[s / 20 + 1], false)
 end)
 

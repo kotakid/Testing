@@ -1,7 +1,7 @@
 --------------------------------------------Tables-----------------------------------------------------------
  require ('resources/AcjokerScript/translations')
 Table = {}
-Table.Version = "0.27.9"
+Table.Version = "0.27.91"
 
 
   Wheel_indexs = {
