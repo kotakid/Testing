@@ -2,7 +2,7 @@
 
 local translations = {}
 Lang = {}
-Lang.Version = "0.26.92"
+Lang.Version = "0.27.9"
 Template = false
 translations.lang = {}
 translations.current_translations = {}
@@ -67,7 +67,7 @@ if Template then --credits to Jerry123
             return lang.register(txt)
         end
        
-        for index, text in ipairs(complete_txt) do
+        for complete_txt as text do
             if txt == text then
                 return text
             end
@@ -2114,7 +2114,12 @@ translations.lang["zh"] = {
     ['Ptfx Spam 3 Scale'] = "PTFX Spam 3 Skalierung",
     ['PTFX Spam 4'] = "PTFX Spam 4",
     ['Ptfx Spam 4 Scale'] = "PTFX Spam 4 Skalierung",
-    ['Choose the scale of the PTFX'] = "Wähle die Skalierung des PTFX aus"
+    ['Choose the scale of the PTFX'] = "Wähle die Skalierung des PTFX aus",
+    ['Personal Vehicle returned to storage'] = "Persönliches Fahrzeug zurück in der Garage",
+    ['Those flags can not be set on this vehicle'] = "Diese Flags können nicht auf diesem Fahrzeug angewendet werden",
+    ['Stance'] = "Stance",
+    ['Not every car can be stanced (will not work on vehicles before the lowriders update and not all can be stanced)'] = "Nicht jedes Fahrzeug-Fahrwerk kann so getunt werden (funktioniert z.B. nicht bei Fahrzeugen vor dem Lowriders-Update).",
+    
     }
     --end German
 
@@ -3275,6 +3280,11 @@ translations.lang["pt"] = {
     ['PTFX Spam 4'] = "PTFX Spam 4",
     ['Ptfx Spam 4 Scale'] = "PTFX Spam 4 Escala",
     ['Choose the scale of the PTFX'] = "Escolha a escala do PTFX",
+    ['Personal Vehicle returned to storage'] = "Veículo Pessoal devolvido à garagem",
+    ['Those flags can not be set on this vehicle'] = "Essas flags não podem ser definidas neste veículo",
+    ['Stance'] = "Posição",
+    ['Not every car can be stanced (will not work on vehicles before the lowriders update and not all can be stanced)'] = "Nem todo carro pode ser posicionado(Não funcionará em veículos antes da atualização dos lowriders e nem todos podem ser posicionados)", 
+    
     }
     --end Portuguese
 
