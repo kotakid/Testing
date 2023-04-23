@@ -1,7 +1,28 @@
 --------------------------------------------Tables-----------------------------------------------------------
- require ('resources/AcjokerScript/translations')
 Table = {}
-Table.Version = "0.27.91"
+Table.Version = "0.28.9"
+
+  Ped_Component_Id = {
+ T('Head'),
+ T('Beard'),
+ T('Hair'),
+ T('Torso'),
+ T('Legs'),
+ T('Hands'),
+ T('Foot'),
+ T('None?'),
+ T('Accessories like parachute, scuba tank'),
+ T('Accessories like bags, mask, scuba mask'),
+ T('Decals and mask'),
+ T('Auxiliary parts for torso'),
+  }
+  Ped_Prop_Id = {
+    {0, T('Helmets, hats, earphones, masks')},
+    {1, T('Glasses')},
+    {2, T('Ear accessories')},
+    {6, T('Watches')},
+    {7, T('Braclets')},
+  }
 
 
   Wheel_indexs = {
