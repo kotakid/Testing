@@ -1,6 +1,20 @@
 --------------------------------------------Tables-----------------------------------------------------------
 Table = {}
-Table.Version = "0.28.9"
+Table.Version = "0.28.91"
+
+Pedgroupnames = {
+  T('Like Players'),
+  T('Dislike Players, Like Gangs'),
+  T('Hate Players, Like Gangs'),
+  T('Like Players, Hate Player Haters"'),
+  T('Dislike Players, Like Cops'),
+  T('Hate Players, Like Cops'),
+  T('Hate Everyone'),
+}
+
+
+
+
 
   Ped_Component_Id = {
  T('Head'),

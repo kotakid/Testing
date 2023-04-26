@@ -6,17 +6,19 @@
    --credits to aaronlink127#0127 for the ScaleformLib script and help with executing it
    --Script made by acjoker8818
    -------------------------------------------------------------------------
-require ('resources/AcjokerScript/translations')
+util.require_no_lag ('resources/AcjokerScript/translations')
 
 local LOADING_START = util.current_time_millis()
 LOADING_SCRIPT = true
 Script = {}
-Script.Version = "0.28.9"
+Script.Version = "0.28.91"
 
 local max_int = 2147483647
 local min_int = -2147483647
 util.require_natives(1663599433)
 util.ensure_package_is_installed('lua/ScaleformLib')
+util.ensure_package_is_installed('lua/pretty.json')
+json = require('pretty.json')
 util.require_no_lag('resources/AcjokerScript/ACJSTables')
 LANG_SETTINGS = {}
 LANG_SETTINGS.LANG_DIR = filesystem.resources_dir() .. 'AcjokerScript\\Languages\\'
@@ -80,8 +82,6 @@ function PedList(menusel, action_function)
 end
 
  ------------------
-
-
 ---
 --- Auto-Updater Lib Install
 ---
@@ -133,6 +133,8 @@ local auto_update_config = {
 
 
 auto_updater.run_auto_update(auto_update_config)
+
+
 
 
 
@@ -273,6 +275,115 @@ function Get_raycast_result(dist, flag)
     result.hitEntity = memory.read_int(hitEntity)
     return result
 end
+
+function get_input_from_screen_keyboard(windowName, maxInput, defaultText)
+    MISC.DISPLAY_ONSCREEN_KEYBOARD(0, windowName, "", defaultText, "", "", "", maxInput);
+    while MISC.UPDATE_ONSCREEN_KEYBOARD() == 0 do
+        util.yield_once()
+    end
+    if MISC.UPDATE_ONSCREEN_KEYBOARD() == 1 then
+        return MISC.GET_ONSCREEN_KEYBOARD_RESULT()
+    end
+    return ""
+end
+
+function Getoutfit(ped)
+    local tbl = {components = {}, props = {}}
+
+    for componentId, component in Ped_Component_Id do
+        tbl.components[componentId - 1] =
+        {drawableId = PED.GET_PED_DRAWABLE_VARIATION(ped, componentId - 1), textureId = PED.GET_PED_TEXTURE_VARIATION(ped, componentId - 1)}
+    end
+
+    for Ped_Prop_Id as props do
+        tbl.props[props[1]] =
+        {drawableId = PED.GET_PED_PROP_INDEX(ped, props[1]), textureId = PED.GET_PED_PROP_TEXTURE_INDEX(ped, props[1])}
+    end
+
+    return tbl
+end
+
+function GetInfo(handle)
+    local tbl = {
+        WeaponHash = WEAPON.GET_SELECTED_PED_WEAPON(handle),
+        Outfit = Getoutfit(handle),
+        ModelHash = ENTITY.GET_ENTITY_MODEL(handle),
+        Handle = handle
+    }
+    return tbl
+end
+function Bgsavenotext(handle, name)
+
+    local path = BodyguardsDir..name..'.json'
+    local file, errmsg = io.open(path, "w")
+    if not file then
+        return false, errmsg
+    end
+    file:write(json.stringify(GetInfo(handle), nil, 0, false))
+    file:close()
+    return true
+end
+
+function Bgsave(handle, name)
+    local input = ""
+    local label = 'Enter Bodyguard Name'
+    while true do
+        input = get_input_from_screen_keyboard(label, 31, name or "")
+        if input == "" then
+            return ACutil(Str_trans('No text entered save canceled'))
+        end
+
+        if not input:find '[^%w_%.%-]' then break end
+        label = ACutil(Str_trans('Invalid Character'))
+        util.yield(250)
+    end
+    local path = BodyguardsDir..input..'.json'
+    local file, errmsg = io.open(path, "w")
+    if not file then
+        return false, errmsg
+    end
+    file:write(json.stringify(GetInfo(handle), nil, 0, false))
+    file:close()
+    return input, true
+end
+
+function type_match (value, e)
+    local t = type(value)
+    for w in e:gmatch('[^|]+') do
+        if t == w then return true end
+    end
+    local msg = "must be %s, got %s"
+    return false, msg:format(e:gsub('|', " or "), t)
+end
+
+
+function Setoutfit(obj, handle)
+    local types =
+    {
+        components = "table",
+        props = "table"
+    }
+    for k, v in pairs(types) do
+        local ok, errmsg = type_match(obj[k], v)
+        if not ok then return false, "field " .. k .. ' ' .. errmsg end
+    end
+
+    for componentId, tbl in pairs(obj.components) do
+        if math.tointeger(componentId) and type(tbl.drawableId) == "number" and
+        type(tbl.textureId) == "number"  then
+            PED.SET_PED_COMPONENT_VARIATION(handle, math.tointeger(componentId), tbl.drawableId, tbl.textureId, 2)
+        end
+    end
+
+    for propId, tbl in pairs(obj.props) do
+        if math.tointeger(propId) and type(tbl.drawableId) == "number" and
+        type(tbl.textureId) == "number" then
+            PED.SET_PED_PROP_INDEX(handle, math.tointeger(propId), tbl.drawableId, tbl.textureId, true)
+        end
+    end
+    return true
+end
+
 
 
 ---end of wiris functions
@@ -2617,7 +2728,26 @@ function Nuke (expcoor)
     end
 end
 
+local function create_cam(veh) --credits to Hexarobi for the cam functions and help with them.
+    local cam_pos = ENTITY.GET_OFFSET_FROM_ENTITY_IN_WORLD_COORDS(veh, 0, 2, 5)
+    local camera = CAM.CREATE_CAM_WITH_PARAMS(
+        "DEFAULT_SCRIPTED_CAMERA",
+        cam_pos.x, cam_pos.y, cam_pos.z,
+        0.0, 0.0, 0.0, 70.0, false, false
+    )
+    CAM.POINT_CAM_AT_ENTITY(camera, veh, 0, 0, 0, true)
+    CAM.SET_CAM_ACTIVE(camera, true)
+    CAM.RENDER_SCRIPT_CAMS(true, true, 1000, true, true, 0)
+    util.yield(1000)
+    CAM.STOP_CAM_POINTING(camera)
+    return camera
+end
 
+local function destroy_cam(camera)
+    CAM.RENDER_SCRIPT_CAMS(false, false, 1000, true, false, 0)
+    CAM.DESTROY_CAM(camera, true)
+    CAM.DESTROY_ALL_CAMS(true)
+end 
 
 
 
@@ -2867,7 +2997,7 @@ local function regen_pet_list(root)
                 return true
             end)
             pets_list_menu:action(Str_trans('Bring to you'), {}, Str_trans('Bring pet to you'), function ()
-                local coords = ENTITY.GET_OFFSET_FROM_ENTITY_IN_WORLD_COORDS(players.user_ped(), 0, 1, 0)
+                local coords = ENTITY.GET_OFFSET_FROM_ENTITY_IN_WORLD_COORDS(players.user_ped(), math.random(-1, 1), math.random(-1, 1), 0)
                 SEC(v.handle, coords.x, coords.y, coords.z, false, true, true, false)
                 if set.alert then
                     ACutil(v.name..Str_trans(' Pet brought back'))
@@ -4661,26 +4791,7 @@ end)
 
 
 
-local function create_cam(veh) --credits to Hexarobi for the cam functions and help with them.
-    local cam_pos = ENTITY.GET_OFFSET_FROM_ENTITY_IN_WORLD_COORDS(veh, 0, 2, 5)
-    local camera = CAM.CREATE_CAM_WITH_PARAMS(
-        "DEFAULT_SCRIPTED_CAMERA",
-        cam_pos.x, cam_pos.y, cam_pos.z,
-        0.0, 0.0, 0.0, 70.0, false, false
-    )
-    CAM.POINT_CAM_AT_ENTITY(camera, veh, 0, 0, 0, true)
-    CAM.SET_CAM_ACTIVE(camera, true)
-    CAM.RENDER_SCRIPT_CAMS(true, true, 1000, true, true, 0)
-    util.yield(1000)
-    CAM.STOP_CAM_POINTING(camera)
-    return camera
-end
 
-local function destroy_cam(camera)
-    CAM.RENDER_SCRIPT_CAMS(false, false, 1000, true, false, 0)
-    CAM.DESTROY_CAM(camera, true)
-    CAM.DESTROY_ALL_CAMS(true)
-end
 
 local selected_vehicle
 local nearby_vehicle_cam
@@ -5844,7 +5955,7 @@ end)
 
 menu.toggle_loop(menus.speedruns, T('Instant Finish Checkpoint Collection'), {'instacheck'}, T('Instantly win Checkpoint Collection Session Event'), function ()
     if SCRIPT.GET_NUMBER_OF_THREADS_RUNNING_THE_SCRIPT_WITH_THIS_HASH(util.joaat("am_cp_collection")) != 0 then
-        SET_INT_LOCAL('am_cp_collection', 3456 + (NETWORK.PARTICIPANT_ID_TO_INT() / 5) + 4 + 1, 120)
+        SET_INT_LOCAL('am_cp_collection', 3456 + (NETWORK.PARTICIPANT_ID_TO_INT() + 5) + 4 + 1, 120)
         local int = GET_INT_LOCAL('am_cp_collection', 3456 + (NETWORK.PARTICIPANT_ID_TO_INT() + 5) + 4 + 1 )
         util.yield(10000)
         SET_INT_LOCAL('am_cp_collection', 815 + 708, 0)
