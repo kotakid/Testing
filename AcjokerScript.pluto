@@ -11,14 +11,12 @@ util.require_no_lag ('resources/AcjokerScript/translations')
 local LOADING_START = util.current_time_millis()
 LOADING_SCRIPT = true
 Script = {}
-Script.Version = "0.28.91"
+Script.Version = "0.28.92"
 
 local max_int = 2147483647
 local min_int = -2147483647
 util.require_natives(1663599433)
 util.ensure_package_is_installed('lua/ScaleformLib')
-util.ensure_package_is_installed('lua/pretty.json')
-json = require('pretty.json')
 util.require_no_lag('resources/AcjokerScript/ACJSTables')
 LANG_SETTINGS = {}
 LANG_SETTINGS.LANG_DIR = filesystem.resources_dir() .. 'AcjokerScript\\Languages\\'
@@ -41,12 +39,9 @@ local CloneVehtog_Setting = CONFIG_DIR .. "CloneVehtog.json"
 local CloneVehextra_Setting = CONFIG_DIR .. "CloneVehextra.json"
 local Logoloc = CONFIG_DIR..'intrologo.png'
 local CusSongsDir = CONFIG_DIR..'Songs\\'
-local BodyguardsDir = CONFIG_DIR..'Bodyguards\\'
 local Songfile = filesystem.stand_dir()..'Song.lrc'
 local Songs_Settings = CONFIG_DIR.. "Current Song Name.txt"
-
 filesystem.mkdirs(CusSongsDir)
-filesystem.mkdirs(BodyguardsDir)
 local clone = {}
 local clomem = {}
 local alphas = {0, 51, 102, 153, 204, 255}
