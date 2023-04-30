@@ -2,7 +2,7 @@
 
 local translations = {}
 Lang = {}
-Lang.Version = "0.28.91"
+Lang.Version = "0.29.9"
 Template = false
 translations.lang = {}
 translations.current_translations = {}
@@ -1379,6 +1379,13 @@ translations.lang["zh"] = {
     ['Set your vehicle transparent'] = "更改载具模型透明度",
     ['Respawn the pets on your pets list'] = "重生你的宠物",
     ['Change your apperance'] = "更改你的外观",
+    ['List of Songs'] = "歌曲列表",
+    ['List of Songs in your directory'] = "目录中的歌曲列表",
+    ['Change Sing in Chat song'] = "更改聊天中歌曲的播放",
+    ['Open Songs Folder'] = "打开歌曲文件夹",
+    ['Opens the folder containing your lrc songs'] = "打开包含 lrc 歌词文件的文件夹",
+    ['Drop a Nuke'] = "投放核弹",
+    ['Drop a nuke on the player it will spectate them to work better'] = "在玩家身上投放一颗核弹,观看玩家效果更佳",
 }
 
     --end Chinese
@@ -2187,7 +2194,14 @@ translations.lang["zh"] = {
     ['Those flags can not be set on this vehicle'] = "Diese Flags können nicht auf diesem Fahrzeug angewendet werden",
     ['Stance'] = "Stance",
     ['Not every car can be stanced (will not work on vehicles before the lowriders update and not all can be stanced)'] = "Nicht jedes Fahrzeug-Fahrwerk kann so getunt werden (funktioniert z.B. nicht bei Fahrzeugen vor dem Lowriders-Update).",
-    
+    ['List of Songs'] = "Liste von Liedern",
+    ['List of Songs in your directory'] = "Liste von Liedern aus deinem Verzeichnis",
+    ['Change Sing in Chat song'] = '"Sing im Chat Song" ändern',
+    ['Open Songs Folder'] = "Songs-Ordner öffnen",
+    ['Opens the folder containing your lrc songs'] = "öffnet den Ordner mit deinen lrc Songs",
+    ['Drop a Nuke'] = "Nuke droppen",
+    ['Drop a nuke on the player it will spectate them to work better'] = "Droppt eine Nuke auf den Spieler, schaut zu um besser zu funktionieren",
+
     }
     --end German
 
@@ -3379,6 +3393,13 @@ translations.lang["pt"] = {
     ['Set Player Alpha'] = "Definir Alpha do Jogador",
     ['Set your player transparent'] = "Definir seu jogador transparente",
     ['Turning on Godmode just in case'] = "Habilitando Godmode só por precaução",
+    ['List of Songs'] = "Lista de Músicas",
+    ['List of Songs in your directory'] = "Lista de Músicas em seu diretório",
+    ['Change Sing in Chat song'] = "Alterar a Música tocada no chat",
+    ['Open Songs Folder'] = "Abrir Pasta de Músicas",
+    ['Opens the folder containing your lrc songs'] = "Abre a pasta que contém suas músicas LRC",
+    ['Drop a Nuke'] = "Solte uma Bomba Nuclear",
+    ['Drop a nuke on the player it will spectate them to work better'] = "Solte uma bomba nuclear no jogador, irá espectar para funcionar melhor",
 
     }
     --end Portuguese
