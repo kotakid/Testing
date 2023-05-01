@@ -11,13 +11,14 @@ util.require_no_lag ('resources/AcjokerScript/translations')
 local LOADING_START = util.current_time_millis()
 LOADING_SCRIPT = true
 Script = {}
-Script.Version = "0.29.91"
+Script.Version = "0.29.92"
 
 local max_int = 2147483647
 local min_int = -2147483647
 util.require_natives(1663599433)
 util.ensure_package_is_installed('lua/ScaleformLib')
-util.ensure_package_is_installed('lua/pretty')
+util.ensure_package_is_installed('lua/quaternionLib')
+util.ensure_package_is_installed('lua/pretty.json')
 json = require('pretty.json')
 quaternion = require('quaternionLib')
 util.require_no_lag('resources/AcjokerScript/ACJSTables')
