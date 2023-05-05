@@ -1,6 +1,6 @@
 --------------------------------------------Tables-----------------------------------------------------------
 Table = {}
-Table.Version = "0.29.9"
+Table.Version = "0.30.0"
 
 Ped_weapons = {
       {
@@ -555,18 +555,42 @@ Ped_weapons = {
 
 
 
-Complete_Object_List = { --modified list from saltyscript
-    {"prop_bush_med_03", T("Bush")},
-    {"prop_boxpile_02c", T("Boxpile")},
-    {"prop_busstop_02", T("Bus Stop")},
-    {"sum_prop_ac_sarcophagus_01a", T("Pharaoh")},
-    {"sf_prop_sf_vend_drink_01a", T("Junk Vending Machine")},
-    {"prop_palm_fan_03_b", T("Palm Tree")},
-    {"prop_mobile_mast_2", T("Road Cone")},
-    {"prop_forsalejr4", T("For Sale Sign")},
-    {"prop_phonebox_01b", T("Phonebox")},
-    {"prop_recyclebin_04_b", T("Recycle Bin")}
-}
+Complete_Object_List = { --modified list from saltyscript additional ones by WandaMaxximoff
+    {hash = "prop_bush_med_03",name = T("Bush")},
+    {hash = "prop_boxpile_02c",name = T("Boxpile")},
+    {hash = "prop_busstop_02",name = T("Bus Stop")},
+    {hash = "sum_prop_ac_sarcophagus_01a",name = T("Pharaoh")},
+    {hash = "sf_prop_sf_vend_drink_01a",name = T("Junk Vending Machine")},
+    {hash = "prop_palm_fan_03_b",name = T("Palm Tree")},
+    {hash = "prop_mobile_mast_2",name = T("Road Cone")},
+    {hash = "prop_forsalejr4",name = T("For Sale Sign")},
+    {hash = "prop_phonebox_01b",name = T("Phone Stand")},
+    {hash = "prop_recyclebin_04_b",name = T("Recycle Bin")},
+    {hash = "csx_seabed_rock7_",name = T("Seabed Rock")},
+    {hash = "prop_table_03_chr",name = T("Lawn Chair")},
+    {hash = "v_ilev_gold",name = T("Gold Bars")},
+    {hash = "ch_prop_ch_gazebo_01",name = T("Popup Tent")},
+    {hash = "prop_airport_sale_sign",name = T("Airpoint For Sale Sign")},
+    {hash = "sf_prop_sf_art_statue_01a",name = T("Art Statue")},
+    {hash = "vw_prop_casino_art_statue_02a",name = T("Twerking Art Statue")},
+    {hash = "prop_gas_pump_old2",name = T("Old Gas Pump")},
+    {hash = "prop_ztype_covered",name = T("Covered Z-Type Vehicle")},
+    {hash = "prop_jetski_trailer_01",name = T("Jetski Trailer")},
+    {hash = "prop_fountain1",name = T("Fountain")},
+    {hash = "prop_patio_lounger1",name = T("Patio Lounger")},
+    {hash = "prop_roadpole_01a",name = T("Road Pole")},
+    {hash = "prop_parasol_04",name = T("Table Umbrella")},
+    {hash = "prop_beach_ring_01",name = T("Inflatable Tube")},
+    {hash = "prop_pallet_pile_02",name = T("Pile of Pallets")},
+    {hash = "prop_air_cargo_04b",name = T("Air Cargo")},
+    {hash = "prop_bollard_02a",name = T("Street Post")},
+    {hash = "prop_phonebox_04",name = T("Phonebox")},
+    {hash = "prop_traffic_03a",name = T("Traffic Light")},
+    {hash = "prop_sign_road_03e",name = T("Do Not Block Intersection Sign")},
+    
+
+
+}   
 
 
 

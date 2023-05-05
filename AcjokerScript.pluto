@@ -11,7 +11,7 @@ util.require_no_lag ('resources/AcjokerScript/translations')
 local LOADING_START = util.current_time_millis()
 LOADING_SCRIPT = true
 Script = {}
-Script.Version = "0.29.92"
+Script.Version = "0.30.0"
 
 local max_int = 2147483647
 local min_int = -2147483647
@@ -77,7 +77,7 @@ disbetheli = nil, delveh = false}
 local vehatkset = {invis = false, invinc = true, attkrveh = 'minitank', atkv = 0, vlcount = 1, vehdelete = false, weapon = 'weapon_railgun',
 disbetveh = nil, delveh = false}
 local spawatk = {}
-
+Bgformationlist =  {Str_trans('Default'), Str_trans('Circle Around Leader') ,Str_trans('Alternative Circle Around Leader') ,Str_trans('Line, with Leader at center')}
 
 my:action(T('Player Options'), {}, T('Redirects you to the Player list in Stand for the Trolling and Friendly options'), function ()
     menu.ref_by_path("Players"):trigger()
@@ -118,7 +118,6 @@ function Combinetab(result, ...)
 end
 
  ------------------
-
 ---
 --- Auto-Updater Lib Install
 ---
@@ -180,6 +179,7 @@ local auto_update_config = {
 
 
 auto_updater.run_auto_update(auto_update_config)
+     
 
 
  --------------------Functions-------------------------------------
@@ -272,6 +272,7 @@ local function add_weaponized(hash, attachment, offsetx, offsety, offsetz, input
 end
 
 
+
 local gizmo_scale = 0.02
 local grabbed_gizmo_index = -1  
 local current_ent = -1
@@ -280,6 +281,7 @@ function GizmoEdit()--Gizmo made by Tonk
 local colour = {r = 255, g = 0, b = 255, a = 255}
     if not gizmo then return end
     local cur_veh = entities.get_user_vehicle_as_handle()
+    SFgizmo()
     GRAPHICS.SET_DEPTHWRITING(true)
     HUD.SET_MOUSE_CURSOR_THIS_FRAME()
     PAD.DISABLE_CONTROL_ACTION(2, 25, true) --aim
@@ -429,6 +431,9 @@ function Petfollow(pet)
     for pt_lis as pet do
         PED.SET_PED_AS_GROUP_MEMBER(pet, pg)
         PED.SET_PED_AS_GROUP_LEADER(players.user_ped(), pg)
+        PED.SET_GROUP_SEPARATION_RANGE(pg, 9999.0)
+        PED.SET_GROUP_FORMATION_SPACING(pg, 1.0, -1.0, -1.0)
+        PED.SET_GROUP_FORMATION(pg, Pet_formation)
         PED.SET_PED_CAN_BE_TARGETTED_BY_TEAM(pet, pg, false)
         ENTITY.SET_ENTITY_CAN_BE_DAMAGED_BY_RELATIONSHIP_GROUP(players.user_ped(), false, pg)
         AddBlip(pet, 1, 3)
@@ -440,8 +445,6 @@ function Petfollow(pet)
     end
     pt_tb = pet_tab
     for pet_tab as pet do
-        TASK.TASK_GO_TO_ENTITY(pet, players.user_ped(),  -1, 1, 500.0, 0.0, 0)
-        
         PED.SET_PED_CAN_BE_TARGETTED_BY_PLAYER(pet, players.user_ped(), false)
         PED.SET_PED_CONFIG_FLAG(pet, 13, true)--never leave group
         PED.SET_PED_CONFIG_FLAG(pet, 42, true)--dont influence wanted
@@ -946,6 +949,16 @@ function SF() --Scaleform Full credits to aaron
     sf.DRAW_INSTRUCTIONAL_BUTTONS()
     sf:draw_fullscreen()
 end
+
+function SFgizmo() 
+    Hudhide()
+    sf.SET_DATA_SLOT(1,PAD.GET_CONTROL_INSTRUCTIONAL_BUTTONS_STRING(0, 238, true), Str_trans('Select Attachment'))
+    sf.SET_DATA_SLOT(0,PAD.GET_CONTROL_INSTRUCTIONAL_BUTTONS_STRING(0, 237, true), Str_trans('Rotate Camera'))
+    sf.DRAW_INSTRUCTIONAL_BUTTONS()
+    sf:draw_fullscreen()
+end
+
+
 
 function SFlsd() 
     Hudhide()
@@ -1890,98 +1903,12 @@ function AddBlip(entity, blipSprite, colour)-- wiri function
 end
 
 
--- From GridSpawn credits to Tonk
+
 local  colour = {r=0,g=255,b=0,a=255}
 if colour == nil then
   colour = {r=255,g=0,b=0,a=255}
 end
-local minimum = memory.alloc()
-local maximum = memory.alloc()
-local upVector_pointer = memory.alloc()
-local rightVector_pointer = memory.alloc()
-local forwardVector_pointer = memory.alloc()
-local position_pointer = memory.alloc()
-local draw_bounding_box = function (entity, colour)
-  ENTITY.GET_ENTITY_MATRIX(entity, rightVector_pointer, forwardVector_pointer, upVector_pointer, position_pointer);
-  local forward_vector = v3.new(forwardVector_pointer)
-  local right_vector = v3.new(rightVector_pointer)
-  local up_vector = v3.new(upVector_pointer)
 
-  MISC.GET_MODEL_DIMENSIONS(ENTITY.GET_ENTITY_MODEL(entity), minimum, maximum)
-  local minimum_vec = v3.new(minimum)
-  local maximum_vec = v3.new(maximum)
-  local dimensions = {x = maximum_vec.y - minimum_vec.y, y = maximum_vec.x - minimum_vec.x, z = maximum_vec.z - minimum_vec.z}
-
-  local top_right =           ENTITY.GET_OFFSET_FROM_ENTITY_IN_WORLD_COORDS(entity,       maximum_vec.x, maximum_vec.y, maximum_vec.z)
-  local top_right_back =      {x = forward_vector.x * -dimensions.y + top_right.x,        y = forward_vector.y * -dimensions.y + top_right.y,         z = forward_vector.z * -dimensions.y + top_right.z}
-  local bottom_right_back =   {x = up_vector.x * -dimensions.z + top_right_back.x,        y = up_vector.y * -dimensions.z + top_right_back.y,         z = up_vector.z * -dimensions.z + top_right_back.z}
-  local bottom_left_back =    {x = -right_vector.x * dimensions.x + bottom_right_back.x,  y = -right_vector.y * dimensions.x + bottom_right_back.y,   z = -right_vector.z * dimensions.x + bottom_right_back.z}
-  local top_left =            {x = -right_vector.x * dimensions.x + top_right.x,          y = -right_vector.y * dimensions.x + top_right.y,           z = -right_vector.z * dimensions.x + top_right.z}
-  local bottom_right =        {x = -up_vector.x * dimensions.z + top_right.x,             y = -up_vector.y * dimensions.z + top_right.y,              z = -up_vector.z * dimensions.z + top_right.z}
-  local bottom_left =         {x = forward_vector.x * dimensions.y + bottom_left_back.x,  y = forward_vector.y * dimensions.y + bottom_left_back.y,   z = forward_vector.z * dimensions.y + bottom_left_back.z}
-  local top_left_back =       {x = up_vector.x * dimensions.z + bottom_left_back.x,       y = up_vector.y * dimensions.z + bottom_left_back.y,        z = up_vector.z * dimensions.z + bottom_left_back.z}
-
-  GRAPHICS.DRAW_LINE(
-      top_right.x, top_right.y, top_right.z,
-      top_right_back.x, top_right_back.y, top_right_back.z,
-     colour.r, colour.g, colour.b, colour.a
-  )
-  GRAPHICS.DRAW_LINE(
-      top_right.x, top_right.y, top_right.z,
-      top_left.x, top_left.y, top_left.z,
-     colour.r, colour.g, colour.b, colour.a
-  )
-  GRAPHICS.DRAW_LINE(
-      top_right.x, top_right.y, top_right.z,
-      bottom_right.x, bottom_right.y, bottom_right.z,
-     colour.r, colour.g, colour.b, colour.a
-  )
-  GRAPHICS.DRAW_LINE(
-      bottom_left_back.x, bottom_left_back.y, bottom_left_back.z,
-      bottom_right_back.x, bottom_right_back.y, bottom_right_back.z,
-     colour.r, colour.g, colour.b, colour.a
-  )
-  GRAPHICS.DRAW_LINE(
-      bottom_left_back.x, bottom_left_back.y, bottom_left_back.z,
-      bottom_left.x, bottom_left.y, bottom_left.z,
-     colour.r, colour.g, colour.b, colour.a
-  )
-  GRAPHICS.DRAW_LINE(
-      bottom_left_back.x, bottom_left_back.y, bottom_left_back.z,
-      top_left_back.x, top_left_back.y, top_left_back.z,
-     colour.r, colour.g, colour.b, colour.a
-  )
-  GRAPHICS.DRAW_LINE(
-      top_left_back.x, top_left_back.y, top_left_back.z,
-      top_right_back.x, top_right_back.y, top_right_back.z,
-     colour.r, colour.g, colour.b, colour.a
-  )
-  GRAPHICS.DRAW_LINE(
-      top_left_back.x, top_left_back.y, top_left_back.z,
-      top_left.x, top_left.y, top_left.z,
-     colour.r, colour.g, colour.b, colour.a
-  )
-  GRAPHICS.DRAW_LINE(
-      bottom_right_back.x, bottom_right_back.y, bottom_right_back.z,
-      top_right_back.x, top_right_back.y, top_right_back.z,
-     colour.r, colour.g, colour.b, colour.a
-  )
-  GRAPHICS.DRAW_LINE(
-      bottom_left.x, bottom_left.y, bottom_left.z,
-      top_left.x, top_left.y, top_left.z,
-     colour.r, colour.g, colour.b, colour.a
-  )
-  GRAPHICS.DRAW_LINE(
-      bottom_left.x, bottom_left.y, bottom_left.z,
-      bottom_right.x, bottom_right.y, bottom_right.z,
-     colour.r, colour.g, colour.b, colour.a
-  )
-  GRAPHICS.DRAW_LINE(
-      bottom_right_back.x, bottom_right_back.y, bottom_right_back.z,
-      bottom_right.x, bottom_right.y, bottom_right.z,
-     colour.r, colour.g, colour.b, colour.a
-  )
-end
     
 
 
@@ -2663,8 +2590,8 @@ function AimbotTarget(aimbot, aim_target, rgb)
         draw_bounding_box(aim_target, color)
     end
     if aimbot.curweap and PED.IS_PED_SHOOTING(players.user_ped()) then
-       aimbot.weapon = util.reverse_joaat(WEAPON.GET_SELECTED_PED_WEAPON(players.user_ped()))
-       ShootPed(aim_target, util.joaat(aimbot.weapon))
+       aimbot.weapon = WEAPON.GET_SELECTED_PED_WEAPON(players.user_ped())
+       ShootPed(aim_target, aimbot.weapon)
     elseif not aimbot.curweap and PED.IS_PED_SHOOTING(players.user_ped()) then
         ShootPed(aim_target, util.joaat(aimbot.weapon))
     end
@@ -3171,12 +3098,43 @@ end)
 
 
 local Clone_object = {}
+local cloneobjset = {transform = false, sfset = false}
 local objclone = appear:list(T('Clone any Object'), {''}, '')
 objclone:toggle_loop(T('Clone any Object'), {'Obj clone'}, T('Clone yourself to an object'), function ()
     local targetEntity = memory.alloc()
-        if PLAYER.GET_ENTITY_PLAYER_IS_FREE_AIMING_AT(players.user(), targetEntity) then
+
+        if PLAYER.GET_ENTITY_PLAYER_IS_FREE_AIMING_AT(players.user(), targetEntity) and not cloneobjset.transform then
             if ENTITY.IS_ENTITY_AN_OBJECT(memory.read_int(targetEntity)) then
                 local obj_hash = ENTITY.GET_ENTITY_MODEL(memory.read_int(targetEntity))
+                local object
+                if STREAMING.IS_MODEL_VALID(obj_hash) then
+                    Streament(obj_hash)
+                    menu.ref_by_path("Self>Appearance>Invisibility>Enabled"):trigger()
+                    local pos = ENTITY.GET_ENTITY_COORDS(players.user_ped())
+                    object = entities.create_object(obj_hash, pos)
+                    table.insert(Clone_object, object)
+                end
+                for Clone_object as object do
+                    while ENTITY.DOES_ENTITY_EXIST(object) do
+                        local pos2 = ENTITY.GET_ENTITY_COORDS(players.user_ped())
+                        local player_rot = ENTITY.GET_ENTITY_ROTATION(players.user_ped(), 5)
+                        ENTITY.SET_ENTITY_INVINCIBLE(object, true)
+                        ENTITY.SET_ENTITY_ROTATION(object, player_rot.x, player_rot.y, player_rot.z - 180, false, false, false, false)
+                        ENTITY.SET_ENTITY_NO_COLLISION_ENTITY(players.user_ped(), object, false)
+                        SEC(object, pos2.x, pos2.y, pos2.z - 1, false, true, true, false)
+                        util.yield()
+                    end
+                    targetEntity = nil
+                end
+            end
+        elseif Is_player_pointing() and cloneobjset.transform then
+                memory.write_int(memory.script_global(4521801 + 935), NETWORK.GET_NETWORK_TIME())
+                local raycastResult = Get_raycast_result(500.0, 16)
+                if raycastResult.didHit and ENTITY.DOES_ENTITY_EXIST(raycastResult.hitEntity) then
+                    targetEntity = raycastResult.hitEntity
+                end
+            if ENTITY.IS_ENTITY_AN_OBJECT(targetEntity) then
+                local obj_hash = ENTITY.GET_ENTITY_MODEL(targetEntity)
                 local object
                 if STREAMING.IS_MODEL_VALID(obj_hash) then
                     Streament(obj_hash)
@@ -3213,36 +3171,47 @@ objclone:action(T('Delete Prop'), {'delprop'}, T('Delete the current prop and re
     menu.ref_by_path('Self>Appearance>Invisibility>Disabled'):trigger()
 end)
 
-menus.objclone = objclone:list(T('Turn into a prop'), {''}, T('Turn yourself into one of the list of props'))
-for Complete_Object_List as object do
-    menus.objclone:action(object[2], {''}, T('Turn yourself into one of the list of props'), function ()
-        DelEnt(Clone_object)
-        local hash = util.joaat(object[1])
+objclone:toggle(T('Change transformation'), {''}, T('Change how you transform from aiming to pointing'), function (on)
+    if on then
+        cloneobjset.transform = true
+    else
+        cloneobjset.transform = false
+    end
+end)
+
+menus.objclone = objclone:list(T('Turn into a prop'), {''}, T('Turn yourself into one of the list of props'), function ()
+    for Complete_Object_List as object do
+    menus.objclone:action(object.name, {''}, T('Turn yourself into one of the list of props'), function ()
+        local hash = util.joaat(object.hash)
         Streament(hash)
         menu.ref_by_path("Self>Appearance>Invisibility>Enabled"):trigger()
         local pos = ENTITY.GET_ENTITY_COORDS(players.user_ped())
-        if not ENTITY.DOES_ENTITY_EXIST(object[1]) then
-            object = entities.create_object(hash, pos)
-            table.insert(Clone_object, object)
+        DelEnt(Clone_object)
+        if not ENTITY.DOES_ENTITY_EXIST(objectspawn) then
+            objectspawn = entities.create_object(hash, pos)
+            table.insert(Clone_object, objectspawn)
         end
-        for Clone_object as object do
-            while ENTITY.DOES_ENTITY_EXIST(object) do
+        for Clone_object as obj do
+            while ENTITY.DOES_ENTITY_EXIST(obj) do
                 local pos2 = ENTITY.GET_ENTITY_COORDS(players.user_ped())
                 local player_rot = ENTITY.GET_ENTITY_ROTATION(players.user_ped(), 5)
-                ENTITY.SET_ENTITY_INVINCIBLE(object, true)
-                ENTITY.SET_ENTITY_ROTATION(object, player_rot.x, player_rot.y, player_rot.z - 180, false, false, false, false)
-                ENTITY.SET_ENTITY_NO_COLLISION_ENTITY(players.user_ped(), object, false)
-                SEC(object, pos2.x, pos2.y, pos2.z - 1, false, true, true, false)
+                ENTITY.SET_ENTITY_INVINCIBLE(obj, true)
+                ENTITY.SET_ENTITY_ROTATION(obj, player_rot.x, player_rot.y, player_rot.z - 180, false, false, false, false)
+                ENTITY.SET_ENTITY_NO_COLLISION_ENTITY(players.user_ped(), obj, false)
+                SEC(obj, pos2.x, pos2.y, pos2.z - 1, false, true, true, false)
                 util.yield()
             end
         end
     end)
 end
+end)
+
 
 menus.objclone:action(T('Delete Prop'), {'delprop'}, T('Delete the current prop and revert back to yourself'), function ()
     DelEnt(Clone_object)
     menu.ref_by_path('Self>Appearance>Invisibility>Disabled'):trigger()
 end)
+
 
 
 
@@ -3571,7 +3540,7 @@ SvBglist = menus.bg:list(T('Saved Bodyguards'), {''}, T('A list of your saved bo
 end)
 
 
-Bgformationlist =  {Str_trans('Default'), Str_trans('Circle Around Leader') ,Str_trans('Alternative Circle Around Leader') ,Str_trans('Line, with Leader at center')}
+
 menus.group:list_action(T('Bodyguard Formations'), {''}, 'A list of your bodyguards formations', Bgformationlist, function (index)
     Bodyg_formation = index - 1
     local bgg = PED.GET_PED_GROUP_INDEX(PLAYER.GET_PLAYER_PED_SCRIPT_INDEX(players.user()))
@@ -3726,12 +3695,11 @@ menus.pets:list_action(T('Spawn Pet'), {''}, T('Change the pet you create'), Pet
 
     pethash = Petsn[petsel]
     local pos = ENTITY.GET_OFFSET_FROM_ENTITY_IN_WORLD_COORDS(players.user_ped(), 0, 1, 0)
-    if petz >= 7 then ACutil(Str_trans('Too many pets')) return end
+    if #pets >= 7 then ACutil(Str_trans('Too many pets')) return end
     local pet = Petcreate(pethash, pos)
     entities.set_can_migrate(entities.handle_to_pointer(pet), false)
-    petz =  ++petz
     table.insert(pets, pet)
-    add_pet(Petslist[petsel], pethash, petz, pet)
+    add_pet(Petslist[petsel], pethash, pet)
     Petfollow(pet)
     menu.trigger_commands('bringpets')
 
@@ -3745,19 +3713,18 @@ menus.pets:action(T('Respawn Pets'), {'respawnpets'}, T('Respawn the pets on you
     pload = Load_settings(Pets_List)
     pets = {}
     local coor = ENTITY.GET_OFFSET_FROM_ENTITY_IN_WORLD_COORDS(players.user_ped(), 0, 1, 0)
-    if petz >= 7 then ACutil(Str_trans('Too many pets')) return end
+    if #pets >= 7 then ACutil(Str_trans('Too many pets')) return end
     for pload as v do
         v.handle = 0
         local pet = Petcreate(v.hash, coor)
         v.handle = pet
-        petz =  ++petz
         table.insert(pets, pet)
-        add_pet(v.name, v.hash, petz, pet)
+        add_pet(v.name, v.hash, pet)
         Petfollow(pet)
     end
     io.remove(Pets_List)
     Save_settings(Pets_List, pload)
-    return petz
+    return
 end)
 
 
@@ -3777,6 +3744,11 @@ menus.pets:action(T('Completely Delete Pets'), {'delpets'}, T('Delete all the pe
     petz = 0
 end)
 
+menus.pets:list_action(T('Pets Formations'), {''}, 'A list of your pets formations', Bgformationlist, function (index)
+    Pet_formation = index - 1
+    local pg = PED.GET_PED_GROUP_INDEX(PLAYER.GET_PLAYER_PED_SCRIPT_INDEX(players.user()))
+    PED.SET_GROUP_FORMATION(pg, Pet_formation)
+end)
 
 
 
@@ -4690,9 +4662,6 @@ end)
 menu.toggle_loop(menus.aimbotkillist, T('Add Strangers to Kill List'), {''}, T('Add Strangers that kill you to Kill List'), function (on)
     if PED.IS_PED_DEAD_OR_DYING(players.user_ped()) then
         local killer = PED.GET_PED_SOURCE_OF_DEATH(players.user_ped())
-        if not PED.IS_PED_A_PLAYER(killer) then
-            return
-        end
         if killer == players.user_ped() then return end
         local pid = NETWORK.NETWORK_GET_PLAYER_INDEX_FROM_PED(killer)
         if not Friend_player(pid) then
@@ -5180,6 +5149,7 @@ menus.addon = menus.locations:action(Str_trans('Add a location'), {'addloc'}, St
 end)
 
 
+
 menus.locations:action(Str_trans('Delete all locations'), {''}, Str_trans('Delete all locations (does not delete the locations in the original file)'), function ()
     DelEnt(weapon_attach)
 end)
@@ -5251,8 +5221,6 @@ menus.locations:slider_float("Gizmo scale", {"GizmoScale"}, "Set the scale of th
 end)
 
 
-local current_ent = -1
-local grabbed_gizmo_index = -1
 menus.gizmo = menus.locations:toggle(Str_trans('Turn on Gizmo Movement'), {''}, Str_trans('Move the attachments around with arrows to place them where you want them'), function (on)
 
     if on then
@@ -5264,7 +5232,8 @@ menus.gizmo = menus.locations:toggle(Str_trans('Turn on Gizmo Movement'), {''}, 
     end
 
 end)
-
+menus.addon:onFocus(function () menus.gizmo.value = true end)
+menus.locations:onFocus(function () menus.gizmo.value = false end)
 util.create_tick_handler(GizmoEdit)
 
 WVSlist = menus.vehweap:list(T('Saved Vehicles'), {''}, T('A list of your saved weaponized vehicles'), function ()
@@ -6753,6 +6722,35 @@ vehroot:slider(T('Set Vehicle Alpha'), {''}, T('Set your vehicle transparent'), 
 end)
 
 
+vehroot:toggle_loop(T('Turn Signals'), {''}, T('Activate turn signals for your vehicle'), function ()
+    local curcar = entities.get_user_vehicle_as_handle(false)
+    if curcar != -1 then
+        if PAD.IS_CONTROL_PRESSED(0, 63) then
+            VEHICLE.SET_VEHICLE_INDICATOR_LIGHTS(curcar, 1, true)
+        else
+            VEHICLE.SET_VEHICLE_INDICATOR_LIGHTS(curcar, 1, false)
+        end
+        if PAD.IS_CONTROL_PRESSED(0, 64) then
+            VEHICLE.SET_VEHICLE_INDICATOR_LIGHTS(curcar, 0, true)
+        else
+            VEHICLE.SET_VEHICLE_INDICATOR_LIGHTS(curcar, 0, false)
+        end
+    else
+        util.yield()
+    end
+end)
+
+vehroot:toggle_loop(T('Hazard Lights'), {''}, T('Activate all the turn signals for your vehicle'), function ()
+    local curcar = entities.get_user_vehicle_as_handle(false)
+    VEHICLE.SET_VEHICLE_INDICATOR_LIGHTS(curcar, 0, true)
+    VEHICLE.SET_VEHICLE_INDICATOR_LIGHTS(curcar, 1, true)
+end, function ()
+    local curcar = entities.get_user_vehicle_as_handle(false)
+    VEHICLE.SET_VEHICLE_INDICATOR_LIGHTS(curcar, 0, false)
+    VEHICLE.SET_VEHICLE_INDICATOR_LIGHTS(curcar, 1, false)
+end)
+
+
 --------------------------------------------------------------
 menus.singinchat = onlineroot:list( T('Change Sing in Chat song'), {}, '')
 
@@ -6779,8 +6777,8 @@ end)
 
 menu.toggle_loop(menus.speedruns, T('Instant Finish Checkpoint Collection'), {'instacheck'}, T('Instantly win Checkpoint Collection Session Event'), function ()
     if SCRIPT.GET_NUMBER_OF_THREADS_RUNNING_THE_SCRIPT_WITH_THIS_HASH(util.joaat("am_cp_collection")) != 0 then
-        SET_INT_LOCAL('am_cp_collection', 3456 + (NETWORK.PARTICIPANT_ID_TO_INT() + 5) + 4 + 1, 120)
-        local int = GET_INT_LOCAL('am_cp_collection', 3456 + (NETWORK.PARTICIPANT_ID_TO_INT() + 5) + 4 + 1 )
+        SET_INT_LOCAL('am_cp_collection', 3456 + (NETWORK.PARTICIPANT_ID_TO_INT() + 5) + 4, 120)
+        local int = GET_INT_LOCAL('am_cp_collection', 3456 + (NETWORK.PARTICIPANT_ID_TO_INT() + 5) + 4 )
         util.yield(10000)
         SET_INT_LOCAL('am_cp_collection', 815 + 708, 0)
         SET_INT_LOCAL('am_cp_collection', 815 + 661, 0)--finish 
@@ -7480,6 +7478,9 @@ players.add_command_hook(function(pid)
 
     
     local trollm = menu.list(menu.player_root(pid), T('Trolling'), {}, '' )
+
+
+
 
     trollm:action(T('Drop a Nuke'), {'nukem'}, T('Drop a nuke on the player it will spectate them to work better'), function ()
         local spec = GetSpec(pid)
