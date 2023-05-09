@@ -2,7 +2,7 @@
 
 local translations = {}
 Lang = {}
-Lang.Version = "0.30.9"
+Lang.Version = "0.30.91"
 Template = false
 translations.lang = {}
 translations.current_translations = {}
@@ -5766,7 +5766,7 @@ translations.lang["ru"] = {
     ['Teleports you to the Pegasus Taxi and starts the auto teleport (taxi must be called in already)'] = "Телепортирует вас в такси Pegasus и запускает автоматическую телепортацию (такси должно быть уже вызвано)",
     ['Auto TP to Taxi Pickup'] = "Автоматическая отправка в пункт приема такси",
     ['Auto teleports to the Taxi Pickup Person, picks them up and drops them off until you are not in a taxi anymore'] = "Автоматическая телепортация к человеку, который забирает такси, забирает их и высаживает, пока вы не окажетесь не в такси",
-    ['Change NPC'] = "Выбрать npc"
+    ['Change NPC'] = "Выбрать npc",
     ['Animals'] = "Животные",
     ['Change NPC to an animal'] = "Заменить NPC на животное",
     ['Spawn Ped/Animal'] = "Создать npc или животное",
@@ -5960,12 +5960,12 @@ translations.lang["ru"] = {
     ['Free from Object Cage'] = "Освободить из клетки предметов",
     ['Taxi Service'] = "Такси сервис",
     ['NPC Spawner'] = "Заспавнить npc",
-    
 
 
 
 
-    
+
+
  }
 
 --end Russian
