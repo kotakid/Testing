@@ -11,7 +11,7 @@ util.require_no_lag ('resources/AcjokerScript/translations')
 local LOADING_START = util.current_time_millis()
 LOADING_SCRIPT = true
 Script = {}
-Script.Version = "0.30.9"
+Script.Version = "0.31.9"
 
 local max_int = 2147483647
 local min_int = -2147483647
@@ -44,6 +44,7 @@ local Superman_Setting = CONFIG_DIR .. "Superman.txt"
 local CloneVeh_Setting = CONFIG_DIR .. "CloneVeh.json"
 local CloneVehtog_Setting = CONFIG_DIR .. "CloneVehtog.json"
 local CloneVehextra_Setting = CONFIG_DIR .. "CloneVehextra.json"
+
 local Logoloc = CONFIG_DIR..'intrologo.png'
 local DeathlogDir = CONFIG_DIR..'Death Log\\'
 local CusSongsDir = CONFIG_DIR..'Songs\\'
@@ -126,7 +127,6 @@ end
 
 
  ------------------
-
 ---
 --- Auto-Updater Lib Install
 ---
@@ -188,7 +188,6 @@ local auto_update_config = {
 
 
 auto_updater.run_auto_update(auto_update_config)
-
 
 
 
@@ -626,7 +625,12 @@ function type_match (value, e)
 end
 
 
-function Setoutfit(obj, handle)
+function Setoutfit(obj, handle, hash)
+    if hash == 1885233650 or hash == 2627665880 then
+        PED.CLONE_PED_TO_TARGET(players.user_ped(), handle)
+    end
+
+
     local types =
     {
         components = "table",
@@ -650,6 +654,7 @@ function Setoutfit(obj, handle)
             PED.SET_PED_PROP_INDEX(handle, math.tointeger(propId), tbl.drawableId, tbl.textureId, true)
         end
     end
+
     return true
 end
 
@@ -1716,8 +1721,7 @@ end
             end
         end
     end
-
-
+    
 
     
 
@@ -3700,12 +3704,12 @@ local function regen_saved_list(root)
             if #bodyguards + #savedbodyguards >= 7 then ACutil(Str_trans('Too many bodyguards')) return end
             local coor = ENTITY.GET_OFFSET_FROM_ENTITY_IN_WORLD_COORDS(players.user_ped(), math.random(-2, 2), math.random(-2, 2), 0)
             local spawned_bg = Bodyguard(result.ModelHash, coor)
+            Setoutfit(result.Outfit, spawned_bg, result.ModelHash)
             BodyguardFollow()
             result.Handle = spawned_bg
             result.WeaponHash = WEAPON.GET_SELECTED_PED_WEAPON(result.Handle)
-            table.insert(savedbodyguards, spawned_bg)
-            Setoutfit(result.Outfit, spawned_bg)
-            Bgsavenotext(spawned_bg, dirname)
+            table.insert(savedbodyguards, result.Handle)
+            Bgsavenotext(result.Handle, dirname)
             if set.alert then
                 ACutil(dirname..Str_trans(' Bodyguard spawned'))
             end
@@ -3768,8 +3772,8 @@ menus.group:action(T('Spawn 7 Saved Bodyguards'), {'respawnbgs'}, T('Spawn 7 Bod
             dirname = dirname:gsub('.json', '')
             local coor = ENTITY.GET_OFFSET_FROM_ENTITY_IN_WORLD_COORDS(players.user_ped(), math.random(-2, 2), math.random(-2, 2), 0)
             local spawned_bg = Bodyguard(result.ModelHash, coor)
+            Setoutfit(result.Outfit, spawned_bg, result.ModelHash)
             result.Handle = spawned_bg
-            Setoutfit(result.Outfit, result.Handle)
             WEAPON.GIVE_WEAPON_TO_PED(result.Handle, result.WeaponHash, 9999, true, true)
             entities.set_can_migrate(entities.handle_to_pointer(result.Handle), false)
             table.insert(savedbodyguards, result.Handle)
@@ -4654,6 +4658,9 @@ menus.deathlog:action(T('Open Death Log Folder'), {}, T('Open folder containing 
     util.open_folder(DeathlogDir)
 end)
 
+menus.deathlog:action(T('Clear Death Log'), {}, T('Deletes current death log to start a new one'), function ()
+    io.remove(Death_Log)
+end)
 
 
 
@@ -6458,7 +6465,7 @@ SDspawn = menu.toggle_loop(sdroot, T('Spawn Lazer Space Docker'), {'lsdspawn'}, 
     local pCoor = ENTITY.GET_ENTITY_COORDS(players.user_ped())
     local pH = ENTITY.GET_ENTITY_HEADING(pCoor)
 
-        if players.is_in_interior(players.user()) ==true then
+        if players.is_in_interior(players.user()) and not ENTITY.DOES_ENTITY_EXIST(Lsdcar) then
             if set.alert then
                 ACutil(Str_trans('Lazer Space Docker will not Spawn in interior'))
             end
@@ -6512,6 +6519,58 @@ end)
 
     ----------------------------------------------
 
+    local function BBcreate(coor)
+        local bhash = util.joaat("PBUS2")
+        Streament(bhash)
+        Bbbus = VEHICLE.CREATE_VEHICLE(bhash, coor.x, coor.y, coor.z, 0, true, true, false)
+        PED.SET_PED_INTO_VEHICLE(players.user_ped(), Bbbus, -1)
+        VEHICLE.SET_VEHICLE_COLOURS(Bbbus, math.random(0, 160), math.random(0, 160))
+        Vmod(Bbbus, "Big Bass", 100, 40)
+        local CV = CAM.GET_GAMEPLAY_CAM_RELATIVE_HEADING()
+        ENTITY.SET_ENTITY_HEADING(Bbbus, CV)
+        return Bbbus
+    end
+
+    menus.BBbus = customveh:list(Str_trans('Big Bass Bus'), {})
+ local busset = {hit = 10, delay = 250}
+menus.bustog = menus.BBbus:toggle_loop(Str_trans('Big Bass Bus'), {'BBbus'}, Str_trans('Spawn Big Bass Bus'), function ()
+    if players.is_in_interior(players.user()) and not ENTITY.DOES_ENTITY_EXIST(Bbbus) then
+        if set.alert then
+            ACutil(Str_trans('Big Bass Bus will not Spawn in interior'))
+        end
+        menus.bustog.value = false
+        return
+    end
+    if not ENTITY.DOES_ENTITY_EXIST(Bbbus) then
+        local coor = ENTITY.GET_ENTITY_COORDS(players.user_ped())
+        BBcreate(coor)
+    end
+    local allcar = entities.get_all_vehicles_as_handles()
+    for allcar as car do
+        local carpos = ENTITY.GET_ENTITY_COORDS(car)
+        local buspos = ENTITY.GET_ENTITY_COORDS(Bbbus)
+        local disbet = SYSTEM.VDIST2(carpos.x, carpos.y, carpos.z, buspos.x, buspos.y, buspos.z)
+        if disbet <= 6000 then
+            if car != Bbbus then
+                Getent(car)
+                ENTITY.APPLY_FORCE_TO_ENTITY_CENTER_OF_MASS(car, 1, 0, 0, busset.hit, true, true, true, true)
+                util.yield(busset.delay)
+            end
+        end
+    end
+end, function()
+    if ENTITY.DOES_ENTITY_EXIST(Bbbus) then
+        entities.delete_by_handle(Bbbus)
+    end
+end)
+
+menus.BBbus:slider(T('Bass Hit'), {}, T('Change how hard the bass hits and forces cars up'), 0, 100, 10, 1, function (s)
+    busset.hit = s
+end)
+
+menus.BBbus:slider(T('Bass Delay'), {}, T('Change the delay for the bass hits expect lag if set too low'), 0, 4000, 250, 25, function (s)
+    busset.delay = s
+end)
 
 
 ---------------------------------- FF9 Charger ----------------------------------
@@ -6529,7 +6588,7 @@ local function Ccreate(pCoor, pedSi)
 
    local ccoor = ENTITY.GET_ENTITY_COORDS(FFchar)
 
-    if  ENTITY.DOES_ENTITY_EXIST(charger.emp) ==false then 
+    if not ENTITY.DOES_ENTITY_EXIST(charger.emp) then 
         Empa = OBJECT.CREATE_OBJECT(charger.emp, ccoor.x, ccoor.y -1, ccoor.z -1, true, true, true)
         ENTITY.ATTACH_ENTITY_TO_ENTITY(Empa, FFchar, 0, 0.0, -2.0, 0.5, 0.0, 0.0, 0.0, false, true, true, false, 0, true)
         local CV = CAM.GET_GAMEPLAY_CAM_RELATIVE_HEADING()
@@ -6612,7 +6671,7 @@ Spawn = menu.toggle_loop(charroot, T('Spawn FF9 EMP Charger'), {'FF9Wspawn'}, T(
     
 
 
-        if players.is_in_interior(players.user()) ==true then
+        if players.is_in_interior(players.user()) and not ENTITY.DOES_ENTITY_EXIST(FFchar)then
             if set.alert then
                 ACutil(Str_trans('Charger will not Spawn in interior'))
             end
@@ -7012,6 +7071,17 @@ end, function ()
     VEHICLE.SET_VEHICLE_INDICATOR_LIGHTS(curcar, 0, false)
     VEHICLE.SET_VEHICLE_INDICATOR_LIGHTS(curcar, 1, false)
 end)
+
+vehroot:toggle_loop(T('Exhaust Pops'), {}, T('Turn on and off exhaust pops'), function ()
+    local curcar = entities.get_user_vehicle_as_handle()
+    if curcar != -1 then
+        AUDIO.ENABLE_VEHICLE_EXHAUST_POPS(curcar, true)
+    else
+        AUDIO.ENABLE_VEHICLE_EXHAUST_POPS(curcar, false)
+    end
+end)
+
+
 
 
 --------------------------------------------------------------
@@ -7759,7 +7829,27 @@ players.add_command_hook(function(pid)
     
     local trollm = menu.list(menu.player_root(pid), T('Trolling'), {}, '' )
 
+    trollm:action(T('Hijack Vehicle'), {'lojack'}, T('Steal their vehicle'), function ()
+        local spec = GetSpec(pid)
+        if not spec then
+            Specon(pid)
+        end
+        local pname = PLAYER.GET_PLAYER_NAME(pid)
+        local targets = PLAYER.GET_PLAYER_PED_SCRIPT_INDEX(pid)
+        if PED.IS_PED_IN_ANY_VEHICLE(targets, true) then
+            local vehicle = PED.GET_VEHICLE_PED_IS_IN(targets, true)
+            menu.trigger_commands('vehkick'..pname)
+            util.yield(1000)
+            PED.SET_PED_INTO_VEHICLE(players.user_ped(), vehicle, -1)
+            util.yield(1000)
+            menu.trigger_commands('sspect')
+        else
+            if set.alert then
+                ACutil(Str_trans('Player not in vehicle'))
+            end
+        end
 
+    end)
 
 
     trollm:action(T('Drop a Nuke'), {'nukem'}, T('Drop a nuke on the player it will spectate them to work better'), function ()

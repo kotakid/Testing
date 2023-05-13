@@ -2,7 +2,7 @@
 
 local translations = {}
 Lang = {}
-Lang.Version = "0.30.91"
+Lang.Version = "0.31.9"
 Template = false
 translations.lang = {}
 translations.current_translations = {}
@@ -2306,8 +2306,31 @@ translations.lang["zh"] = {
     ['Street Post'] =  'Straßenpfosten',
     ['Traffic Light'] =  'Ampel',
     ['Do Not Block Intersection Sign'] =  'Vorfahrtsschild',
-
-
+    ['Change traffic color and plates'] = "Wechsle die Farbe und Kennzeichen des Verkehrs",
+    ['Change traffic to another color and their plates to custom text'] = "Wechsle die Farbe des Verkehrs in eine andere Farbe und die Kennzeichen in zufälligen Text",
+    ['Change traffic color'] = "Wechsle die Farbe des Verkehrs",
+    ['Change traffic to another color'] = "Wechsle die Farbe des Verkehrs in eine andere Farbe",
+    ['Change the Primary color'] = "Wechsle die primäre Farbe",
+    ['Change to another color used for Primary'] = "Wechsel zu einer anderen Farbe, die als primäre verwendet wird",
+    ['Change the Secondary color'] = "Wechsle die sekundär Farbe",
+    ['Change to another color used for Secondary'] = "Wechsel zu einer anderen Farbe, die als sekundär verwendet wird",
+    ['Change their license plate'] = "Wechsle die Kennzeichen",
+    ['Death Log'] = "Tode-Log",
+    ['Log who kills you'] = "Speichert, wer dich getötet hat",
+    [' Added to Death Log via weapon'] = " dem Tode-Log durch Waffe hinzugefügt",
+    [' Added to Death Log via vehicle'] = " dem Tode-Log durch Fahrzeug hinzugefügt",
+    ['God Gun'] = "God Gun",
+    ['Become a god with a gun and move stuff around'] = "Werde Gott mit einer Waffe und bewege Sachen herum",
+    ['Open Death Log Folder'] = "Tode-Log Ordner öffnen",
+    ['Open folder containing death log'] = "öffnet den Ordner in dem die Tode-Logs sind",
+    ['Change the weapon used'] = "Wechsle die Waffe die genutzt wurde",
+    ['Saved Vehicles'] = "Gespeicherte Fahrzeuge",
+    ['A list of your saved weaponized vehicles'] = "Eine Liste mit deinen gespeicherten Waffenfahrzeugen",
+    ['Buy Me a Coffee'] = "'Buy Me a Coffee",
+    ['If you like the features in AcjokerScript consider buying me a coffee'] = "Wenn die die Features vom AcjokerScript gefallen, überlege dir, ob du mich vielleicht unterstützen möchtest",
+    ['Pets Formations'] = "Haustier Formationen",
+    ['Exhaust Pops'] = "Auspuffknallen",
+    ['Turn on and off exhaust pops'] = "Auspuffknallen an oder ausschalten",
 
     
     }
@@ -3613,7 +3636,31 @@ translations.lang["pt"] = {
     ['Street Post'] =  'Poste de Rua',
     ['Traffic Light'] =  'Sinal de Trânsito',
     ['Do Not Block Intersection Sign'] =  'Placa de Não Feche o Cruzamento',
-
+    ['Change traffic color and plates'] = "Wechsle die Farbe und Kennzeichen des Verkehrs",
+    ['Change traffic to another color and their plates to custom text'] = "Wechsle die Farbe des Verkehrs in eine andere Farbe und die Kennzeichen in zufälligen Text",
+    ['Change traffic color'] = "Wechsle die Farbe des Verkehrs",
+    ['Change traffic to another color'] = "Wechsle die Farbe des Verkehrs in eine andere Farbe",
+    ['Change the Primary color'] = "Wechsle die primäre Farbe",
+    ['Change to another color used for Primary'] = "Wechsel zu einer anderen Farbe, die als primäre verwendet wird",
+    ['Change the Secondary color'] = "Wechsle die sekundär Farbe",
+    ['Change to another color used for Secondary'] = "Wechsel zu einer anderen Farbe, die als sekundär verwendet wird",
+    ['Change their license plate'] = "Wechsle die Kennzeichen",
+    ['Death Log'] = "Tode-Log",
+    ['Log who kills you'] = "Speichert, wer dich getötet hat",
+    [' Added to Death Log via weapon'] = " dem Tode-Log durch Waffe hinzugefügt",
+    [' Added to Death Log via vehicle'] = " dem Tode-Log durch Fahrzeug hinzugefügt",
+    ['God Gun'] = "God Gun",
+    ['Become a god with a gun and move stuff around'] = "Werde Gott mit einer Waffe und bewege Sachen herum",
+    ['Open Death Log Folder'] = "Tode-Log Ordner öffnen",
+    ['Open folder containing death log'] = "öffnet den Ordner in dem die Tode-Logs sind",
+    ['Change the weapon used'] = "Wechsle die Waffe die genutzt wurde",
+    ['Saved Vehicles'] = "Gespeicherte Fahrzeuge",
+    ['A list of your saved weaponized vehicles'] = "Eine Liste mit deinen gespeicherten Waffenfahrzeugen",
+    ['Buy Me a Coffee'] = "'Buy Me a Coffee",
+    ['If you like the features in AcjokerScript consider buying me a coffee'] = "Wenn die die Features vom AcjokerScript gefallen, überlege dir, ob du mich vielleicht unterstützen möchtest",
+    ['Pets Formations'] = "Haustier Formationen",
+    ['Exhaust Pops'] = "Estouros do Escapamento",
+    ['Turn on and off exhaust pops'] = "Ativar e desativar estouros do escapamento",
 
 
     }
@@ -4993,6 +5040,11 @@ translations.lang["ko"] = {
     ['Street Post'] =  '가로등',
     ['Traffic Light'] =  '신호등',
     ['Do Not Block Intersection Sign'] =  '교차 금지 표지판', 
+    ['Exhaust Pops'] = "팝콘 배기음",
+    ['Turn on and off exhaust pops'] = "팝콘 배기음을 키거나 끕니다."
+
+
+
 }
 
 --end Korean
@@ -5960,6 +6012,27 @@ translations.lang["ru"] = {
     ['Free from Object Cage'] = "Освободить из клетки предметов",
     ['Taxi Service'] = "Такси сервис",
     ['NPC Spawner'] = "Заспавнить npc",
+    ['Change traffic color and plates'] = "Изменить цвет трафика и номерной знак",
+    ['Change traffic to another color and their plates to custom text'] = "Изменить трафик на другой цвет и их номерные знаки",
+    ['Change traffic color'] = "Изменить цвет трафика",
+    ['Change traffic to another color'] = "Изменить трафик на другой цвет",
+    ['Change the Primary color'] = "Изменить основной цвет",
+    ['Change to another color used for Primary'] = "Изменение цвета на другой для основного",
+    ['Change the Secondary color'] = "Изменить дополнительный цвет",
+    ['Change to another color used for Secondary'] = "Изменение на другой для дополнительного",
+    ['Change their license plate'] = "Сменить номерной знак",
+    ['Death Log'] = "Журнал смерти",
+    ['Log who kills you'] = "Запишите, кто вас убивает",
+    [' Added to Death Log via weapon'] = "Добавлено в журнал смерти через оружие",
+    [' Added to Death Log via vehicle'] = "Добавлено в журнал смерти через транспорт",
+    ['Become a god with a gun and move stuff around'] = "Стань богом с пушкой и перемещай вещи",
+    ['Open Death Log Folder'] = "Открыть папку с журналом смерти",
+    ['Open folder containing death log'] = "Открыть папку с журналом смерти",
+    ['Change the weapon used'] = "Сменить используемое оружие",
+    ['Saved Vehicles'] = "Сохраненные автомобили",
+    ['A list of your saved weaponized vehicles'] = "Список ваших сохраненных автомобилей",
+    ['Buy Me a Coffee'] = "Купите мне кофе",
+    ['If you like the features in AcjokerScript consider buying me a coffee'] = "Если вам нравятся функции AcjokerScript, купите мне кофе",
 
 
 
