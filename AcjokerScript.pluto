@@ -11,7 +11,7 @@ util.require_no_lag ('resources/AcjokerScript/translations')
 local LOADING_START = util.current_time_millis()
 LOADING_SCRIPT = true
 Script = {}
-Script.Version = "0.31.91"
+Script.Version = "0.31.92"
 
 local max_int = 2147483647
 local min_int = -2147483647
@@ -5472,6 +5472,7 @@ menus.attachgun:toggle_loop(Str_trans('Attach Entity Gun'), {'attachgun'}, Str_t
     end
     if #attach_objs > 100 then
         DelEnt(attach_objs)
+        attach_objs = {}
     end
 end)
 
