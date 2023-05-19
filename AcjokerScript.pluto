@@ -6,12 +6,13 @@
    --credits to aaronlink127#0127 for the ScaleformLib script and help with executing it
    --Script made by acjoker8818
    -------------------------------------------------------------------------
-util.require_no_lag ('resources/AcjokerScript/translations')
+
 
 local LOADING_START = util.current_time_millis()
+util.require_no_lag ('resources/AcjokerScript/translations')
 LOADING_SCRIPT = true
 Script = {}
-Script.Version = "0.31.92"
+Script.Version = "0.32.0"
 
 local max_int = 2147483647
 local min_int = -2147483647
@@ -5489,7 +5490,6 @@ menus.attachgun:toggle(T('Invisible objects'), {}, T('Make the objects invisible
     end
 end)
 
-
 menus.attachgun:text_input(T('Custom Object'), {'custattach'}, T('Enter the model name of an object to change the object you shoot example "prop_keg_01"'), function(cusobj)
     if STREAMING.IS_MODEL_A_VEHICLE(util.joaat(cusobj)) then
         attachgunset.hash = cusobj
@@ -5503,6 +5503,7 @@ menus.attachgun:text_input(T('Custom Object'), {'custattach'}, T('Enter the mode
         end
     end
 end, 'toreador')
+
 
 
 
