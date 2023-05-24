@@ -11,7 +11,7 @@
 local LOADING_START = util.current_time_millis()
 LOADING_SCRIPT = true
 Script = {}
-Script.Version = "0.32.9"
+Script.Version = "0.32.91"
 
 local max_int = 2147483647
 local min_int = -2147483647
@@ -26,7 +26,9 @@ util.execute_in_os_thread(function()
 end)    
 json = require('pretty.json')
 quaternion = require('quaternionLib')
-
+ENTITY= {
+    ["GET_ENTITY_QUATERNION"]=--[[void]] function(--[[Entity (int)]] entity,--[[float* (pointer)]] x,--[[float* (pointer)]] y,--[[float* (pointer)]] z,--[[float* (pointer)]] w)native_invoker.begin_call()native_invoker.push_arg_int(entity)native_invoker.push_arg_pointer(x)native_invoker.push_arg_pointer(y)native_invoker.push_arg_pointer(z)native_invoker.push_arg_pointer(w)native_invoker.end_call_2(0x7B3703D2D32DFA18)end,
+}
 
 SEC = SET_ENTITY_COORDS
 local set = {alert = true, scale = true}
@@ -110,7 +112,6 @@ local ped_names = {SPClist, AMClist, AfClist, Csplist, GM, Mpplist, MSFlist, MCM
 
 
  ------------------
-
 ---
 --- Auto-Updater Lib Install
 ---
@@ -138,7 +139,7 @@ if not status then
 end
 if auto_updater == true then error("Invalid auto-updater lib. Please delete your Stand/Lua Scripts/lib/auto-updater.lua and try again") end
 
-
+ 
 ---
 --- Auto-Update
 ---
@@ -169,52 +170,52 @@ local auto_update_config = {
         },
         {
             name="German",
-            source_url="https://raw.githubusercontent.com/acjoker8818/AcjokerScript/main/resources/AcjokerScript/Languages/de.pluto",
+            source_url="https://raw.githubusercontent.com/kotakid/Testing/main/resources/AcjokerScript/Languages/de.pluto",
             script_relpath="resources/AcjokerScript/Languages/de.pluto",
         },
         {
             name="Spanish",
-            source_url="https://raw.githubusercontent.com/acjoker8818/AcjokerScript/main/resources/AcjokerScript/Languages/es.pluto",
+            source_url="https://raw.githubusercontent.com/kotakid/Testing/main/resources/AcjokerScript/Languages/es.pluto",
             script_relpath="resources/AcjokerScript/Languages/es.pluto",
         },
         {
             name="French",
-            source_url="https://raw.githubusercontent.com/acjoker8818/AcjokerScript/main/resources/AcjokerScript/Languages/fr.pluto",
+            source_url="https://raw.githubusercontent.com/kotakid/Testing/main/resources/AcjokerScript/Languages/fr.pluto",
             script_relpath="resources/AcjokerScript/Languages/fr.pluto",
         },
         {
             name="Korean",
-            source_url="https://raw.githubusercontent.com/acjoker8818/AcjokerScript/main/resources/AcjokerScript/Languages/ko.pluto",
+            source_url="https://raw.githubusercontent.com/kotakid/Testing/main/resources/AcjokerScript/Languages/ko.pluto",
             script_relpath="resources/AcjokerScript/Languages/ko.pluto",
         },
         {
             name="Lithuanian",
-            source_url="https://raw.githubusercontent.com/acjoker8818/AcjokerScript/main/resources/AcjokerScript/Languages/lt.pluto",
+            source_url="https://raw.githubusercontent.com/kotakid/Testing/main/resources/AcjokerScript/Languages/lt.pluto",
             script_relpath="resources/AcjokerScript/Languages/lt.pluto",
         },
         {
             name="Dutch",
-            source_url="https://raw.githubusercontent.com/acjoker8818/AcjokerScript/main/resources/AcjokerScript/Languages/nl.pluto",
+            source_url="https://raw.githubusercontent.com/kotakid/Testing/main/resources/AcjokerScript/Languages/nl.pluto",
             script_relpath="resources/AcjokerScript/Languages/nl.pluto",
         },
         {
             name="Polish",
-            source_url="https://raw.githubusercontent.com/acjoker8818/AcjokerScript/main/resources/AcjokerScript/Languages/pl.pluto",
+            source_url="https://raw.githubusercontent.com/kotakid/Testing/main/resources/AcjokerScript/Languages/pl.pluto",
             script_relpath="resources/AcjokerScript/Languages/pl.pluto",
         },
         {
             name="Portuguese",
-            source_url="https://raw.githubusercontent.com/acjoker8818/AcjokerScript/main/resources/AcjokerScript/Languages/pt.pluto",
+            source_url="raw.githubusercontent.com/kotakid/Testing/main/resources/AcjokerScript/Languages/pt.pluto",
             script_relpath="resources/AcjokerScript/Languages/pt.pluto",
         },
         {
             name="Russian",
-            source_url="https://raw.githubusercontent.com/acjoker8818/AcjokerScript/main/resources/AcjokerScript/Languages/ru.pluto",
+            source_url="https://raw.githubusercontent.com/kotakid/Testing/main/resources/AcjokerScript/Languages/ru.pluto",
             script_relpath="resources/AcjokerScript/Languages/ru.pluto",
         },
         {
             name="Chinese",
-            source_url="https://raw.githubusercontent.com/acjoker8818/AcjokerScript/main/resources/AcjokerScript/Languages/zh.pluto",
+            source_url="https://raw.githubusercontent.com/kotakid/Testing/main/resources/AcjokerScript/Languages/zh.pluto",
             script_relpath="resources/AcjokerScript/Languages/zh.pluto",
         },
 
@@ -223,10 +224,6 @@ local auto_update_config = {
 
 
 auto_updater.run_auto_update(auto_update_config)
-
-
-
-
 
 
  --------------------Functions-------------------------------------
@@ -1852,7 +1849,33 @@ end
             end
         end
     end
-    
+
+    function ADD_MP_INDEX(stat)
+        local Exceptions = {
+            "MP_CHAR_STAT_RALLY_ANIM",
+            "MP_CHAR_ARMOUR_1_COUNT",
+            "MP_CHAR_ARMOUR_2_COUNT",
+            "MP_CHAR_ARMOUR_3_COUNT",
+            "MP_CHAR_ARMOUR_4_COUNT",
+            "MP_CHAR_ARMOUR_5_COUNT",
+        }
+        for _, exception in pairs(Exceptions) do
+            if stat == exception then
+                return "MP" .. util.get_char_slot() .. "_" .. stat
+            end
+        end
+
+        if not string.contains(stat, "MP_") and not string.contains(stat, "MPPLY_") then
+            return "MP" .. util.get_char_slot() .. "_" .. stat
+        end
+        return stat
+    end
+
+    function STAT_GET_FLOAT(stat)
+        local FloatPTR = memory.alloc_int()
+        STAT_GET_FLOAT(util.joaat(ADD_MP_INDEX(stat)), FloatPTR, -1)
+        return tonumber(string.format("%.3f", memory.read_float(FloatPTR)))
+    end
 
 
     
