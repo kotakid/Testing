@@ -7,6 +7,8 @@
    --Script made by acjoker8818
    -------------------------------------------------------------------------
 util.keep_running()
+local yieldlib = require "resources.AcjokerScript.Modules.Scaleform"
+yieldlib.init()
 local LOADING_START = util.current_time_millis()
 ---
 --- Auto-Updater Lib Install
@@ -168,8 +170,7 @@ auto_updater.run_auto_update(auto_update_config)
 
 local scripts_dir = filesystem.scripts_dir()
 
-local yieldlib = require "resources.AcjokerScript.Modules.Scaleform"
-yieldlib.init()
+
 util.ensure_package_is_installed("natives-1681379138")
 util.ensure_package_is_installed("quaternionLib")
 quaternion = require('quaternionLib')
@@ -178,7 +179,6 @@ local requirements = {
     modules = {
         "natives-1681379138.g",
         "resources.AcjokerScript.gizmoUtils",
-        "resources.AcjokerScript.Modules.Self",
         "resources.AcjokerScript.Modules.Weapons",
         "resources.AcjokerScript.Modules.Vehicles",
         "resources.AcjokerScript.Modules.Online",
@@ -190,7 +190,6 @@ local requirements = {
     modules_names = {
         "'natives-1681379138 module'",
         "'gizmoUtils module'",
-        "'self module'",
         "'weapons module'",
         "'vehicles module'",
         "'online module'",
