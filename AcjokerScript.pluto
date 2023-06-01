@@ -146,7 +146,7 @@ local auto_update_config = {
         },
         {
             name="Portuguese",
-            source_url="raw.githubusercontent.com/kotakid/Testing/main/resources/AcjokerScript/Modules/Languages/pt.pluto",
+            source_url="https://raw.githubusercontent.com/kotakid/Testing/main/resources/AcjokerScript/Modules/Languages/pt.pluto",
             script_relpath="resources/AcjokerScript/Modules/Languages/pt.pluto",
         },
         {
