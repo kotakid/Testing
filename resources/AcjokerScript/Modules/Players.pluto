@@ -1,4 +1,5 @@
-local set = require 'resources/AcjokerScript/Modules/Settings'
+require 'resources/AcjokerScript/Modules/Functions'
+local func = require 'resources/AcjokerScript/Modules/Functions'
 local pil_dri = {'S_M_M_Pilot_01'}
 local gunners = {'s_m_y_blackops_01', 's_m_y_blackops_02', 's_m_y_blackops_03'}
 local plneatkr = {}
@@ -16,6 +17,7 @@ disbetheli = nil, delveh = false}
 local vehatkset = {invis = false, invinc = true, attkrveh = 'minitank', atkv = 0, vlcount = 1, vehdelete = false, weapon = 'weapon_railgun',
 disbetveh = nil, delveh = false}
 local spawatk = {}
+local menus = {}
 
 
 ----------------------------------------Functions---------------------------------------------------------
@@ -47,7 +49,7 @@ local function GetPlayVeh(pid, opt)
 		util.stop_thread()
 	end
 	local spec = func.GetSpec(pid)
-	if set.alert then
+	if func.set.alert then
 		func.ACutil(Str_trans('Getting control of vehicle'))
 	end
 	if Disbet_player(pid) > 750000 then
@@ -59,7 +61,7 @@ local function GetPlayVeh(pid, opt)
 			end
 			return
 		else
-			if set.alert then
+			if func.set.alert then
 			func.ACutil(Str_trans('Player not in vehicle'))
 			end
 			Specoff(pid)
@@ -73,7 +75,7 @@ local function GetPlayVeh(pid, opt)
 		return
 		end
 	else
-		if set.alert then
+		if func.set.alert then
 			func.ACutil(Str_trans('Player not in vehicle'))
 		end
 	end
@@ -124,7 +126,7 @@ local function Atkrrefresh(pid)
 			util.stop_thread()
 		end
 	local pname = players.get_name(pid)
-		if set.alert then
+		if func.set.alert then
 			func.ACutil(Str_trans('Attackers sent after ')..pname)
 		end
 	for spawatk as atk do
@@ -139,7 +141,7 @@ local function Atkrrefresh(pid)
 			end
 		end
 		if IS_PED_DEAD_OR_DYING(targets, 1) or disbet >= 10000 then
-			if set.alert then
+			if func.set.alert then
 				func.ACutil(pname..Str_trans(' died or moved reseting attackers'))
 			end
 			func.DelEnt(spawatk)
@@ -169,7 +171,7 @@ local function Refreshplnes(pid)
 	end
 	local targets = GET_PLAYER_PED_SCRIPT_INDEX(pid)
 	local pname = players.get_name(pid)
-	if set.alert then
+	if func.set.alert then
 		func.ACutil(Str_trans('Planes sent after ')..pname)
 	end
 	for plneveh as plne do
@@ -186,7 +188,7 @@ local function Refreshplnes(pid)
 			if not players.exists(pid) then
 				break
 			end
-			if set.alert then
+			if func.set.alert then
 				func.ACutil(pname..Str_trans(' died or moved reseting planes'))
 			end
 			func.DelEnt(plneveh)
@@ -219,7 +221,7 @@ local function RefreshHeli(pid)
 	end
 	local targets = GET_PLAYER_PED_SCRIPT_INDEX(pid)
 	local pname = players.get_name(pid)
-	if set.alert then
+	if func.set.alert then
 		func.ACutil(Str_trans('Helicopters sent after ')..pname)
 	end
 	for heliveh as heli do
@@ -237,7 +239,7 @@ local function RefreshHeli(pid)
 			if not players.exists(pid) then
 				break
 			end
-			if set.alert then
+			if func.set.alert then
 				func.ACutil(pname..Str_trans(' died or moved reseting helicopters'))
 			end
 			func.DelEnt(heliatkr)
@@ -270,7 +272,7 @@ local function Refreshveh(pid)
 	end
 	local targets = GET_PLAYER_PED_SCRIPT_INDEX(pid)
 	local pname = players.get_name(pid)
-	if set.alert then
+	if func.set.alert then
 		func.ACutil(Str_trans('Attack vehicles sent after ')..pname)
 	end
 	for atkveh as veh do
@@ -288,7 +290,7 @@ local function Refreshveh(pid)
 			if not players.exists(pid) then
 				break
 			end
-			if set.alert then
+			if func.set.alert then
 				func.ACutil(pname..Str_trans(' died or moved reseting attack vehicles'))
 			end
 			func.DelEnt(vehatkr)
@@ -615,14 +617,14 @@ local function IPM(targets, tar1, pname, cage_table, pid)
 	local tar2 = GET_ENTITY_COORDS(targets)
 	local disbet = VDIST2(tar2.x, tar2.y, tar2.z, tar1.x, tar1.y, tar1.z)
 	if disbet <= 0.5 then
-		if set.alert then
+		if func.set.alert then
 			func.ACutil(pname..Str_trans(' Caged'))
 		end
 		util.yield(800)
 
 	elseif disbet >= 0.5 then
 		util.yield(800)
-		if set.alert then
+		if func.set.alert then
 			func.ACutil(pname..Str_trans(' Broke Free'))
 		end
 		if cage_table[pid] then
@@ -691,7 +693,7 @@ local function Stopveh(pid)
 	SET_VEHICLE_FORWARD_SPEED(vmod, -1000)
 	SET_ENTITY_VELOCITY(vmod, 0, 0, 0)
 	SET_VEHICLE_ENGINE_ON(vmod, false, false, false)
-	if set.alert then
+	if func.set.alert then
 		func.ACutil(Str_trans('Slowing down Vehicle'))
 	end
 end
@@ -703,7 +705,7 @@ local function Topspeedveh(speed, pid)
 	func.GetControl(vmod, spec, pid)
 	SET_VEHICLE_MAX_SPEED(vmod, 100000)
 	MODIFY_VEHICLE_TOP_SPEED(vmod, speed)
-	if set.alert then
+	if func.set.alert then
 		func.ACutil(Str_trans('Vehicles Max Speed Modified'))
 	end
 end
@@ -714,7 +716,7 @@ local function Accelveh( speed, pid)
 	local vmod = GET_VEHICLE_PED_IS_IN(pedm, false)
 	func.GetControl(vmod, spec, pid)
 	SET_VEHICLE_FORWARD_SPEED(vmod, speed)
-	if set.alert then
+	if func.set.alert then
 		func.ACutil(Str_trans('Vehicle Accelerated'))
 	end
 end
@@ -729,7 +731,7 @@ local function Fixveh(pid)
 	SET_ENTITY_INVINCIBLE(vmod, true)
 	SET_VEHICLE_IS_CONSIDERED_BY_PLAYER(vmod, true)
 	SET_ENTITY_HEALTH(vmod, 200)
-	if set.alert then
+	if func.set.alert then
 		func.ACutil(Str_trans('Vehicle Repaired'))
 	end
 end
@@ -740,7 +742,7 @@ local function Platechange(cusplate, pid)
 	local vmod = GET_VEHICLE_PED_IS_IN(pedm, false)
 	func.GetControl(vmod, spec, pid)
 	SET_VEHICLE_NUMBER_PLATE_TEXT(vmod, cusplate)
-	if set.alert then
+	if func.set.alert then
 		func.ACutil(Str_trans('Vehicle plate changed'))
 	end
 end
@@ -754,7 +756,7 @@ local function Maxoutcar(pid)
 	 SET_VEHICLE_WHEEL_TYPE(vmod, math.random(0, 7))
 	 SET_VEHICLE_MOD(vmod, 23, math.random(-1, 50))
 	 SET_ENTITY_INVINCIBLE(vmod, true)
-	if set.alert then
+	if func.set.alert then
 		func.ACutil(Str_trans('Vehicle Maxed out'))
 	end
 end
@@ -1275,7 +1277,7 @@ players.add_command_hook(function(pid, root)
 		if IS_MODEL_A_VEHICLE(util.joaat(cusveh)) then
 		   cus.veh = util.joaat(cusveh)
 		else
-			if set.alert then
+			if func.set.alert then
 				func.ACutil(Str_trans('Improper Vehicle Name (check the spelling)'))
 			end
 		end
@@ -1310,7 +1312,7 @@ players.add_command_hook(function(pid, root)
 			util.yield(1000)
 			menu.trigger_commands('sspect')
 		else
-			if set.alert then
+			if func.set.alert then
 				func.ACutil(Str_trans('Player not in vehicle'))
 			end
 		end
@@ -1346,14 +1348,14 @@ players.add_command_hook(function(pid, root)
 		for func.Load_settings(Kill_List) as name do
 			if name.name == pname then
 				func.remove_victim(pname)
-				if set.alert then
+				if func.set.alert then
 					func.ACutil(pname..Str_trans(' Removed from Kill List'))
 				end
 				return
 			end
 		end
 		func.add_victim(pname)
-		if set.alert then
+		if func.set.alert then
 			func.ACutil(pname..Str_trans(' Added to Kill List'))
 		end
 	end)
@@ -1388,7 +1390,7 @@ players.add_command_hook(function(pid, root)
 		menus.assaultrate.value = 100
 		menu.trigger_commands("JuggleC".. pname)
 		menus.jugglerate.value = 100
-		set.alert = false
+		func.set.alert = false
 	end)
 
  
@@ -1409,7 +1411,7 @@ players.add_command_hook(function(pid, root)
 		SHOOT_SINGLE_BULLET_BETWEEN_COORDS(tar1.x - 1.0, tar1.y - 1.0, tar1.z, tar1.x , tar1.y, tar1.z, 200, 0, weap, 0, true, false, mir.speed)
 	
 		if not players.exists(pid) then
-			if set.alert then
+			if func.set.alert then
 				func.ACutil(Str_trans('You made them rage quit'))
 			end
 			util.stop_thread()
@@ -1449,7 +1451,7 @@ players.add_command_hook(function(pid, root)
 		menu.trigger_commands("SmashPla".. pname..' off')
 		menus.assaultrate.value = 1000
 		menus.jugglerate.value = 1000
-		set.alert = true
+		func.set.alert = true
 	end)
 
 
@@ -1603,7 +1605,7 @@ players.add_command_hook(function(pid, root)
 		util.yield(exset.delay)
 
 		if not players.exists(pid) then
-			if set.alert then
+			if func.set.alert then
 				func.ACutil(Str_trans('You made them rage quit'))
 			end
 			util.stop_thread()
@@ -1659,59 +1661,59 @@ players.add_command_hook(function(pid, root)
 		if IS_ENTITY_UPRIGHT(targets, UV) then
 			SmashCar(vehaset.vehasel, tar1, vehaset.invis_aveh, vehaset.vehra)
 			if not IS_ENTITY_UPRIGHT(targets, UV) then
-				if set.alert then
+				if func.set.alert then
 					func.ACutil(pname.. Str_trans(' has been smashed'))
 				end
 			elseif IS_ENTITY_UPRIGHT(targets, UV) then
 				RamCar(vehaset.vehasel, tar1.x + 15, tar1.y, tar1.z, vehaset.invis_aveh, targets, vehaset.vehra)
 				if not IS_ENTITY_UPRIGHT(targets, UV) then
-					if set.alert then
+					if func.set.alert then
 						func.ACutil(pname.. Str_trans(' has been run over'))
 					end
 				elseif IS_ENTITY_UPRIGHT(targets, UV) then
 				RamCar(vehaset.vehasel, tar1.x - 15, tar1.y, tar1.z, vehaset.invis_aveh, targets, vehaset.vehra)
 					if not IS_ENTITY_UPRIGHT(targets, UV) then
-						if set.alert then
+						if func.set.alert then
 							func.ACutil(pname.. Str_trans(' has been run over'))
 						end
 					elseif IS_ENTITY_UPRIGHT(targets, UV) then
 					RamCar(vehaset.vehasel, tar1.x, tar1.y + 15, tar1.z, vehaset.invis_aveh, targets, vehaset.vehra)
 						if not IS_ENTITY_UPRIGHT(targets, UV) then
-							if set.alert then
+							if func.set.alert then
 								func.ACutil(pname.. Str_trans(' has been run over'))
 							end
 						elseif IS_ENTITY_UPRIGHT(targets, UV) then
 						RamCar(vehaset.vehasel, tar1.x, tar1.y - 15, tar1.z, vehaset.invis_aveh, targets, vehaset.vehra)
 							if not IS_ENTITY_UPRIGHT(targets, UV) then
-								if set.alert then
+								if func.set.alert then
 									func.ACutil(pname.. Str_trans(' has been run over'))
 								end
 							elseif IS_ENTITY_UPRIGHT(targets, UV) then
 							RamCar(vehaset.vehasel, tar1.x - 15, tar1.y - 15, tar1.z, vehaset.invis_aveh, targets, vehaset.vehra)
 								if not IS_ENTITY_UPRIGHT(targets, UV) then
-									if set.alert then
+									if func.set.alert then
 										func.ACutil(pname.. Str_trans(' has been run over'))
 									end
 								elseif IS_ENTITY_UPRIGHT(targets, UV) then
 								RamCar(vehaset.vehasel, tar1.x + 15, tar1.y + 15, tar1.z, vehaset.invis_aveh, targets, vehaset.vehra)
 									if not IS_ENTITY_UPRIGHT(targets, UV) then
-										if set.alert then
+										if func.set.alert then
 											func.ACutil(pname.. Str_trans(' has been run over'))
 										end
 									elseif IS_ENTITY_UPRIGHT(targets, UV) then
 										RamCar(vehaset.vehasel, tar1.x + 15, tar1.y - 15, tar1.z, vehaset.invis_aveh, targets, vehaset.vehra)
 										if not IS_ENTITY_UPRIGHT(targets, UV) then
-											if set.alert then
+											if func.set.alert then
 												func.ACutil(pname.. Str_trans(' has been run over'))
 											end
 										elseif IS_ENTITY_UPRIGHT(targets, UV) then
 											RamCar(vehaset.vehasel, tar1.x - 15, tar1.y + 15, tar1.z, vehaset.invis_aveh, targets, vehaset.vehra)
 											if not IS_ENTITY_UPRIGHT(targets, UV) then
-												if set.alert then
+												if func.set.alert then
 													func.ACutil(pname.. Str_trans(' has been run over'))
 												end
 											else
-												if set.alert then
+												if func.set.alert then
 													func.ACutil(Str_trans('Could not reach ') ..pname)
 												end
 											end
@@ -1725,7 +1727,7 @@ players.add_command_hook(function(pid, root)
 			end
 		end
 		if not players.exists(pid) then
-			if set.alert then
+			if func.set.alert then
 				func.ACutil(Str_trans('You made them rage quit'))
 			end
 			util.stop_thread()
@@ -1754,7 +1756,7 @@ players.add_command_hook(function(pid, root)
 		 if IS_MODEL_A_VEHICLE(util.joaat(cussma)) then
 			vehaset.vehasel = util.joaat(cussma)
 		 else
-			if set.alert then
+			if func.set.alert then
 				func.ACutil(Str_trans('Improper Vehicle Name (check the spelling)'))
 			end
 		 end
@@ -1775,13 +1777,13 @@ players.add_command_hook(function(pid, root)
 		if not IS_PED_RAGDOLL(targets) then
 			JuggleCar(juglset.jugsel, tar1, juglset.invisjugc, juglset.jugr)
 			else
-				if set.alert then
+				if func.set.alert then
 					func.ACutil(pname..Str_trans(' is being juggled'))
 				end
 		end
 
 		if not players.exists(pid) then
-			if set.alert then
+			if func.set.alert then
 				func.ACutil(Str_trans('You made them rage quit'))
 			end
 			util.stop_thread()
@@ -1805,7 +1807,7 @@ players.add_command_hook(function(pid, root)
 		if IS_MODEL_A_VEHICLE(util.joaat(cusveh)) then
 			juglset.jugsel = util.joaat(cusveh)
 		else
-			if set.alert then
+			if func.set.alert then
 				func.ACutil(Str_trans('Improper Vehicle Name (check the spelling)'))
 			end
 		end
@@ -2081,7 +2083,7 @@ players.add_command_hook(function(pid, root)
 		if IS_MODEL_A_VEHICLE(util.joaat(cusveh)) then
 			vehatkset.attkrveh = cusveh
 		else
-			if set.alert then
+			if func.set.alert then
 				func.ACutil(Str_trans('Improper Vehicle Name (check the spelling)'))
 			end
 		end
@@ -2259,7 +2261,7 @@ players.add_command_hook(function(pid, root)
 
 		if not players.exists(pid) then
 
-			if set.alert then
+			if func.set.alert then
 				func.ACutil(Str_trans('You made them rage quit'))
 			end
 			util.stop_thread()
@@ -2279,7 +2281,7 @@ players.add_command_hook(function(pid, root)
 			menu.set_value(pedca, false)
 			cage_table[pid] = false
 			else
-				 if set.alert then
+				 if func.set.alert then
 					func.ACutil(Str_trans('No Ped Cage Found'))
 				 end
 		end
@@ -2366,7 +2368,7 @@ players.add_command_hook(function(pid, root)
 		end
 
 		if not players.exists(pid) then
-			if set.alert then
+			if func.set.alert then
 				func.ACutil(Str_trans('You made them rage quit'))
 			end
 			util.stop_thread()
@@ -2382,7 +2384,7 @@ players.add_command_hook(function(pid, root)
 			menu.set_value(rpedca, false)
 			rcage_table[pid] = false
 		else
-			if set.alert then
+			if func.set.alert then
 				func.ACutil(Str_trans('No Ped Cage Found'))
 			end
 		end
@@ -2447,7 +2449,7 @@ players.add_command_hook(function(pid, root)
 		end
 
 		if not players.exists(pid) then
-			if set.alert then
+			if func.set.alert then
 			  func.ACutil(Str_trans('You made them rage quit'))
 			end
 			util.stop_thread()
@@ -2462,7 +2464,7 @@ players.add_command_hook(function(pid, root)
 			menu.set_value(cpedca, false)
 			ccage_table[pid] = false
 		else
-			if set.alert then
+			if func.set.alert then
 				func.ACutil(Str_trans('No Ped Cage Found'))
 			end
 		end
@@ -2512,7 +2514,7 @@ players.add_command_hook(function(pid, root)
 		end
 
 		if not players.exists(pid) then
-			if set.alert then
+			if func.set.alert then
 				func.ACutil(Str_trans('You made them rage quit'))
 			end
 			util.stop_thread()
@@ -2530,7 +2532,7 @@ players.add_command_hook(function(pid, root)
 			func.Stopsound()
 			obj_table[pid] = false
 		else
-			if set.alert then
+			if func.set.alert then
 				func.ACutil(Str_trans('No Obj Cage Found'))
 			end
 		end

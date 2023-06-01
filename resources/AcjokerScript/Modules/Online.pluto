@@ -1,5 +1,6 @@
-local set = require 'resources/AcjokerScript/Modules/Settings'
+require 'resources/AcjokerScript/Modules/Functions'
 local Tables = require 'resources/AcjokerScript/ACJSTables'
+local func = require 'resources/AcjokerScript/Modules/Functions'
 local CONFIG_DIR = filesystem.resources_dir() .. 'AcjokerScript\\'
 local CusSongsDir = CONFIG_DIR..'Songs\\'
 local Songfile = filesystem.stand_dir()..'Song.lrc'
@@ -129,7 +130,7 @@ menu.action(menus.taxi, T('Go to Pegasus Taxi'), {'taxipeg'}, T('Teleports you t
         SEC(players.user_ped(), taxi.x, taxi.y, taxi.z, false, true, true, false)
         util.yield(150)
     else 
-        if set.alert then
+        if func.set.alert then
             func.ACutil(Str_trans('No Taxi Found'))
         end 
     end
@@ -148,7 +149,7 @@ menu.action(menus.taxi, T('Go to Pegasus Taxi'), {'taxipeg'}, T('Teleports you t
             SEC(taxi_ent, pcoor.x, pcoor.y, pcoor.z, false, true, true, false)
             
         else
-            if set.alert then
+            if func.set.alert then
                 func.ACutil(Str_trans('No Taxi Found'))
             end
         end
@@ -192,7 +193,7 @@ menus.taxitog = menu.toggle_loop(menus.taxi, T('Auto TP to Taxi Pickup'), {'tpta
                 menu.trigger_commands('tpobjective')
                 
             else
-                if set.alert then
+                if func.set.alert then
                     func.ACutil(Str_trans('No Person Found'))
                 end
             end
@@ -201,7 +202,7 @@ menus.taxitog = menu.toggle_loop(menus.taxi, T('Auto TP to Taxi Pickup'), {'tpta
         end
 end, function ()
         SEC(players.user_ped(), curcoords.x, curcoords.y, curcoords.z, false, true, true, false)
-        if set.alert then
+        if func.set.alert then
             func.ACutil(Str_trans('Not in a taxi turning off auto teleport'))
         end
         curcoords = {}
@@ -224,14 +225,14 @@ end)
         local tar1 = GET_OFFSET_FROM_ENTITY_IN_WORLD_COORDS(players.user_ped(), 0, 1, -1)
         local pedS = entities.create_ped(1, hash, tar1, 0)
         table.insert(Npc_spawned, pedS)
-        if set.alert then
+        if func.set.alert then
             func.ACutil(Str_trans('NPC Spawned'))
         end
     end)
 
     menus.NPC_spawn:action(T('Delete Ped/Animal'), {}, 'Delete spawned ped/animal', function ()
         DelEnt(Npc_spawned)
-        if set.alert then
+        if func.set.alert then
             func.ACutil(Str_trans('NPC Deleted'))
         end
     end)

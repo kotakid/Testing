@@ -1,6 +1,5 @@
 local Tables = require 'resources/AcjokerScript/ACJSTables'
-local func = require 'resources/AcjokerScript/Modules/Functions'
-local set = require 'resources/AcjokerScript/Modules/Settings'
+require 'resources/AcjokerScript/Modules/Functions'
 local CONFIG_DIR = filesystem.resources_dir() .. 'AcjokerScript\\'
 local SettingsDir = CONFIG_DIR..'Settings\\'
 if filesystem.is_dir(CONFIG_DIR..'Death Log\\') then
@@ -427,7 +426,7 @@ local function regen_pet_list(root)
                 entities.delete_by_handle(v.handle)
                 remove_pet(v.name)
                 petz = petz - 1
-                if set.alert then
+                if func.set.alert then
                     func.ACutil(v.name..Str_trans(' Removed from Pet List'))
                 end
                 Spawnedpetmenu:focus()
@@ -436,7 +435,7 @@ local function regen_pet_list(root)
             pets_list_menu:action(Str_trans('Bring to you'), {}, Str_trans('Bring pet to you'), function ()
                 local coords = GET_OFFSET_FROM_ENTITY_IN_WORLD_COORDS(players.user_ped(), math.random(-1, 1), math.random(-1, 1), 0)
                 SEC(v.handle, coords.x, coords.y, coords.z, false, true, true, false)
-                if set.alert then
+                if func.set.alert then
                     func.ACutil(v.name..Str_trans(' Pet brought back'))
                 end
                 return true
@@ -644,7 +643,7 @@ local function regenerateTpLocations(root)
 
         properties[ownedprops[i][1]] = menu.action(root, ownedprops[i][1], {}, '', function()
             if not DOES_BLIP_EXIST(propblip) then
-                if set.alert then
+                if func.set.alert then
                     func.ACutil(Str_trans('Could not find property.'))
                 end
                 return
@@ -661,7 +660,7 @@ local function regenerateTpLocations(root)
 
                 menu.action(properties[listName], mcprops.loc[j][1], {}, '', function() 
                     if not DOES_BLIP_EXIST(propblip) then
-                        if set.alert then
+                        if func.set.alert then
                             func.ACutil(Str_trans('Could not find property.'))
                         end
                         return
@@ -685,7 +684,7 @@ menus.acid = menu.list(TeleRoot, T('Acid Lab Helpers'), {'alhelpers'}, '')
 menu.action(menus.acid,  T('TP into Acid Lab'), {'tplab'},  T('Teleports you into the Acid Lab if it is called in'), function ()
     local acid = GET_BLIP_COORDS(GET_NEXT_BLIP_INFO_ID(840))
     if acid.x ==0 and acid.y ==0 and acid.z ==0 then
-        if set.alert then
+        if func.set.alert then
             func.ACutil(Str_trans('Acid Lab not found'))
         end
     else    SEC(players.user_ped(), 480.80365, -2626.1143, -48.66407, false, false, false, false)
@@ -799,7 +798,7 @@ menu.action(menus.acid, T('TP to Acid Lab Supplies or Sale'), {'tpacproduct'}, T
 
         elseif bPickup.x != 0 and bPickup.y != 0 and bPickup.z != 0 then
             SET_PED_COORDS_KEEP_VEHICLE(players.user_ped(), bPickup.x, bPickup.y, bPickup.z, false, false, false, false)
-            if set.alert then
+            if func.set.alert then
                 func.ACutil(Str_trans('TP to Sale'))
             end
         end
@@ -843,7 +842,7 @@ menu.action(menus.acid, T('TP to Acid Lab Supplies or Sale'), {'tpacproduct'}, T
                 util.yield(1000)
                 menu.trigger_commands('tplab')
             end
-            if set.alert then
+            if func.set.alert then
                 func.ACutil(Str_trans('TP to Van or Product'))
             end
         end
@@ -855,7 +854,7 @@ menu.action(menus.acid, T('TP to Acid Lab Supplies or Sale'), {'tpacproduct'}, T
             util.yield(250)
             menu.trigger_commands('tpobjective')
         else                 
-            if set.alert then
+            if func.set.alert then
                 func.ACutil(Str_trans('No Acid Lab Product Found'))
             end
         end
@@ -867,7 +866,7 @@ local vteles = menu.list(TeleRoot, T('Vehicle Teleports'), {}, '')
 menu.action(vteles,  T('TP into Acid Lab'), {'tplab'},  T('Teleports you into the Acid Lab if it is called in'), function ()
     local acid = GET_BLIP_COORDS(GET_NEXT_BLIP_INFO_ID(840))
     if acid.x ==0 and acid.y ==0 and acid.z ==0 then
-        if set.alert then
+        if func.set.alert then
             func.ACutil(Str_trans('Acid Lab not found'))
         end
     else    
@@ -882,7 +881,7 @@ end)
 menu.action(vteles, T('TP into Kosatka'), {'tpkosatka'}, T('MUST HAVE CALLED IN Teleport to Kosatka Cayo Perico Heist board'), function ()
     local kos = GET_BLIP_COORDS(GET_NEXT_BLIP_INFO_ID(760))
     if kos.x ==0 and kos.y ==0 and kos.z ==0 then
-        if set.alert then
+        if func.set.alert then
             func.ACutil(Str_trans('Kosatka not found'))
         end
     else   
@@ -897,7 +896,7 @@ end)
 menu.action(vteles, T('TP into Terrorbyte'), {'tpterro'}, T('Teleport to Terrorbyte Business control'), function ()
     local ter = GET_BLIP_COORDS(GET_NEXT_BLIP_INFO_ID(632))
     if ter.x == 0 and ter.y == 0 and ter.z == 0 then
-        if set.alert then
+        if func.set.alert then
             func.ACutil(Str_trans('Terrorbyte not found'))
         end
     else 
@@ -910,7 +909,7 @@ local cargoteles = menu.list(TeleRoot, T('CEO Cargo Teleports'), {}, '')
 menu.action(cargoteles, T('TP to Special Cargo'), {'tpscargo'}, T('Teleport to Special Cargo pickup'), function ()
     local cPickup = GET_BLIP_COORDS(GET_NEXT_BLIP_INFO_ID(478))
     if cPickup.x == 0 and cPickup.y == 0 and cPickup.z == 0 then
-        if set.alert then
+        if func.set.alert then
             func.ACutil(Str_trans('No Special Cargo Found'))
         end
     else
@@ -922,7 +921,7 @@ end)
 menu.action(cargoteles, T('TP to Vehicle Cargo'), {'tpvcargo'}, T('Teleport to Vehicle Cargo pickup'), function ()
     local vPickup = GET_BLIP_COORDS(GET_NEXT_BLIP_INFO_ID(523))
     if vPickup.x == 0 and vPickup.y == 0 and vPickup.z == 0 then
-        if set.alert then
+        if func.set.alert then
             func.ACutil(Str_trans('No Vehicle Cargo Found'))
         end
     else
@@ -937,7 +936,7 @@ menu.action(intteles, T('TP to PC'), {'tpdesk'}, T('Teleport to PC at the Desk')
     if pcD.x != 0 and pcD.y != 0 and pcD.z != 0 then
         SEC(players.user_ped(), pcD.x- 1.0, pcD.y + 1.0 , pcD.z, false, false, false, false)
     else
-        if set.alert then
+        if func.set.alert then
             func.ACutil(Str_trans('No PC Found'))
         end
     end
@@ -952,7 +951,7 @@ menu.action(intteles, T('TP to Nightclub Person'), {'tpNCPerson'}, T('Teleport t
     elseif nigh2.x != 0 and nigh2.y != 0 and nigh2.z != 0 then
         SEC(players.user_ped(), nigh2.x, nigh2.y, nigh2.z, false, false, false, false)
     else 
-        if set.alert then
+        if func.set.alert then
             func.ACutil(Str_trans('No Person Found'))
         end
     end
@@ -967,7 +966,7 @@ menu.action(intteles, T('TP to Safe'), {'tpsafe'}, T('Teleport to Safe inside Ag
     elseif saf2.x != 0 and saf2.y != 0 and saf2.z != 0 then
         SEC(players.user_ped(), saf2.x, saf2.y + 1.0 , saf2.z, false, false, false, false)
     else
-        if set.alert then
+        if func.set.alert then
             func.ACutil(Str_trans('No Safe Found'))
         end
     end
@@ -983,7 +982,7 @@ menu.action(TeleRoot, T('TP to MC Product'), {'tpMCproduct'}, T('Teleport to MC 
 
     elseif pPickup.x != 0 and pPickup.y != 0 and pPickup.z != 0 then
         SEC(players.user_ped(), pPickup.x - 1.5, pPickup.y , pPickup.z, false, false, false, false)
-        if set.alert then
+        if func.set.alert then
             func.ACutil(Str_trans('TP to MC Product'))
         end
         
@@ -992,7 +991,7 @@ menu.action(TeleRoot, T('TP to MC Product'), {'tpMCproduct'}, T('Teleport to MC 
 
     elseif hPickup.x != 0 and hPickup.y != 0 and hPickup.z != 0 then
         SEC(players.user_ped(), hPickup.x- 1.5, hPickup.y, hPickup.z, false, false, false, false)
-        if set.alert then
+        if func.set.alert then
             func.ACutil(Str_trans('TP to Heli'))
         end
     end
@@ -1000,7 +999,7 @@ menu.action(TeleRoot, T('TP to MC Product'), {'tpMCproduct'}, T('Teleport to MC 
 
     elseif bPickup.x != 0 and bPickup.y != 0 and bPickup.z != 0 then
         SEC(players.user_ped(), bPickup.x, bPickup.y, bPickup.z + 1.0 , false, false, false, false)
-        if set.alert then
+        if func.set.alert then
             func.ACutil(Str_trans('TP to Boat'))
         end
     end
@@ -1008,11 +1007,11 @@ menu.action(TeleRoot, T('TP to MC Product'), {'tpMCproduct'}, T('Teleport to MC 
 
     elseif plPickup.x != 0 and plPickup.y != 0 and plPickup.z != 0 then
         SEC(players.user_ped(), plPickup.x, plPickup.y + 1.5, plPickup.z - 1, false, false, false, false)
-        if set.alert then
+        if func.set.alert then
             func.ACutil(Str_trans('TP to Plane'))
         end
     else                 
-        if set.alert then
+        if func.set.alert then
             func.ACutil(Str_trans('No MC Product Found'))
         end
     end
@@ -1026,25 +1025,25 @@ menu.action(TeleRoot, T('TP to Bunker Supplies/Sale'), {'tpBSupplies'}, T('Telep
     if sPickup.x == 0 and sPickup.y == 0 and sPickup.z == 0 then
     elseif sPickup.x != 0 and sPickup.y != 0 and sPickup.z != 0 then
         SEC(players.user_ped(), sPickup.x, sPickup.y + 2.0, sPickup.z - 1.0, false, false, false, false)
-        if set.alert then
+        if func.set.alert then
             func.ACutil(Str_trans('TP to Supplies'))
         end
     end
     if dPickup.x == 0 and dPickup.y == 0 and dPickup.z == 0 then
     elseif dPickup.x != 0 and dPickup.y != 0 and dPickup.z != 0 then
         SEC(players.user_ped(), dPickup.x, dPickup.y, dPickup.z, false, false, false, false)
-        if set.alert then
+        if func.set.alert then
             func.ACutil(Str_trans('TP to Dune'))
         end
     end
     if fPickup.x == 0 and fPickup.y == 0 and fPickup.z == 0 then
     elseif fPickup.x != 0 and fPickup.y != 0 and fPickup.z != 0 then
         SEC(players.user_ped(), fPickup.x, fPickup.y, fPickup.z + 1.0 , false, false, false, false)
-        if set.alert then
+        if func.set.alert then
             func.ACutil(Str_trans('TP to Flatbed'))
         end
     else
-         if set.alert then
+         if func.set.alert then
             func.ACutil(Str_trans('No Bunker Supplies Found'))
          end
     end
@@ -1053,7 +1052,7 @@ end)
 menu.action(TeleRoot, T('TP to Payphone'), {'tppayphone'}, T('Teleport to Payphone (must have called Franklin already)'), function ()
     local payPhon = GET_BLIP_COORDS(GET_NEXT_BLIP_INFO_ID(817))
     if payPhon.x == 0 and payPhon.y == 0 and payPhon.z == 0 then
-        if set.alert then
+        if func.set.alert then
             func.ACutil(Str_trans('No Payhone Found'))
         end
     else
@@ -1065,7 +1064,7 @@ menu.action(TeleRoot, T('TP to Exotic Export Dock'), {'tpEED'}, T('Teleport to E
     if DOES_BLIP_EXIST(GET_CLOSEST_BLIP_INFO_ID(780)) then
         local eDock = GET_BLIP_COORDS(GET_CLOSEST_BLIP_INFO_ID(780))
         if eDock.x == 0 and eDock.y == 0 and eDock.z == 0 then
-            if set.alert then
+            if func.set.alert then
                 func.ACutil(Str_trans('Dock Not Found'))
             end
         elseif eDock.x != 0 and eDock.y != 0 and eDock.z != 0 then
@@ -1165,7 +1164,7 @@ end
             if pname != nil then
                 add_deathlog(pname, time, 'weapon')
             end
-            if set.alert then
+            if func.set.alert then
                 func.ACutil(pname..Str_trans(' Added to Death Log via weapon'))
             end
             util.yield(12000)
@@ -1177,7 +1176,7 @@ end
             if pname != nil then
                 add_deathlog(pname, time, 'vehicle')
             end
-            if set.alert then
+            if func.set.alert then
                 func.ACutil(pname..Str_trans(' Added to Death Log via vehicle'))
             end
             util.yield(12000)

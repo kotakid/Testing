@@ -1,10 +1,10 @@
 local CONFIG_DIR = filesystem.resources_dir() .. 'AcjokerScript\\'
 local VehiclesDir = CONFIG_DIR.. 'Vehicles\\'
 filesystem.mkdirs(VehiclesDir)
-local set = require 'resources/AcjokerScript/Modules/Settings'
-Tables = require 'resources/AcjokerScript/ACJSTables'
-func = require 'resources/AcjokerScript/Modules/Functions'
-menus = {}
+require 'resources/AcjokerScript/Modules/Functions'
+local Tables = require 'resources/AcjokerScript/ACJSTables'
+local func = require 'resources/AcjokerScript/Modules/Functions'
+local menus = {}
 if filesystem.is_regular_file(CONFIG_DIR .. "FavVehicles.json") then
     os.rename(CONFIG_DIR .. "FavVehicles.json", SettingsDir.."FavVehicles.json")
 else
@@ -59,7 +59,7 @@ local function vehflight(curcar, speed)
 
 
     if fly.contr then
-        if set.scale then
+        if func.set.scale then
             SF.SFfly2()
         end
         if IS_CONTROL_PRESSED(0, 61) then
@@ -76,7 +76,7 @@ local function vehflight(curcar, speed)
             APPLY_FORCE_TO_ENTITY_CENTER_OF_MASS(curcar, 1, - speed/2, 0, 0, 0, true, true, true, true)
         end
     else 
-        if set.scale then
+        if func.set.scale then
             SF.SFfly()
         end
     end
@@ -345,7 +345,7 @@ local function regen_saved_vehicle_list(root)
             
             table.insert(weapon_attach, location)
         end
-            if set.alert then
+            if func.set.alert then
                 func.ACutil(dirname..Str_trans(' Vehicle spawned'))
             end
             return true
@@ -355,7 +355,7 @@ local function regen_saved_vehicle_list(root)
         weaponized_veh_menu:action(Str_trans('Delete Vehicle File'), {}, Str_trans('Delete Vehicle file from your saved weaponized vehicles'), function ()
         io.remove(path)
 
-        if set.alert then
+        if func.set.alert then
             func.ACutil(dirname..Str_trans(' Vehicle file removed'))
         end
         return true
@@ -669,7 +669,7 @@ end)
 
 
 vehmove:toggle_loop(T('Drift'), {'drift'}, T('Hold shift or A on controller to drift your vehicle'), function ()
-    if set.scale then
+    if func.set.scale then
         SF.SFdrift()
     end
     local player_veh = entities.get_user_vehicle_as_handle()
@@ -716,7 +716,7 @@ Vflight = flyroot:toggle_loop(T('Vehicle Flight'), {'vfly'}, T('Turn on Vehicle 
         end
        
     else 
-        if set.alert then
+        if func.set.alert then
             func.ACutil(Str_trans('You are not in a vehicle flight off'))
         end
         FREEZE_ENTITY_POSITION(curcar, false) 
@@ -748,7 +748,7 @@ end)
 
 vehmove:action(T('Change Speed Limit'), {}, T('Change Speed Limit to Max if you have not already so you can fly or boost faster'), function ()
     menu.set_value(menu.ref_by_path("Vehicle>Movement>Speed Limit (KMH)"), 10000)
-    if set.alert then
+    if func.set.alert then
         func.ACutil(Str_trans('Speed Limit Changed to ')..tostring(menu.ref_by_path("Vehicle>Movement>Speed Limit (KMH)").value))
     end
 end)
@@ -791,7 +791,7 @@ menus.create_handling_list = vehhandle:list(Str_trans("Handling Flags"), {}, Str
             build_veh_handling_menu(menus.create_handling_list, false, flag, 0x128)
         end
     else
-        if set.alert then
+        if func.set.alert then
             func.ACutil(Str_trans('Not in Vehicle'))
         end
     end
@@ -806,7 +806,7 @@ menus.create_model_list = vehhandle:list(Str_trans("Model Flags"), {}, Str_trans
             build_veh_handling_menu(menus.create_model_list, false, flag, 0x0124)
         end
     else
-        if set.alert then
+        if func.set.alert then
             func.ACutil(Str_trans('Not in Vehicle'))
         end
     end
@@ -831,12 +831,12 @@ menus.create_advanced_list = vehhandle:list(Str_trans("Advanced Flags"), {}, Str
                 end
             end
         else
-            if set.alert then
+            if func.set.alert then
                 func.ACutil(Str_trans('Not in Vehicle'))
             end
         end
     else
-        if set.alert then
+        if func.set.alert then
             func.ACutil(Str_trans('No Advanced Flags'))
         end
     end
@@ -851,7 +851,7 @@ menus.create_damage_list = vehhandle:list(Str_trans("Damage Flags"), {}, Str_tra
             build_veh_handling_menu(menus.create_damage_list, false, flag, 0x012C)
         end
     else
-        if set.alert then
+        if func.set.alert then
             func.ACutil(Str_trans('Not in Vehicle'))
         end
     end
@@ -871,7 +871,7 @@ vehhandle:action(T('4 Wheel Steer'), {'Awheelsteer'}, T('If the flags do not aut
             build_veh_handling_menu(menus.create_handling_list, false, flag, 0x128)
         end
     else
-        if set.alert then
+        if func.set.alert then
             func.ACutil(Str_trans('Not in Vehicle'))
         end
     end
@@ -888,7 +888,7 @@ vehhandle:action(T('Kers Boost'), {'Kerson'}, T('Turn on Kers Boost for the Vehi
             build_veh_handling_menu(menus.create_handling_list, false, flag, 0x128)
         end
     else
-        if set.alert then
+        if func.set.alert then
             func.ACutil(Str_trans('Not in Vehicle'))
         end
     end
@@ -914,12 +914,12 @@ vehhandle:action(T('Wheelie'), {'Wheelie'}, T('Not every car can do a wheelie'),
                 end
             end
         else
-            if set.alert then
+            if func.set.alert then
                 func.ACutil(Str_trans('Not in Vehicle'))
             end
         end
     else
-        if set.alert then
+        if func.set.alert then
             func.ACutil(Str_trans('No Advanced Flags'))
         end
     end
@@ -946,12 +946,12 @@ vehhandle:action(T('Stance'), {'Stance'}, T('Not every car can be stanced (will 
 
             
         else
-            if set.alert then
+            if func.set.alert then
                 func.ACutil(Str_trans('Not in Vehicle'))
             end
         end
     else
-        if set.alert then
+        if func.set.alert then
             func.ACutil(Str_trans('No Advanced Flags'))
         end
     end
@@ -1547,7 +1547,7 @@ local function SDcreate(pCoor)
             SET_VEHICLE_DIRT_LEVEL(Lsdcar, 0)
             SET_ENTITY_INVINCIBLE(Lsdcar, true)
             SET_VEHICLE_CAN_BE_VISIBLY_DAMAGED(Lsdcar, false)
-            if set.scale then
+            if func.set.scale then
                 SF.SFlsd()
             end
         end
@@ -1597,7 +1597,7 @@ SDspawn = menu.toggle_loop(sdroot, T('Spawn Lazer Space Docker'), {'lsdspawn'}, 
     local pH = GET_ENTITY_HEADING(pCoor)
 
         if players.is_in_interior(players.user()) and not DOES_ENTITY_EXIST(Lsdcar) then
-            if set.alert then
+            if func.set.alert then
                 func.ACutil(Str_trans('Lazer Space Docker will not Spawn in interior'))
             end
             menu.set_value(SDspawn, false)
@@ -1608,7 +1608,7 @@ SDspawn = menu.toggle_loop(sdroot, T('Spawn Lazer Space Docker'), {'lsdspawn'}, 
         local curcar = entities.get_user_vehicle_as_handle()
         SET_ENTITY_AS_MISSION_ENTITY(curcar)
         entities.delete_by_handle(curcar)
-        if set.alert then
+        if func.set.alert then
             func.ACutil(Str_trans('Fuck that car'))
         end
         for i = 1, 1 do
@@ -1629,13 +1629,13 @@ SDspawn = menu.toggle_loop(sdroot, T('Spawn Lazer Space Docker'), {'lsdspawn'}, 
         end
     elseif IS_PED_IN_ANY_VEHICLE(players.user_ped()) ==false and not DOES_ENTITY_EXIST(Lsdcar) then
         SDcreate(pCoor)
-             if set.alert then
+             if func.set.alert then
                 func.ACutil(Str_trans('Lazer Space Docker Spawned'))
              end
     end
 
     if IS_PED_GETTING_INTO_A_VEHICLE(players.user_ped()) ==false and IS_PED_IN_VEHICLE(players.user_ped(), Lsdcar , false) ==false then
-        if set.alert then
+        if func.set.alert then
             func.ACutil(Str_trans('Player has left the Lazer Space Docker and it has been deleted'))
         end
     ---@diagnostic disable-next-line: param-type-mismatch
@@ -1666,7 +1666,7 @@ end)
  local busset = {hit = 10, delay = 250}
 menus.bustog = menus.BBbus:toggle_loop(Str_trans('Big Bass Bus'), {'BBbus'}, Str_trans('Spawn Big Bass Bus'), function ()
     if players.is_in_interior(players.user()) and not DOES_ENTITY_EXIST(Bbbus) then
-        if set.alert then
+        if func.set.alert then
             func.ACutil(Str_trans('Big Bass Bus will not Spawn in interior'))
         end
         menus.bustog.value = false
@@ -1766,7 +1766,7 @@ function Yeet()
 
         end
         end
-        if set.alert then
+        if func.set.alert then
             func.ACutil(Str_trans('Yeet'))
         end
         else 
@@ -1789,7 +1789,7 @@ util.create_tick_handler(function ()
             SET_VEHICLE_DIRT_LEVEL(FFchar, 0)
             SET_ENTITY_INVINCIBLE(FFchar, true)
             SET_VEHICLE_CAN_BE_VISIBLY_DAMAGED(FFchar, false)
-            if set.scale then
+            if func.set.scale then
                 SF.SF()
             end
         end
@@ -1800,7 +1800,7 @@ Spawn = menu.toggle_loop(charroot, T('Spawn FF9 EMP Charger'), {'FF9Wspawn'}, T(
     func.Streament(charger.charg)
     func.Streament(charger.emp)
         if players.is_in_interior(players.user()) and not DOES_ENTITY_EXIST(FFchar)then
-            if set.alert then
+            if func.set.alert then
                 func.ACutil(Str_trans('Charger will not Spawn in interior'))
             end
             menu.set_value(Spawn, false)
@@ -1810,7 +1810,7 @@ Spawn = menu.toggle_loop(charroot, T('Spawn FF9 EMP Charger'), {'FF9Wspawn'}, T(
     if not IS_PED_IN_VEHICLE(players.user_ped(), FFchar, true) and IS_PED_IN_ANY_VEHICLE(players.user_ped()) then
         local curcar = entities.get_user_vehicle_as_handle()
         entities.delete_by_handle(curcar)
-        if set.alert then
+        if func.set.alert then
             func.ACutil(Str_trans('Fuck that car'))
         end
         for i = 1, 1 do
@@ -1825,13 +1825,13 @@ Spawn = menu.toggle_loop(charroot, T('Spawn FF9 EMP Charger'), {'FF9Wspawn'}, T(
         elseif IS_PED_IN_ANY_VEHICLE(players.user_ped()) ==false then
             local pCoor = GET_ENTITY_COORDS(players.user_ped(), true)
             Ccreate(pCoor)
-            if set.alert then
+            if func.set.alert then
                 func.ACutil(Str_trans('Charger Spawned'))
             end
         end
 
     if IS_PED_GETTING_INTO_A_VEHICLE(players.user_ped()) ==false and IS_PED_IN_VEHICLE(players.user_ped(), FFchar , false) ==false then
-        if set.alert then
+        if func.set.alert then
             func.ACutil(Str_trans('Player has left Charger and it has been deleted'))
         end
         menu.set_value(Spawn, false)
@@ -1886,7 +1886,7 @@ local alias_menu_item = menus.vehicle_aliases:action(alias, {alias}, T("Spawn ")
         if menus.vehicle_alias then
             func.Vspawn(menus.veh, tar1, targets, tostring(players.get_name(pid)))
         else
-            if set.alert then
+            if func.set.alert then
                 func.ACutil(Str_trans('Vehicle Aliases not set'))
             end    
         end
@@ -1980,7 +1980,7 @@ local function build_curated_constructs_menu(root_menu, curated_item)
           curated_item.load_menu = menu.action(root_menu, curated_item.name or "Unknown", {}, util.reverse_joaat(curated_item.hash) or "", function()
             menu.set_menu_name(menus.curvtog, T('Current Sound ')..util.reverse_joaat(curated_item.hash))
                 FORCE_USE_AUDIO_GAME_OBJECT(entities.get_user_vehicle_as_handle(),  util.reverse_joaat(curated_item.hash))
-                if set.alert then
+                if func.set.alert then
                     func.ACutil(Str_trans('Vehicle Sound changed to ')..util.reverse_joaat(curated_item.hash))
                 end
                 if util.reverse_joaat(curated_item.hash) != "" then
@@ -1988,7 +1988,7 @@ local function build_curated_constructs_menu(root_menu, curated_item)
                     for vehicles_list as vehicle do
                         if vehicle.hash == util.reverse_joaat(curated_item.hash) then
                             remove_vehicle(util.reverse_joaat(curated_item.hash))
-                            if set.alert then
+                            if func.set.alert then
                                 func.ACutil(util.reverse_joaat(curated_item.hash)..Str_trans(' removed'))
                             end
                             return true
@@ -1996,11 +1996,11 @@ local function build_curated_constructs_menu(root_menu, curated_item)
                     end
                     if IS_MODEL_A_VEHICLE(util.joaat(util.reverse_joaat(curated_item.hash))) then
                         add_vehicle(util.reverse_joaat(curated_item.hash))  
-                        if set.alert then
+                        if func.set.alert then
                             func.ACutil(util.reverse_joaat(curated_item.hash)..Str_trans(' added'))  
                         end   
                     else
-                        if set.alert then
+                        if func.set.alert then
                             func.ACutil(Str_trans('Improper Vehicle Name (check the spelling)'))
                         end
                     end
@@ -2043,13 +2043,13 @@ local function regen_veh_tab(root)
                 FORCE_USE_AUDIO_GAME_OBJECT(entities.get_user_vehicle_as_handle(), v)
                 eng.soun = v
                 menu.set_menu_name(menus.curvtog, T('Current Vehicle Sound ')..eng.soun)
-                if set.alert then
+                if func.set.alert then
                     func.ACutil(Str_trans('Vehicle Sound changed to ')..eng.soun)
                 end
             end)
             menu.action(vehicle_menu, T('Delete Sound'), {}, T('Delete sound from your favorites(back out of the list for it to be removed)'), function ()
                 remove_vehicle(v)
-                if set.alert then
+                if func.set.alert then
                     func.ACutil(v..Str_trans(' removed'))
                 end
                 return true
@@ -2067,7 +2067,7 @@ menu.text_input(vlistroot, T('Add/Remove a Favorite vehicle'), {'favveh'}, T('Ad
         for vehicles_list as vehicle do
             if vehicle.hash == favveh then
                 remove_vehicle(favveh)
-                if set.alert then
+                if func.set.alert then
                     func.ACutil(favveh..Str_trans(' removed'))
                 end
                 return true
@@ -2075,11 +2075,11 @@ menu.text_input(vlistroot, T('Add/Remove a Favorite vehicle'), {'favveh'}, T('Ad
         end
         if IS_MODEL_A_VEHICLE(util.joaat(favveh)) then
             add_vehicle(favveh)    
-            if set.alert then
+            if func.set.alert then
                 func.ACutil(favveh..Str_trans(' added'))
             end       
         else
-            if set.alert then
+            if func.set.alert then
                 func.ACutil(Str_trans('Improper Vehicle Name (check the spelling)'))
             end
         end

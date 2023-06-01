@@ -1,4 +1,4 @@
-local set = require 'resources/AcjokerScript/Modules/Settings'
+require 'resources/AcjokerScript/Modules/Functions'
 local CONFIG_DIR = filesystem.resources_dir() .. 'AcjokerScript\\'
 local SettingsDir = CONFIG_DIR..'Settings\\'
 if filesystem.is_regular_file(CONFIG_DIR .. "Kill_List.json") then
@@ -423,7 +423,7 @@ local function regen_kill_list(root)
             local kill_list_menu = menu.list(root, v, {}, v)
             menu.action(kill_list_menu, Str_trans('Remove from Kill List'), {}, Str_trans('Remove Player from Kill List'), function ()
                 func.remove_victim(v)
-                if set.alert then
+                if func.set.alert then
                     func.ACutil(v..Str_trans(' Removed from Kill List'))
                 end
                 return true
@@ -445,14 +445,14 @@ local function rebuild_player_list()
             for func.Load_settings(Kill_List) as name do
                 if name.name == pname then
                     func.remove_victim(pname)
-                    if set.alert then
+                    if func.set.alert then
                         func.ACutil(pname..Str_trans(' Removed from Kill List'))
                     end
                     return true
                 end
             end
             func.add_victim(pname)
-            if set.alert then
+            if func.set.alert then
                 func.ACutil(pname..Str_trans(' Added to Kill List'))
             end
             return true
@@ -745,7 +745,7 @@ menu.toggle_loop(menus.aimbotkillist, T('Add Strangers to Kill List'), {}, T('Ad
                 end
             end
             func.add_victim(pname)
-            if set.alert then
+            if func.set.alert then
                 func.ACutil(pname..Str_trans(' Added to Kill List'))
             end
         end
@@ -770,7 +770,7 @@ menus.shot_coords = menu.list(menus.aimbotweap, T('Shot Coordinates'), {}, T('Ch
     for Tables.BoneIds as bone do
         menu.action(menus.shot_coords, bone[1], {}, '', function(pedsel)
         aimbot.bone = bone[2]
-        if set.alert then
+        if func.set.alert then
             func.ACutil(Str_trans('Now aiming at ')..bone[1])
         end
     end)
@@ -969,7 +969,7 @@ super:toggle_loop(T('Superman Mode'), {'superman'}, T('Turn on Superman Mode wit
         util.write_colons_file(Superman_Setting, Current_settings)
     end
 
-    if set.scale then
+    if func.set.scale then
         SF.SFsuper()
     end
     multiref.value = 10000000
@@ -999,7 +999,7 @@ super:toggle_loop(T('Superman Mode'), {'superman'}, T('Turn on Superman Mode wit
             SEC(players.user_ped(), flycoor.x, flycoor.y, memory.read_float(groundz), false, true, true, false)
             CLEAR_PED_TASKS(players.user_ped())
         else
-            if set.alert then
+            if func.set.alert then
                 func.ACutil(Str_trans('Too high go lower to land'))
             end
         end
@@ -1181,21 +1181,21 @@ menu.toggle_loop(lsrmenu, T('Lazer Eyes'), {'Leyeson'}, T('Shoot lazers out of y
     REQUEST_WEAPON_ASSET(weap)
     if IS_PED_IN_ANY_VEHICLE(players.user_ped()) then
         if Lazer.buttons[1] == 68 then
-            if set.scale then
+            if func.set.scale then
                 SF.SFlevaim()
             end
         else
-            if set.scale then
+            if func.set.scale then
                 SF.SFlevhorn()
             end
         end
     else
         if Lazer.buttons[1] == 38 then
-            if set.scale then
+            if func.set.scale then
                 SF.SFlepickup()
             end
         else
-            if set.scale then
+            if func.set.scale then
                 SF.SFleaim()
             end
         end
@@ -1281,7 +1281,7 @@ menu.text_input(objgun, T('Custom Object'), {'cusobj'}, T('Enter the model name 
     elseif IS_MODEL_VALID(util.joaat(cusobj)) then
         obj_hash = cusobj
     else
-       if set.alert then
+       if func.set.alert then
            func.ACutil(Str_trans('Improper Object Name (check the spelling)'))
        end
     end
@@ -1497,7 +1497,7 @@ menus.attachgun:text_input(T('Custom Object'), {'custattach'}, T('Enter the mode
     elseif IS_MODEL_VALID(util.joaat(cusobj)) then
         attachgunset.hash = cusobj
     else
-        if set.alert then
+        if func.set.alert then
            func.ACutil(Str_trans('Improper Object Name (check the spelling)'))
         end
     end

@@ -2,12 +2,15 @@
 
 
 
-local set = require 'resources/AcjokerScript/Modules/Settings'
+
 Tables = require 'resources/AcjokerScript/ACJSTables'
 local veh_weap = {sel = 'WEAPON_SPECIALCARBINE_MK2'}
 local func = {}
 local weapons_menus = {}
 local SEC = SET_ENTITY_COORDS  
+
+func.set = {alert = true, scale = true}
+
 
 function func.ACutil(text)
    return util.toast(text)
@@ -28,7 +31,7 @@ function func.GetControl(vic, spec, pid)
         tick =  tick + 1
         if tick > 20 then
             if not NETWORK_HAS_CONTROL_OF_ENTITY(vic) then
-                if set.alert then
+                if func.set.alert then
                     func.ACutil(Str_trans('Could not gain control'))
                 end
                 if not spec then
@@ -295,7 +298,7 @@ end
                         WEAPON.REMOVE_ALL_PED_WEAPONS(ped)
                         local weaphash = util.joaat(Tables.Weapon_selections.bg_weap)
                         WEAPON.GIVE_WEAPON_TO_PED(ped, weaphash, 9999, true, true)
-                        if set.alert then
+                        if func.set.alert then
                             func.ACutil(Str_trans('Gun changed to ')..Tables.Weapon_selections.bg_weap)
                         end
                         break
@@ -304,7 +307,7 @@ end
                         WEAPON.REMOVE_ALL_PED_WEAPONS(ped)
                         local weaphash = util.joaat(Tables.Weapon_selections.bg_weap2)
                         WEAPON.GIVE_WEAPON_TO_PED(ped, weaphash, 9999, true, true)
-                        if set.alert then
+                        if func.set.alert then
                             func.ACutil(Str_trans('Gun changed to ')..Tables.Weapon_selections.bg_weap2)
                         end
                         break
@@ -579,7 +582,7 @@ function func.Getent(vic)
         tick =  tick + 1
         if tick > 20 then
             if not NETWORK_HAS_CONTROL_OF_ENTITY(vic) then
-                if set.alert then
+                if func.set.alert then
                     func.ACutil(Str_trans('Could not gain control'))
                 end
                 return vic
@@ -642,7 +645,7 @@ function func.Rpaint(pid)
     func.GetControl(vmod, spec, pid)
     SET_VEHICLE_FIXED(vmod)
     SET_VEHICLE_COLOURS(vmod, math.random(0, 160), math.random(0, 160))
-    if set.alert then
+    if func.set.alert then
         func.ACutil(Str_trans('Vehicle Painted'))
     end
 end
