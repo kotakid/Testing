@@ -13,10 +13,10 @@ local scripts_dir = filesystem.scripts_dir()
 local yieldlib = require "resources.AcjokerScript.Modules.Scaleform"
 yieldlib.init()
 util.ensure_package_is_installed("natives-1681379138")
+require "resources.AcjokerScript.translations"
 local requirements = {
     modules = {
         "natives-1681379138.g",
-        "resources.AcjokerScript.translations",
         "resources.AcjokerScript.gizmoUtils",
         "resources.AcjokerScript.Modules.Self",
         "resources.AcjokerScript.Modules.Weapons",
@@ -25,11 +25,10 @@ local requirements = {
 		"resources.AcjokerScript.Modules.Bodyguards",
         "resources.AcjokerScript.Modules.Players",
         "resources.AcjokerScript.Modules.Scaleform",
-        'resources.AcjokerScript.Modules.Settings',
+        "resources.AcjokerScript.Modules.Settings",
     },
     modules_names = {
 	    "'natives-1681379138 module'",
-        "'translations module'",
         "'gizmoUtils module'",
         "'self module'",
         "'weapons module'",
@@ -70,6 +69,164 @@ for i, mod in requirements.modules do
     )
 end
 
+---
+--- Auto-Updater Lib Install
+---
+
+-- Auto Updater from https://github.com/hexarobi/stand-lua-auto-updater
+local status, auto_updater = pcall(require, "auto-updater")
+if not status then
+    local auto_update_complete = nil util.toast("Installing auto-updater...", TOAST_ALL)
+    async_http.init("raw.githubusercontent.com", "/hexarobi/stand-lua-auto-updater/main/auto-updater.lua",
+            function(result, headers, status_code)
+                local function parse_auto_update_result(result, headers, status_code)
+                    local error_prefix = "Error downloading auto-updater: "
+                    if status_code ~= 200 then util.toast(error_prefix..status_code, TOAST_ALL) return false end
+                    if not result or result == "" then util.toast(error_prefix.."Found empty file.", TOAST_ALL) return false end
+                    filesystem.mkdir(filesystem.scripts_dir() .. "lib")
+                    local file = io.open(filesystem.scripts_dir() .. "lib\\auto-updater.lua", "wb")
+                    if file == nil then util.toast(error_prefix.."Could not open file for writing.", TOAST_ALL) return false end
+                    file:write(result) file:close() util.toast("Successfully installed auto-updater lib", TOAST_ALL) return true
+                end
+                auto_update_complete = parse_auto_update_result(result, headers, status_code)
+            end, function() util.toast("Error downloading auto-updater lib. Update failed to download.", TOAST_ALL) end)
+    async_http.dispatch() local i = 1 while (auto_update_complete == nil and i < 40) do util.yield(250) i = i + 1 end
+    if auto_update_complete == nil then error("Error downloading auto-updater lib. HTTP Request timeout") end
+    auto_updater = require("auto-updater")
+end
+if auto_updater == true then error("Invalid auto-updater lib. Please delete your Stand/Lua Scripts/lib/auto-updater.lua and try again") end
+
+ 
+---
+--- Auto-Update
+---
+
+local auto_update_config = {
+    source_url="https://raw.githubusercontent.com/kotakid/Testing/main/AcjokerScript.pluto",
+    script_relpath=SCRIPT_RELPATH,
+    dependencies={
+        {
+            name="translations",
+            source_url="https://raw.githubusercontent.com/kotakid/Testing/main/resources/AcjokerScript/translations.pluto",
+            script_relpath="resources/AcjokerScript/translations.pluto",
+        },
+        {
+            name="ACJSTables",
+            source_url="https://raw.githubusercontent.com/kotakid/Testing/main/resources/AcjokerScript/ACJSTables.pluto",
+            script_relpath="resources/AcjokerScript/ACJSTables.pluto",
+        },
+        {
+            name="intrologo",
+            source_url="https://raw.githubusercontent.com/kotakid/Testing/main/resources/AcjokerScript/intrologo.png",
+            script_relpath="resources/AcjokerScript/intrologo.png",
+        },
+        {
+            name="gizmoUtils",
+            source_url="https://raw.githubusercontent.com/kotakid/Testing/main/resources/AcjokerScript/gizmoUtils.lua",
+            script_relpath="resources/AcjokerScript/gizmoUtils.lua",
+        },
+        {
+            name="Bodyguards",
+            source_url="https://raw.githubusercontent.com/kotakid/Testing/main/resources/AcjokerScript/Modules/Bodyguards.pluto",
+            script_relpath="resources/AcjokerScript/Modules/Bodyguards.pluto",
+        },
+        {
+            name="Functions",
+            source_url="https://raw.githubusercontent.com/kotakid/Testing/main/resources/AcjokerScript/Modules/Functions.pluto",
+            script_relpath="resources/AcjokerScript/Modules/Functions.pluto",
+        },
+        {
+            name="Online",
+            source_url="https://raw.githubusercontent.com/kotakid/Testing/main/resources/AcjokerScript/Modules/Online.pluto",
+            script_relpath="resources/AcjokerScript/Modules/Online.pluto",
+        },
+        {
+            name="Players",
+            source_url="https://raw.githubusercontent.com/kotakid/Testing/main/resources/AcjokerScript/Modules/Players.pluto",
+            script_relpath="resources/AcjokerScript/Modules/Players.pluto",
+        },
+        {
+            name="Scaleform",
+            source_url="https://raw.githubusercontent.com/kotakid/Testing/main/resources/AcjokerScript/Modules/Scaleform.pluto",
+            script_relpath="resources/AcjokerScript/Modules/Scaleform.pluto",
+        },
+        {
+            name="Self",
+            source_url="https://raw.githubusercontent.com/kotakid/Testing/main/resources/AcjokerScript/Modules/Self.pluto",
+            script_relpath="resources/AcjokerScript/Modules/Self.pluto",
+        },
+        {
+            name="Vehicles",
+            source_url="https://raw.githubusercontent.com/kotakid/Testing/main/resources/AcjokerScript/Modules/Vehicles.pluto",
+            script_relpath="resources/AcjokerScript/Modules/Vehicles.pluto",
+        },
+        {
+            name="Settings",
+            source_url="https://raw.githubusercontent.com/kotakid/Testing/main/resources/AcjokerScript/Modules/Settings.pluto",
+            script_relpath="resources/AcjokerScript/Modules/Settings.pluto",
+        },
+        {
+            name="Weapons",
+            source_url="https://raw.githubusercontent.com/kotakid/Testing/main/resources/AcjokerScript/Modules/Weapons.pluto",
+            script_relpath="resources/AcjokerScript/Modules/Weapons.pluto",
+        },
+        {
+            name="German",
+            source_url="https://raw.githubusercontent.com/kotakid/Testing/main/resources/AcjokerScript/Languages/de.pluto",
+            script_relpath="resources/AcjokerScript/Modules/Languages/de.pluto",
+        },
+        {
+            name="Spanish",
+            source_url="https://raw.githubusercontent.com/kotakid/Testing/main/resources/AcjokerScript/Languages/es.pluto",
+            script_relpath="resources/AcjokerScript/Modules/Languages/es.pluto",
+        },
+        {
+            name="French",
+            source_url="https://raw.githubusercontent.com/kotakid/Testing/main/resources/AcjokerScript/Languages/fr.pluto",
+            script_relpath="resources/AcjokerScript/Modules/Languages/fr.pluto",
+        },
+        {
+            name="Korean",
+            source_url="https://raw.githubusercontent.com/kotakid/Testing/main/resources/AcjokerScript/Languages/ko.pluto",
+            script_relpath="resources/AcjokerScript/Modules/Languages/ko.pluto",
+        },
+        {
+            name="Lithuanian",
+            source_url="https://raw.githubusercontent.com/kotakid/Testing/main/resources/AcjokerScript/Languages/lt.pluto",
+            script_relpath="resources/AcjokerScript/Modules/Languages/lt.pluto",
+        },
+        {
+            name="Dutch",
+            source_url="https://raw.githubusercontent.com/kotakid/Testing/main/resources/AcjokerScript/Languages/nl.pluto",
+            script_relpath="resources/AcjokerScript/Modules/Languages/nl.pluto",
+        },
+        {
+            name="Polish",
+            source_url="https://raw.githubusercontent.com/kotakid/Testing/main/resources/AcjokerScript/Languages/pl.pluto",
+            script_relpath="resources/AcjokerScript/Modules/Languages/pl.pluto",
+        },
+        {
+            name="Portuguese",
+            source_url="raw.githubusercontent.com/kotakid/Testing/main/resources/AcjokerScript/Languages/pt.pluto",
+            script_relpath="resources/AcjokerScript/Modules/Languages/pt.pluto",
+        },
+        {
+            name="Russian",
+            source_url="https://raw.githubusercontent.com/kotakid/Testing/main/resources/AcjokerScript/Languages/ru.pluto",
+            script_relpath="resources/AcjokerScript/Modules/Languages/ru.pluto",
+        },
+        {
+            name="Chinese",
+            source_url="https://raw.githubusercontent.com/kotakid/Testing/main/resources/AcjokerScript/Languages/zh.pluto",
+            script_relpath="resources/AcjokerScript/Modules/Languages/zh.pluto",
+        },
+
+    }
+}
+
+
+auto_updater.run_auto_update(auto_update_config)
+
 local my = menu.my_root()
 my:action(T('Player Options'), {}, T('Redirects you to the Player list in Stand for the Trolling and Friendly options'), function ()
 	menu.ref_by_path("Players"):trigger()
@@ -81,7 +238,7 @@ util.create_thread(function ()
 		local logo_path = filesystem.resources_dir() .. 'AcjokerScript\\' ..'intrologo.png'
 		local logo_status, logo = pcall(directx.create_texture, logo_path)
 		if not logo_status then
-			debug_log("Failed to load AcjokerScript logo "..tostring(logo))
+			print("Failed to load AcjokerScript logo "..tostring(logo))
 			return
 		end
 		local rgb = {color= {r= 0, g = 1, b = 0, a = 1}}
@@ -104,6 +261,8 @@ util.create_thread(function ()
 	end
 	util.stop_thread()
 end)
+
+
 
 
 
