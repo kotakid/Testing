@@ -111,52 +111,52 @@ local auto_update_config = {
         },
         {
             name="German",
-            source_url="https://raw.githubusercontent.com/kotakid/Testing/main/resources/AcjokerScript/Languages/de.pluto",
+            source_url="https://raw.githubusercontent.com/kotakid/Testing/main/resources/AcjokerScript/Modules/Languages/de.pluto",
             script_relpath="resources/AcjokerScript/Modules/Languages/de.pluto",
         },
         {
             name="Spanish",
-            source_url="https://raw.githubusercontent.com/kotakid/Testing/main/resources/AcjokerScript/Languages/es.pluto",
+            source_url="https://raw.githubusercontent.com/kotakid/Testing/main/resources/AcjokerScript/Modules/Languages/es.pluto",
             script_relpath="resources/AcjokerScript/Modules/Languages/es.pluto",
         },
         {
             name="French",
-            source_url="https://raw.githubusercontent.com/kotakid/Testing/main/resources/AcjokerScript/Languages/fr.pluto",
+            source_url="https://raw.githubusercontent.com/kotakid/Testing/main/resources/AcjokerScript/Modules/Languages/fr.pluto",
             script_relpath="resources/AcjokerScript/Modules/Languages/fr.pluto",
         },
         {
             name="Korean",
-            source_url="https://raw.githubusercontent.com/kotakid/Testing/main/resources/AcjokerScript/Languages/ko.pluto",
+            source_url="https://raw.githubusercontent.com/kotakid/Testing/main/resources/AcjokerScript/Modules/Languages/ko.pluto",
             script_relpath="resources/AcjokerScript/Modules/Languages/ko.pluto",
         },
         {
             name="Lithuanian",
-            source_url="https://raw.githubusercontent.com/kotakid/Testing/main/resources/AcjokerScript/Languages/lt.pluto",
+            source_url="https://raw.githubusercontent.com/kotakid/Testing/main/resources/AcjokerScript/Modules/Languages/lt.pluto",
             script_relpath="resources/AcjokerScript/Modules/Languages/lt.pluto",
         },
         {
             name="Dutch",
-            source_url="https://raw.githubusercontent.com/kotakid/Testing/main/resources/AcjokerScript/Languages/nl.pluto",
+            source_url="https://raw.githubusercontent.com/kotakid/Testing/main/resources/AcjokerScript/Modules/Languages/nl.pluto",
             script_relpath="resources/AcjokerScript/Modules/Languages/nl.pluto",
         },
         {
             name="Polish",
-            source_url="https://raw.githubusercontent.com/kotakid/Testing/main/resources/AcjokerScript/Languages/pl.pluto",
+            source_url="https://raw.githubusercontent.com/kotakid/Testing/main/resources/AcjokerScript/Modules/Languages/pl.pluto",
             script_relpath="resources/AcjokerScript/Modules/Languages/pl.pluto",
         },
         {
             name="Portuguese",
-            source_url="raw.githubusercontent.com/kotakid/Testing/main/resources/AcjokerScript/Languages/pt.pluto",
+            source_url="raw.githubusercontent.com/kotakid/Testing/main/resources/AcjokerScript/Modules/Languages/pt.pluto",
             script_relpath="resources/AcjokerScript/Modules/Languages/pt.pluto",
         },
         {
             name="Russian",
-            source_url="https://raw.githubusercontent.com/kotakid/Testing/main/resources/AcjokerScript/Languages/ru.pluto",
+            source_url="https://raw.githubusercontent.com/kotakid/Testing/main/resources/AcjokerScript/Modules/Languages/ru.pluto",
             script_relpath="resources/AcjokerScript/Modules/Languages/ru.pluto",
         },
         {
             name="Chinese",
-            source_url="https://raw.githubusercontent.com/kotakid/Testing/main/resources/AcjokerScript/Languages/zh.pluto",
+            source_url="https://raw.githubusercontent.com/kotakid/Testing/main/resources/AcjokerScript/Modules/Languages/zh.pluto",
             script_relpath="resources/AcjokerScript/Modules/Languages/zh.pluto",
         },
 
