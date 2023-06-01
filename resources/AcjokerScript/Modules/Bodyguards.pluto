@@ -117,9 +117,8 @@ local function Bgsave(handle, name)
 end
 
 local function Bodyguard(hash, tar1)
-    local bodyGh = hash
-    Streament(bodyGh)
-    local bodyG = entities.create_ped(1, bodyGh, tar1, 0)
+    func.Streament(hash)
+    local bodyG = entities.create_ped(1, hash, tar1, 0)
     SET_ENTITY_INVINCIBLE(bodyG, true)
     SET_ENTITY_PROOFS(bodyG, true, true, true, true, true, true, true, true)
     SET_PED_COMBAT_ABILITY(bodyG, 2)
@@ -159,7 +158,7 @@ local function BodyguardFollow()
         SET_ENTITY_CAN_BE_DAMAGED_BY_RELATIONSHIP_GROUP(players.user_ped(), false, bgg)
         SET_ENTITY_CAN_BE_DAMAGED_BY_RELATIONSHIP_GROUP(spawned_bg, false, bgg)
         SET_PED_INFINITE_AMMO_CLIP(spawned_bg, true)
-        AddBlip(spawned_bg, 1, 3)
+        func.AddBlip(spawned_bg, 1, 3)
         SET_CAN_ATTACK_FRIENDLY(spawned_bg, false, false)
         SET_PED_RELATIONSHIP_GROUP_HASH(spawned_bg, util.joaat("rgFM_HateEveryOne"))
         SET_GROUP_SEPARATION_RANGE(bgg, 9999.0)
@@ -176,7 +175,7 @@ util.create_tick_handler(function ()
         if IS_PED_IN_ANY_VEHICLE(players.user_ped(), true) then
             if not DOES_ENTITY_EXIST(SUV) and DOES_ENTITY_EXIST(spawned_bg) then
                 local hash = util.joaat('insurgent3')
-                Streament(hash)
+                func.Streament(hash)
                 local coor = GET_OFFSET_FROM_ENTITY_IN_WORLD_COORDS(players.user_ped(), 0, -5, 0)
                 SUV = entities.create_vehicle(hash, coor, 0)
                 SET_ENTITY_INVINCIBLE(SUV, true)
@@ -228,7 +227,7 @@ local function regen_bodyguard_list(root)
         local bodyguard_list_menu = root:list(name, {}, name)
                 bodyguard_list_menu:action(Str_trans('Remove from Current Bodyguard List'), {}, Str_trans('Remove Bodyguard from Bodyguard List'), function ()
                     entities.delete_by_handle(b)
-                    if set.alert then
+                    if func.set.alert then
                         func.ACutil(name..Str_trans(' Removed from Bodyguard List'))
                     end
                     return true
@@ -246,7 +245,7 @@ local function regen_bodyguard_list(root)
                 bodyguard_list_menu:action(Str_trans('Bring to you'), {}, Str_trans('Bring Bodyguard to you'), function ()
                     local coords = GET_OFFSET_FROM_ENTITY_IN_WORLD_COORDS(players.user_ped(), 0, 1, 0)
                     SEC(b, coords.x, coords.y, coords.z, false, true, true, false)
-                    if set.alert then
+                    if func.set.alert then
                         func.ACutil(name..Str_trans(' Bodyguard brought back'))
                     end
                     return true
@@ -281,7 +280,7 @@ local function regen_bodyguard_list(root)
                     bodyguard_list_menu:action(Str_trans('Save Bodyguard'), {}, Str_trans('Save current Bodyguard'), function (name)
                     local name = Bgsave(b)
                     table.remove(bodyguards, i)
-                    if set.alert then
+                    if func.set.alert then
                         func.ACutil(name..Str_trans(' Bodyguard saved bodylist'))
                     end
                 end)
@@ -307,7 +306,7 @@ local function regen_bodyguard_list(root)
                 local bodyguard_list_menu = root:list(name, {}, name)
                         bodyguard_list_menu:action(Str_trans('Remove from Current Bodyguard List'), {}, Str_trans('Remove Bodyguard from Bodyguard List'), function ()
                             entities.delete_by_handle(bodyguard)
-                            if set.alert then
+                            if func.set.alert then
                                 func.ACutil(name..Str_trans(' Removed from Bodyguard List'))
                             end
                             return true
@@ -322,7 +321,7 @@ local function regen_bodyguard_list(root)
                         bodyguard_list_menu:action(Str_trans('Bring to you'), {}, Str_trans('Bring Bodyguard to you'), function ()
                             local coords = GET_OFFSET_FROM_ENTITY_IN_WORLD_COORDS(players.user_ped(), 0, 1, 0)
                             SEC(bodyguard, coords.x, coords.y, coords.z, false, true, true, false)
-                            if set.alert then
+                            if func.set.alert then
                                 func.ACutil(dirname..Str_trans(' Bodyguard brought back'))
                             end
                             return true
@@ -356,7 +355,7 @@ local function regen_bodyguard_list(root)
 
                             bodyguard_list_menu:action(Str_trans('Save Bodyguard'), {}, Str_trans('Save current Bodyguard'), function (name)
                             local name = Bgsave(bodyguard, dirname)
-                            if set.alert then
+                            if func.set.alert then
                                 func.ACutil(dirname..Str_trans(' Bodyguard saved bodylist'))
                             end
                         end)
@@ -393,7 +392,7 @@ local function regen_saved_list(root)
             result.WeaponHash = GET_SELECTED_PED_WEAPON(result.Handle)
             table.insert(savedbodyguards, result.Handle)
             Bgsavenotext(result.Handle, dirname)
-            if set.alert then
+            if func.set.alert then
                 func.ACutil(dirname..Str_trans(' Bodyguard spawned'))
             end
             return true
@@ -403,7 +402,7 @@ local function regen_saved_list(root)
             bodyguard_saved_menu:action(Str_trans('Delete Bodyguard File'), {}, Str_trans('Delete Bodyguard file from your saved bodyguards'), function ()
             io.remove(path)
 
-            if set.alert then
+            if func.set.alert then
                 func.ACutil(dirname..Str_trans(' Bodyguard file removed'))
             end
             return true
@@ -491,7 +490,7 @@ menus.group:action(T('Spawn Clone of yourself'), {'clonebg'}, T('Spawn a clone o
     end
     local loc = GET_OFFSET_FROM_ENTITY_IN_WORLD_COORDS(player, 1, 1, -1)
     local pedhash = util.joaat(hash)
-    Streament(pedhash)
+    func.Streament(pedhash)
     local clone_ped = Pedspawn(pedhash, loc)
     entities.set_can_migrate(entities.handle_to_pointer(clone_ped), false)
     CLONE_PED_TO_TARGET(player, clone_ped)
@@ -537,8 +536,8 @@ menus.group:list_select(T('Change Relationship Group'), {"rsgroup"}, T('Change t
 
 
 menus.bg:action(T('Delete the Bodyguards'), {'delbgs'}, T('Delete all the Bodyguards you have spawned'), function ()
-    DelEnt(bodyguards)
+    func.DelEnt(bodyguards)
     bodyguards = {}
-    DelEnt(savedbodyguards)
+    func.DelEnt(savedbodyguards)
     savedbodyguards = {}
 end)

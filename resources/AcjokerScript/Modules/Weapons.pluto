@@ -1,4 +1,5 @@
 require 'resources/AcjokerScript/Modules/Functions'
+local func = require 'resources/AcjokerScript/Modules/Functions'
 local CONFIG_DIR = filesystem.resources_dir() .. 'AcjokerScript\\'
 local SettingsDir = CONFIG_DIR..'Settings\\'
 if filesystem.is_regular_file(CONFIG_DIR .. "Kill_List.json") then

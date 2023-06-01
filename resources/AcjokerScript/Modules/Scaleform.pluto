@@ -7,7 +7,7 @@ pluto_export function init()
     util.yield()
 end
 	
-
+local sf = scaleform('instructional_buttons')
 SF = {}
 function Hudhide()
 	HIDE_HUD_COMPONENT_THIS_FRAME(6)

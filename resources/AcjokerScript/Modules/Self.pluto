@@ -1,5 +1,6 @@
 local Tables = require 'resources/AcjokerScript/ACJSTables'
 require 'resources/AcjokerScript/Modules/Functions'
+local func = require 'resources/AcjokerScript/Modules/Functions'
 local CONFIG_DIR = filesystem.resources_dir() .. 'AcjokerScript\\'
 local SettingsDir = CONFIG_DIR..'Settings\\'
 if filesystem.is_dir(CONFIG_DIR..'Death Log\\') then
@@ -167,7 +168,7 @@ menus.clonemenu = pclone:toggle(T('Clone Current Ped Model'), {'clonecur'}, T('C
             SEC(clone_ped, curloc.x + 250, curloc.y + 250, curloc.z, false, true, true, false)
             table.insert(Clone_player, clone_ped)
         else
-            DelEnt(Clone_player)
+            func.DelEnt(Clone_player)
         end
     else
         menus.clonemenu.value = false
@@ -188,7 +189,7 @@ end)
 
 pclone:action(T('Delete Clone'), {}, T('Once Deleted you must make a new one'), function ()
     menus.clonemenu.value = false
-    DelEnt(Clone_player)
+    func.DelEnt(Clone_player)
 end)
 
 Clone_ped = {}
@@ -257,7 +258,7 @@ end)
 
 pedclone:action(T('Delete Clone'), {}, T('Once Deleted you must make a new one'), function ()
     menus.clonemenu.value = false
-    DelEnt(Clone_player)
+    func.DelEnt(Clone_player)
 end)
 
 
@@ -326,12 +327,12 @@ objclone:toggle_loop(T('Clone any Object'), {'Obj clone'}, T('Clone yourself to 
         end
 end, function ()
     targetEntity = nil
-    DelEnt(Clone_object)
+    func.DelEnt(Clone_object)
     menu.ref_by_path('Self>Appearance>Invisibility>Disabled'):trigger()
 end)
 
 objclone:action(T('Delete Prop'), {'delprop'}, T('Delete the current prop and revert back to yourself'), function ()
-    DelEnt(Clone_object)
+    func.DelEnt(Clone_object)
     menu.ref_by_path('Self>Appearance>Invisibility>Disabled'):trigger()
 end)
 
@@ -350,7 +351,7 @@ menus.objclone = objclone:list(T('Turn into a prop'), {}, T('Turn yourself into 
         func.Streament(hash)
         menu.ref_by_path("Self>Appearance>Invisibility>Enabled"):trigger()
         local pos = GET_ENTITY_COORDS(players.user_ped())
-        DelEnt(Clone_object)
+        func.DelEnt(Clone_object)
         if not DOES_ENTITY_EXIST(objectspawn) then
             objectspawn = entities.create_object(hash, pos)
             table.insert(Clone_object, objectspawn)
@@ -372,7 +373,7 @@ end)
 
 
 menus.objclone:action(T('Delete Prop'), {'delprop'}, T('Delete the current prop and revert back to yourself'), function ()
-    DelEnt(Clone_object)
+    func.DelEnt(Clone_object)
     menu.ref_by_path('Self>Appearance>Invisibility>Disabled'):trigger()
 end)
 
@@ -497,7 +498,7 @@ menus.pets:action(T('Bring Pets to you'), {'bringpets'}, T('Bring all the pets y
 end)
 
 menus.pets:action(T('Completely Delete Pets'), {'delpets'}, T('Delete all the pets you have spawned'), function ()
-    DelEnt(pets)
+    func.DelEnt(pets)
     pets = {}
     petz = 0
 end)
@@ -555,7 +556,7 @@ waterwalkroot:toggle_loop(T('Walk/Drive on Water'), {'waterwalk'}, T('Walk or dr
             table.insert(blocks, block)
         elseif z == nil and block != nil then
             if DOES_ENTITY_EXIST(block) then
-                DelEnt(blocks)
+                func.DelEnt(blocks)
                 block = nil
             end
         else
@@ -577,14 +578,14 @@ waterwalkroot:toggle_loop(T('Walk/Drive on Water'), {'waterwalk'}, T('Walk or dr
                     SEC(vmod, pos.x, pos.y, z + 1, false, false, false, false)
                 end
             else
-                DelEnt(blocks)
+                func.DelEnt(blocks)
                 block = nil 
             end
         end
         return block
     end
 end, function ()
-    DelEnt(blocks)
+    func.DelEnt(blocks)
     block = nil 
 end)
 waterwalkroot:slider_float(T('Height above water'), {}, T('Adjust the height above or below water'), -90, 90, -30, 10, function (h)
