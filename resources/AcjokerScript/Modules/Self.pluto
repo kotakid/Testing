@@ -1215,3 +1215,4 @@ end, function ()
     local veh = GET_VEHICLE_PED_IS_IN(players.user_ped())
     SET_VEHICLE_RADIO_ENABLED(veh, true)
 end)
+return menus

@@ -10,11 +10,6 @@ if filesystem.is_regular_file(CONFIG_DIR .. "FavVehicles.json") then
 else
     Fav_Vehicles = CONFIG_DIR.."Settings\\FavVehicles.json"
 end
-local scaleform = require('ScaleformLib')
-pluto_export function init()
-    local sf = scaleform('instructional_buttons')
-    util.yield()
-end
 local CloneVeh_Setting = CONFIG_DIR .. "CloneVeh.json"
 local CloneVehtog_Setting = CONFIG_DIR .. "CloneVehtog.json"
 local CloneVehextra_Setting = CONFIG_DIR .. "CloneVehextra.json"
@@ -30,6 +25,25 @@ local close_script = false
 util.on_pre_stop(function()
     close_script = true
 end)
+
+
+
+--wiriscript functions
+local function SetBit(bits, place) 
+    return (bits | (place))
+end
+
+local function ClearBit(bits, place)
+    return (bits & ~(place))
+end
+
+local function BitTest(bits, place)
+    return (memory.read_int(bits) & (place)) ~= 0
+end
+
+
+---end of wiris functions
+
 
 
 
@@ -471,23 +485,6 @@ local function Timemulti(secs, mins)
 end
 
 
---wiriscript functions
-local function SetBit(bits, place) 
-    return (bits | (place))
-end
-
-local function ClearBit(bits, place)
-    return (bits & ~(place))
-end
-
-local function BitTest(bits, place)
-    return (memory.read_int(bits) & (place)) ~= 0
-end
-
-
----end of wiris functions
-
-
 
 local function RepairGod(veh)
     SET_VEHICLE_FIXED(veh)
@@ -496,6 +493,35 @@ local function RepairGod(veh)
     SET_VEHICLE_IS_CONSIDERED_BY_PLAYER(veh, true)
     SET_ENTITY_HEALTH(veh, 200)
 end
+
+   local next_preview
+    local image_preview
+
+
+local function Update_preview_tick(current_preview)
+    if current_preview != nil then
+        current_preview.position = func.Get_offset_from_camera(current_preview.camera_distance)
+        current_preview.rotation.z = current_preview.rotation.z + 2
+        SET_ENTITY_COORDS_NO_OFFSET(
+                current_preview.handle,
+                current_preview.position.x,
+                current_preview.position.y,
+                current_preview.position.z,
+                true, false, false
+        )
+        SET_ENTITY_ROTATION(
+                current_preview.handle,
+                current_preview.rotation.x,
+                current_preview.rotation.y,
+                current_preview.rotation.z,
+                2, true
+        )
+        SET_ENTITY_COMPLETELY_DISABLE_COLLISION(current_preview.handle,  false, true)
+        SET_ENTITY_ALPHA(current_preview.handle, 206, false)
+        FREEZE_ENTITY_POSITION(current_preview.handle, true)
+        SET_ENTITY_INVINCIBLE(current_preview.handle, true)
+    end
+    end
 
 
 

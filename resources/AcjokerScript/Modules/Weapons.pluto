@@ -1,4 +1,6 @@
 require 'resources/AcjokerScript/Modules/Functions'
+local menus = require 'resources/AcjokerScript/Modules/Self'
+
 local func = require 'resources/AcjokerScript/Modules/Functions'
 local CONFIG_DIR = filesystem.resources_dir() .. 'AcjokerScript\\'
 local SettingsDir = CONFIG_DIR..'Settings\\'
@@ -11,19 +13,13 @@ local Nuke_Gun_Setting = CONFIG_DIR .. "Nuke_gun_set.txt"
 local God_Gun_Setting = CONFIG_DIR .. "God_gun_set.txt"
 local Superman_Setting = CONFIG_DIR .. "Superman.txt"
 local SEC = SET_ENTITY_COORDS
-local scaleform = require('ScaleformLib')
-pluto_export function init()
-    local sf = scaleform('instructional_buttons')
-    util.yield()
-end
 local weaproot = menu.my_root():list(T('Weapons'), {}, '')
 
 local max_int = 2147483647
 local min_int = -2147483648
-local menus = {}
 local weapons_menus = {}
-local aimbot = {esp = true, box = true, bone = 31086, curweap = true, weapon = 'WEAPON_TACTICALRIFLE', damage = 200, targetveh = true,
-fov = 3, tarplayers = true, tarnpcs = true, tarfriends = false, owner = players.user_ped(), stw = false, kill_list = false, alert = true}
+local aimbot = {esp = true, box = true, bone = 31086, weapon = 'WEAPON_TACTICALRIFLE', damage = 200, targetveh = true, fov = 3,
+tarplayers = true, tarnpcs = true, tarfriends = false, owner = players.user_ped(), stw = false, kill_list = false, alert = true}
 local ESPrgb = {color= {r= 0, g = 1, b = 0, a = 1}}
 local ESPcolor = {
     r = math.floor(ESPrgb.color.r * 255),
@@ -189,6 +185,10 @@ local function ShootPed(ped, weap)
     end
 end
 
+
+local aim_target
+local target = true
+
 local function AimbotTarget(aimbot, aim_target, rgb)
     if IS_PED_A_PLAYER(aim_target) then
         local pid = NETWORK_GET_PLAYER_INDEX_FROM_PED(aim_target)
@@ -209,17 +209,17 @@ local function AimbotTarget(aimbot, aim_target, rgb)
         }
         draw_bounding_box(aim_target, color)
     end
-    if aimbot.curweap and IS_PED_SHOOTING(players.user_ped()) then
+    if Tables.Aimbotsetting.curweap and IS_PED_SHOOTING(players.user_ped()) then
        aimbot.weapon = GET_SELECTED_PED_WEAPON(players.user_ped())
+       func.ACutil('fuckoff')
        ShootPed(aim_target, aimbot.weapon)
-    elseif not aimbot.curweap and IS_PED_SHOOTING(players.user_ped()) then
+    elseif not Tables.Aimbotsetting.curweap and IS_PED_SHOOTING(players.user_ped()) then
+    func.ACutil('not current')
         ShootPed(aim_target, util.joaat(Tables.Weapon_selections.aimbot))
     end
 end
 
 
-local aim_target
-local target = true
 
 
 
@@ -622,60 +622,7 @@ local function objshots(hash, obj, camcoords)
         end
     end
 
-    local next_preview
-    local image_preview
-    local function rotation_to_direction(rotation)
-        local adjusted_rotation =
-        {
-            x = (math.pi / 180) * rotation.x,
-            y = (math.pi / 180) * rotation.y,
-            z = (math.pi / 180) * rotation.z
-        }
-        local direction =
-        {
-            x = -math.sin(adjusted_rotation.z) * math.abs(math.cos(adjusted_rotation.x)),
-            y =  math.cos(adjusted_rotation.z) * math.abs(math.cos(adjusted_rotation.x)),
-            z =  math.sin(adjusted_rotation.x)
-        }
-        return direction
-    end
-    local function Get_offset_from_camera(distance)
-        local cam_rot = GET_FINAL_RENDERED_CAM_ROT(2)
-        local cam_pos = GET_FINAL_RENDERED_CAM_COORD()
-        local direction = rotation_to_direction(cam_rot)
-        local destination =
-        {
-            x = cam_pos.x + direction.x * distance,
-            y = cam_pos.y + direction.y * distance,
-            z = cam_pos.z + direction.z * distance
-        }
-        return destination
-    end
-
-    local function Update_preview_tick(current_preview)
-        if current_preview != nil then
-            current_preview.position = Get_offset_from_camera(current_preview.camera_distance)
-            current_preview.rotation.z = current_preview.rotation.z + 2
-            SET_ENTITY_COORDS_NO_OFFSET(
-                    current_preview.handle,
-                    current_preview.position.x,
-                    current_preview.position.y,
-                    current_preview.position.z,
-                    true, false, false
-            )
-            SET_ENTITY_ROTATION(
-                    current_preview.handle,
-                    current_preview.rotation.x,
-                    current_preview.rotation.y,
-                    current_preview.rotation.z,
-                    2, true
-            )
-            SET_ENTITY_COMPLETELY_DISABLE_COLLISION(current_preview.handle,  false, true)
-            SET_ENTITY_ALPHA(current_preview.handle, 206, false)
-            FREEZE_ENTITY_POSITION(current_preview.handle, true)
-            SET_ENTITY_INVINCIBLE(current_preview.handle, true)
-        end
-    end
+ 
 
 
 
@@ -891,17 +838,17 @@ menus.godgun:toggle_loop(T('God Gun'), {'godgun'}, T('Become a god with a gun mo
             draw_bounding_box(gguntar, color)
             if IS_DISABLED_CONTROL_JUST_PRESSED(2, 241) then
                 dist = dist + godgunset.amount/100
-                local coords = Get_offset_from_camera(dist)
+                local coords = func.Get_offset_from_camera(dist)
                 SEC(gguntar, coords.x, coords.y, coords.z, false, false, false, false)
             elseif IS_DISABLED_CONTROL_JUST_PRESSED(2, 242) then
                 dist = dist - godgunset.amount/100
-                local coords = Get_offset_from_camera(dist)
+                local coords = func.Get_offset_from_camera(dist)
                 SEC(gguntar, coords.x, coords.y, coords.z, false, false, false, false)
             elseif IS_DISABLED_CONTROL_JUST_PRESSED(2, 24) then
                 APPLY_FORCE_TO_ENTITY_CENTER_OF_MASS(gguntar, 1, math.random(min_int, max_int), math.random(min_int, max_int), math.random(min_int, max_int), true, true, true, true)
                 gguntar = nil
             end
-            local coords = Get_offset_from_camera(dist)
+            local coords = func.Get_offset_from_camera(dist)
             SEC(gguntar, coords.x, coords.y, coords.z, false, false, false, false)
         end
 
@@ -1246,7 +1193,7 @@ OBJgun = menu.toggle_loop(objgun, T('Custom Object Gun'), {'objgun'}, T('Fires t
     func.Streament(hash)
     if IS_PLAYER_FREE_AIMING(players.user()) and not IS_PED_IN_ANY_VEHICLE(players.user_ped()) then
         local rot = GET_GAMEPLAY_CAM_ROT(0)
-        local camcoords = Get_offset_from_camera(10)
+        local camcoords = func.Get_offset_from_camera(10)
         if not DOES_ENTITY_EXIST(obj.prev) then
             objams(hash, obj, camcoords)
         else
@@ -1258,7 +1205,7 @@ OBJgun = menu.toggle_loop(objgun, T('Custom Object Gun'), {'objgun'}, T('Fires t
         entities.delete_by_handle(obj.prev)
     end
     if IS_PED_SHOOTING(players.user_ped()) and not IS_PED_IN_ANY_VEHICLE(players.user_ped()) then
-        local camcoords = Get_offset_from_camera(15)
+        local camcoords = func.Get_offset_from_camera(15)
         objshots(hash, obj, camcoords)
         entities.delete_by_handle(obj.prev)
         util.yield(20)
@@ -1310,7 +1257,7 @@ local invinc_tog = nil
     end
 
     if IS_PED_SHOOTING(players.user_ped()) then
-        local camcoords = Get_offset_from_camera(10)
+        local camcoords = func.Get_offset_from_camera(10)
         local rot = GET_GAMEPLAY_CAM_ROT(0)
         oshot(nukeha, camcoords, rot)
     end
@@ -1477,7 +1424,7 @@ menus.attachgun:toggle_loop(Str_trans('Attach Entity Gun'), {'attachgun'}, Str_t
 end)
 
 menus.attachgun:list_action(T('Change the Object'), {}, T('Change the Object that you shoot and attach'), Tables.Objn, function (sel)
-    attachgunset.hash = Objl[sel]
+    attachgunset.hash = Tables.Objl[sel]
 end)
 
 

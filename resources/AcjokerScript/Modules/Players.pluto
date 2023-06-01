@@ -25,14 +25,7 @@ local menus = {}
 
 
 
-local function Specon(pid)
-	menu.trigger_commands("spectate".. players.get_name(pid).. ' on')
-	util.yield(3000)
-end
 
-local function Specoff(pid)
-	menu.trigger_commands("spectate".. players.get_name(pid).. ' off')
-end
 
 local function Disbet_player(pid)
 	local targets = GET_PLAYER_PED_SCRIPT_INDEX(pid)
@@ -53,24 +46,24 @@ local function GetPlayVeh(pid, opt)
 		func.ACutil(Str_trans('Getting control of vehicle'))
 	end
 	if Disbet_player(pid) > 750000 then
-		Specon(pid)
+		func.Specon(pid)
 		if IS_PED_IN_ANY_VEHICLE(pedm, true) then
 			opt()
 			if not spec then
-				Specoff(pid)
+				func.Specoff(pid)
 			end
 			return
 		else
 			if func.set.alert then
 			func.ACutil(Str_trans('Player not in vehicle'))
 			end
-			Specoff(pid)
+			func.Specoff(pid)
 		end
 	elseif Disbet_player(pid) < 750000 then
 		if IS_PED_IN_ANY_VEHICLE(pedm, true) then
 			opt()
 			if not spec then
-				Specoff(pid)
+				func.Specoff(pid)
 			end
 		return
 		end
@@ -672,7 +665,7 @@ local function RamCar(Veh_h, tar1x, tar1y, tar1z, invis_aveh, targets, rate)
 end
 
 local function JuggleCar(Vehj_h, tar1,  invisjugc, jugr)
-	local  CC = CREATE_VEHICLE(Vehj_h, tar1.x, tar1.y, tar1.z - 5.0, 0, true, true, false)
+	local  CC = CREATE_VEHICLE(Vehj_h, tar1.x, tar1.y, tar1.z - 10.0, 0, true, true, false)
 		if invisjugc then
 			SET_ENTITY_VISIBLE(CC, false, 0)
 		end
@@ -1095,7 +1088,7 @@ players.add_command_hook(function(pid, root)
 			local blue = math.floor(nrgb.color.b * 255)
 			SET_VEHICLE_NEON_COLOUR(vmod, red, green, blue)
 			if not spec then
-				Specoff(pid)
+				func.Specoff(pid)
 			end
 		end)
 	end)
@@ -1249,7 +1242,7 @@ players.add_command_hook(function(pid, root)
 
 	menu.toggle_loop(pvehmenu, T('Slow Vehicle Down'), {'slowv'}, T('Does not freeze them just slows down the vehicles velocity'), function ()
 		local spec = func.GetSpec(pid)
-		Specon(pid)
+		func.Specon(pid)
 		GetPlayVeh(pid, function ()
 			Stopveh(pid)
 		end)
@@ -1257,7 +1250,7 @@ players.add_command_hook(function(pid, root)
 	end, function ()
 		local spec = func.GetSpec(pid)
 		if not spec then
-			Specoff(pid)
+			func.Specoff(pid)
 		end
 	end)
 
@@ -1300,7 +1293,7 @@ players.add_command_hook(function(pid, root)
 	trollm:action(T('Hijack Vehicle'), {'lojack'}, T('Steal their vehicle'), function ()
 		local spec = func.GetSpec(pid)
 		if not spec then
-			Specon(pid)
+			func.Specon(pid)
 		end
 		local pname = players.get_name(pid)
 		local targets = GET_PLAYER_PED_SCRIPT_INDEX(pid)
@@ -1325,7 +1318,7 @@ players.add_command_hook(function(pid, root)
 		func.Streament(nukeha)
 		local spec = func.GetSpec(pid)
 		if not spec then
-			Specon(pid)
+			func.Specon(pid)
 		end
 		local targets = GET_PLAYER_PED_SCRIPT_INDEX(pid)
 		local tar1 = GET_OFFSET_FROM_ENTITY_IN_WORLD_COORDS(targets, 0, 0, 10)
@@ -1457,7 +1450,7 @@ players.add_command_hook(function(pid, root)
 
 	trollm:toggle_loop(T('Delete Players Vehicle'), {'delv'}, T('Delete the Players Vehicle and every vehicle around them you must be spectacting'), function ()
 		local targets = GET_PLAYER_PED_SCRIPT_INDEX(pid)
-		Specon(pid)
+		func.Specon(pid)
 		local surcars = {}
 		local hndl = entities.get_all_vehicles_as_handles()
 		for hndl as value do
@@ -1481,7 +1474,7 @@ players.add_command_hook(function(pid, root)
 		end
 	end, function ()
 		if not spec then
-			Specoff(pid)
+			func.Specoff(pid)
 		end
 	end)
 
@@ -1823,7 +1816,7 @@ players.add_command_hook(function(pid, root)
 			util.stop_thread()
 		end
 		if not spec then
-			Specon(pid)
+			func.Specon(pid)
 		end
 		
 		local targets = GET_PLAYER_PED_SCRIPT_INDEX(pid)
@@ -1910,7 +1903,7 @@ players.add_command_hook(function(pid, root)
 			util.stop_thread()
 		end
 		if not spec then
-			Specon(pid)
+			func.Specon(pid)
 		end
 		local targets = GET_PLAYER_PED_SCRIPT_INDEX(pid)
 		
@@ -1980,7 +1973,7 @@ players.add_command_hook(function(pid, root)
 			util.stop_thread()
 		end
 		if not spec then
-			Specon(pid)
+			func.Specon(pid)
 		end
 		local targets = GET_PLAYER_PED_SCRIPT_INDEX(pid)
 		heliatkset.helicopter = Tables.Helih[heliesel]
@@ -2049,7 +2042,7 @@ players.add_command_hook(function(pid, root)
 			util.stop_thread()
 		end
 		if not spec then
-			Specon(pid)
+			func.Specon(pid)
 		end
 		
 		vehatkset.attkrveh = Tables.Vehatkh[vehsel]
@@ -2091,7 +2084,7 @@ players.add_command_hook(function(pid, root)
 			util.stop_thread()
 		end
 		if not spec then
-			Specon(pid)
+			func.Specon(pid)
 		end
 		
 		local targets = GET_PLAYER_PED_SCRIPT_INDEX(pid)

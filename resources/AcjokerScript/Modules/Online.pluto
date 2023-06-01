@@ -231,7 +231,7 @@ end)
     end)
 
     menus.NPC_spawn:action(T('Delete Ped/Animal'), {}, 'Delete spawned ped/animal', function ()
-        DelEnt(Npc_spawned)
+        func.DelEnt(Npc_spawned)
         if func.set.alert then
             func.ACutil(Str_trans('NPC Deleted'))
         end
@@ -239,8 +239,8 @@ end)
 
 
 onlineroot:action(T('Stop Spectating'), {'sspect'}, T('Stop Spectating anyone in the lobby'), function ()
-    Specon(players.user())
-    Specoff(players.user())
+    func.Specon(players.user())
+    func.Specoff(players.user())
 end)
 
 onlineroot:toggle_loop(T('Stop Sounds'), {'ssound'}, T('Stop all sounds incase they are going off constantly'), function ()

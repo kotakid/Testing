@@ -1,13 +1,8 @@
-
-
-local scaleform = require('ScaleformLib')
-local sf
 pluto_export function init()
-	sf = scaleform('instructional_buttons')
-    util.yield()
+    local scaleform = require("ScaleformLib")
+    sf = scaleform("instructional_buttons")
 end
-	
-local sf = scaleform('instructional_buttons')
+
 SF = {}
 function Hudhide()
 	HIDE_HUD_COMPONENT_THIS_FRAME(6)
