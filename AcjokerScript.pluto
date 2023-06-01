@@ -171,6 +171,8 @@ local scripts_dir = filesystem.scripts_dir()
 local yieldlib = require "resources.AcjokerScript.Modules.Scaleform"
 yieldlib.init()
 util.ensure_package_is_installed("natives-1681379138")
+util.ensure_package_is_installed("quaternionLib")
+quaternion = require('quaternionLib')
 require "resources.AcjokerScript.translations"
 local requirements = {
     modules = {
