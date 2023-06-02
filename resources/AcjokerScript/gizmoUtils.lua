@@ -268,7 +268,7 @@ function get_ent_clicked_on(dir)
 end
 
 function get_gizmo_hovered(gizmos, gizmo_scale)
-    local cam_coord = CAM.GET_FINAL_RENDERED_CAM_COORD()
+    local cam_coord = GET_FINAL_RENDERED_CAM_COORD()
     local closest = {dist = 9999, index = -1}
 
     for i, g in ipairs(gizmos) do
