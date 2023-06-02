@@ -178,10 +178,14 @@ local function ShootPed(ped, weap)
     local bone_coor = GET_PED_BONE_COORDS(ped, aimbot.bone, 0, 0, 0)
     local bone_coor2 = GET_PED_BONE_COORDS(ped, aimbot.bone, -0.1, 0, 0)
     local bone_coor3 = GET_PED_BONE_COORDS(ped, aimbot.bone, 0.1, 0, 0)
+    local bone_coor4 = GET_PED_BONE_COORDS(ped, aimbot.bone, 0, -0.1, 0)
+    local bone_coor5 = GET_PED_BONE_COORDS(ped, aimbot.bone, 0, 0.1, 0)
     for i = 1, 3 do
         SHOOT_SINGLE_BULLET_BETWEEN_COORDS(bone_coor2.x, bone_coor2.y, bone_coor2.z, bone_coor3.x, bone_coor3.y, bone_coor3.z, aimbot.damage, 100, weap, players.user_ped(), false, false, 1000)
         SHOOT_SINGLE_BULLET_BETWEEN_COORDS(bone_coor.x, bone_coor.y, bone_coor.z + 1 , bone_coor.x, bone_coor.y, bone_coor.z - 1, aimbot.damage, 100, weap, players.user_ped(), false, false, 1000)
         SHOOT_SINGLE_BULLET_BETWEEN_COORDS(bone_coor.x, bone_coor.y, bone_coor.z - 1 , bone_coor.x, bone_coor.y, bone_coor.z + 1, aimbot.damage, 100, weap, players.user_ped(), false, false, 1000)
+        SHOOT_SINGLE_BULLET_BETWEEN_COORDS(bone_coor.x, bone_coor.y, bone_coor.z + 1 , bone_coor.x, bone_coor.y, bone_coor.z - 1, aimbot.damage, 100, weap, players.user_ped(), false, false, 1000)
+        SHOOT_SINGLE_BULLET_BETWEEN_COORDS(bone_coor4.x, bone_coor4.y, bone_coor4.z , bone_coor5.x, bone_coor5.y, bone_coor5.z, aimbot.damage, 100, weap, players.user_ped(), false, false, 1000)
     end
 end
 
@@ -1244,7 +1248,7 @@ local invinc_tog = nil
         ['Immortality'] = invinc_ref.value,
     }
     local nukeha = util.joaat('w_arena_airmissile_01a')
-	func.Streament(nukeha)
+    func.Streament(nukeha)
     if not filesystem.is_regular_file(Nuke_Gun_Setting) then
         util.write_colons_file(Nuke_Gun_Setting, Current_settings)
     end
