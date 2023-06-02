@@ -211,10 +211,8 @@ local function AimbotTarget(aimbot, aim_target, rgb)
     end
     if Tables.Aimbotsetting.curweap and IS_PED_SHOOTING(players.user_ped()) then
        aimbot.weapon = GET_SELECTED_PED_WEAPON(players.user_ped())
-       func.ACutil('fuckoff')
        ShootPed(aim_target, aimbot.weapon)
     elseif not Tables.Aimbotsetting.curweap and IS_PED_SHOOTING(players.user_ped()) then
-    func.ACutil('not current')
         ShootPed(aim_target, util.joaat(Tables.Weapon_selections.aimbot))
     end
 end

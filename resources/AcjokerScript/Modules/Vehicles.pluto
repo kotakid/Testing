@@ -2044,7 +2044,7 @@ menus.create_from_vehicle_list = menu.list(vlistroot, Str_trans("From Vehicle Li
     for curated_items_menus as curated_items_menu do
         if curated_items_menu:isValid() then curated_items_menu:delete() end
     end
-    for Curated_attachments as curated_section do
+    for Tables.Curated_attachments as curated_section do
         if curated_section.name == "Vehicles" then
             for curated_section.items as curated_item do
                 build_curated_constructs_menu(menus.create_from_vehicle_list, curated_item)

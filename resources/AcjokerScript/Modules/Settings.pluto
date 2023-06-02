@@ -1,5 +1,5 @@
 require 'resources/AcjokerScript/Modules/Functions'
-
+func = require 'resources/AcjokerScript/Modules/Functions'
 local setroot = menu.my_root():list(T('Settings'), {}, '')
 
 
