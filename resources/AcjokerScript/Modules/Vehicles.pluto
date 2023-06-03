@@ -873,7 +873,7 @@ menus.create_damage_list = vehhandle:list(Str_trans("Damage Flags"), {}, Str_tra
         if Vehicle_handling_menu:isValid() then Vehicle_handling_menu:delete() end
     end
     if entities.get_user_vehicle_as_pointer(false) != 0 then
-        for Damage_Flags as flag do
+        for Tables.Damage_Flags as flag do
             build_veh_handling_menu(menus.create_damage_list, false, flag, 0x012C)
         end
     else
@@ -1872,6 +1872,11 @@ Spawn = menu.toggle_loop(charroot, T('Spawn FF9 EMP Charger'), {'FF9Wspawn'}, T(
         util.stop_thread()
     end
 end)
+ -----------------------------------------
+
+
+
+ -------------------------------------------------------------------
 
 menu.toggle_loop(vehroot, T('Unlimited Submarine Crush Depth'), {'subdepth'}, T('Increases Submarine Crush Depth limit to Unlimited'), function ()
     local subs = {'submersible','submersible2','avisa','kosatka', 'toreador'}

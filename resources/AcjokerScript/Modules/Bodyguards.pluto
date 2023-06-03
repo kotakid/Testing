@@ -491,7 +491,7 @@ menus.group:action(T('Spawn Clone of yourself'), {'clonebg'}, T('Spawn a clone o
     local loc = GET_OFFSET_FROM_ENTITY_IN_WORLD_COORDS(player, 1, 1, -1)
     local pedhash = util.joaat(hash)
     func.Streament(pedhash)
-    local clone_ped = Pedspawn(pedhash, loc)
+    local clone_ped = func.Pedspawn(pedhash, loc)
     entities.set_can_migrate(entities.handle_to_pointer(clone_ped), false)
     CLONE_PED_TO_TARGET(player, clone_ped)
     Bgsave(clone_ped)

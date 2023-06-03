@@ -74,6 +74,207 @@ local function GetPlayVeh(pid, opt)
 	end
 end
 
+local function Atk(tab, targets, weapon, pilot)
+	for tab as atkr do
+		local playerRelGroup = GET_PED_RELATIONSHIP_GROUP_HASH(targets)
+		SET_RELATIONSHIP_BETWEEN_GROUPS(5, util.joaat("ARMY"), playerRelGroup)
+		SET_RELATIONSHIP_BETWEEN_GROUPS(5, playerRelGroup, util.joaat("ARMY"))
+		SET_RELATIONSHIP_BETWEEN_GROUPS(0, util.joaat("ARMY"), util.joaat("ARMY"))
+		GIVE_WEAPON_TO_PED(atkr, util.joaat(weapon), -1, false, true)
+		
+		SET_PED_COMBAT_ATTRIBUTES(atkr, 20, true)
+
+		SET_PED_MAX_HEALTH(atkr, 500)
+		SET_ENTITY_HEALTH(atkr, 500, 0)
+		SET_ENTITY_INVINCIBLE(atkr, true)
+		SET_PED_SHOOT_RATE(atkr, 1000)
+		SET_PED_RELATIONSHIP_GROUP_HASH(atkr, util.joaat("ARMY"))
+		TASK_COMBAT_HATED_TARGETS_AROUND_PED(atkr, 200.0, 0)
+		TASK_COMBAT_PED(atkr , targets, 0, 16)
+		CONTROL_MOUNTED_WEAPON(atkr)
+		SET_PED_KEEP_TASK(pilot, true)
+		SET_PED_ACCURACY(atkr , 100.0)
+		SET_PED_COMBAT_ABILITY(atkr , 2)
+	end
+end
+
+local function Plneatkr(invinc, invis, pid, hash)
+	local targets = GET_PLAYER_PED_SCRIPT_INDEX(pid)
+	local tar1 = GET_OFFSET_FROM_ENTITY_IN_WORLD_COORDS(targets, 1.0, 0.0, 500.0)
+	local pilhs = util.joaat(pil_dri[1])
+	local plne = util.joaat(hash)
+	func.Streament(plne)
+	func.Streament(pilhs)
+	for gunners as gunner do
+		local gunh = util.joaat(gunner)
+		func.Streament(gunh)
+	end
+
+	for i= 1 , 100 do
+		tar1.x = tar1.x + i * 2
+		tar1.y = tar1.y + i * 2
+   
+		local atkplne = CREATE_VEHICLE(plne, tar1.x, tar1.y, tar1.z, 0.0, true, true, false)
+		func.Vmod(atkplne, 'fuckoff', 100, 40)
+		entities.set_can_migrate(entities.handle_to_pointer(atkplne), false)
+		if invinc then
+			SET_ENTITY_INVINCIBLE(atkplne, true)
+		end
+		if invis then
+			SET_ENTITY_VISIBLE(atkplne, false, 0)
+		end
+
+		local plpilot = entities.create_ped(1, pilhs, tar1, 0)
+		entities.set_can_migrate(entities.handle_to_pointer(plpilot), false)
+		SET_PED_INTO_VEHICLE(plpilot , atkplne, -1)
+		table.insert(plneatkr, plpilot)
+		local seatnum = GET_VEHICLE_MODEL_NUMBER_OF_SEATS(plne) - 1
+		for j = 1, seatnum do
+			if DOES_ENTITY_EXIST(atkplne) then
+				util.yield(10)
+					local gunner = entities.create_ped(1, util.joaat(gunners[j]), tar1, 0) 
+					SET_PED_INTO_VEHICLE(gunner , atkplne, -2)
+					table.insert(plneatkr, gunner)
+			end
+		end
+
+		Atk(plneatkr, targets, platkset.weapon, plpilot)
+		SET_VEHICLE_FORWARD_SPEED(atkplne, 80)
+		CONTROL_LANDING_GEAR(atkplne, 3)
+		TASK_PLANE_MISSION(plpilot , atkplne, 0, targets, 0, 0, 0, 6, 0.0, 0, 0.0, 50.0, 40.0)
+		TASK_COMBAT_PED(plpilot , targets, 0, 16)
+		SET_PED_ACCURACY(plpilot , 100.0)
+		SET_PED_COMBAT_ABILITY(plpilot , 2)
+		CONTROL_MOUNTED_WEAPON(plpilot)
+		SET_PED_KEEP_TASK(plpilot, true)
+		func.AddBlip(atkplne, 424, 1)
+		util.yield()
+		return atkplne, plpilot
+	end
+end
+
+local function Heliatkr(invinc, invis, pid, hash)
+	local targets = GET_PLAYER_PED_SCRIPT_INDEX(pid)
+	local tar1 = GET_OFFSET_FROM_ENTITY_IN_WORLD_COORDS(targets, 1.0, 0.0, 100.0)
+	local pilhs = util.joaat(pil_dri[1])
+	for gunners as gunner do
+		local gunh = util.joaat(gunner)
+		func.Streament(gunh)
+	end
+
+	local heli = util.joaat(hash)
+	func.Streament(heli)
+	func.Streament(pilhs)
+
+
+	for i= 1 , 100 do
+		tar1.x = tar1.x + i * 2
+		tar1.y = tar1.y + i * 2
+   
+		local atkheli = CREATE_VEHICLE(heli, tar1.x, tar1.y, tar1.z, 0.0, true, true, false)
+		func.Vmod(atkheli, 'fuckoff', 100, 40)
+		entities.set_can_migrate(entities.handle_to_pointer(atkheli), false)
+		if invinc then
+			SET_ENTITY_INVINCIBLE(atkheli, true)
+		end
+		if invis then
+			SET_ENTITY_VISIBLE(atkheli, false, 0)
+		end
+		local pilot = entities.create_ped(1, pilhs, tar1, 0)
+		SET_PED_INTO_VEHICLE(pilot , atkheli, -1)
+		table.insert(heliatkr, pilot)
+		local seatnum = GET_VEHICLE_MODEL_NUMBER_OF_SEATS(heli) - 1
+		for j = 1, seatnum do
+			if DOES_ENTITY_EXIST(atkheli) then
+				util.yield(10)
+					local gunner = entities.create_ped(1, util.joaat(gunners[j]), tar1, 0) 
+					SET_PED_INTO_VEHICLE(gunner , atkheli, -2)
+					table.insert(heliatkr, gunner)
+			end
+		end
+		SET_BLOCKING_OF_NON_TEMPORARY_EVENTS(pilot, true)
+		
+		TASK_HELI_MISSION(pilot, heli, 0, targets, 0.0, 0.0, 0.0, 6, 150.0, 40.0, -1.0, 0, 10, -1.0, 16)
+		CONTROL_MOUNTED_WEAPON(pilot)
+		
+		
+		Atk(heliatkr, targets, heliatkset.weapon, pilot)
+		if hash == 'akula' or 'annihilator2' then
+			SET_DEPLOY_FOLDING_WINGS(atkheli, true, true)
+		end
+		SET_HELI_BLADES_FULL_SPEED(atkheli)
+		SET_VEHICLE_FORWARD_SPEED(atkheli, 80)
+		CONTROL_LANDING_GEAR(atkheli, 3)
+		func.AddBlip(atkheli, 422, 1)
+		util.yield()
+	return atkheli, pilot
+	end
+end
+
+local function Vehatkr(invinc, invis, pid, hash)
+	local targets = GET_PLAYER_PED_SCRIPT_INDEX(pid)
+	local tar1 = GET_OFFSET_FROM_ENTITY_IN_WORLD_COORDS(targets, math.random(-1, 1), math.random(-1, 1), 0.0)
+	local drihs = util.joaat(pil_dri[1])
+	for gunners as gunner do
+		local gunh = util.joaat(gunner)
+		func.Streament(gunh)
+	end
+
+	local vhash = util.joaat(hash)
+	func.Streament(vhash)
+	func.Streament(drihs)
+
+	for i= 1 , 100 do
+		tar1.x = tar1.x + i * 2
+		tar1.y = tar1.y + i * 2
+   
+		local vatkr = CREATE_VEHICLE(vhash, tar1.x, tar1.y, tar1.z, 0.0, true, true, false)
+		func.Vmod(vatkr, 'fuckoff', 100, 40)
+		MODIFY_VEHICLE_TOP_SPEED(vatkr, 150)
+		entities.set_can_migrate(entities.handle_to_pointer(vatkr), false)
+		if invinc then
+			SET_ENTITY_INVINCIBLE(vatkr, true)
+		end
+		if invis then
+			SET_ENTITY_VISIBLE(vatkr, false, 0)
+		end
+		local driver = entities.create_ped(1, drihs, tar1, 0)
+		SET_PED_INTO_VEHICLE(driver , vatkr, -1)
+		table.insert(vehatkr, driver)
+		local seatnum = GET_VEHICLE_MODEL_NUMBER_OF_SEATS(vhash) - 1
+		for j = 1, seatnum do
+			if DOES_ENTITY_EXIST(vatkr) then
+				util.yield(10)
+				local gunner = entities.create_ped(1, util.joaat(gunners[j]), tar1, 0) 
+				SET_PED_INTO_VEHICLE(gunner , vatkr, -2)
+				table.insert(vehatkr, gunner)
+			end
+		end
+		SET_BLOCKING_OF_NON_TEMPORARY_EVENTS(driver, true)
+		TASK_COMBAT_PED(driver , targets, 0, 16)
+		TASK_VEHICLE_MISSION(driver, vatkr, 0, targets, 9, 150.0, 40.0, -1.0, 0, 10, -1.0, 16)
+		CONTROL_MOUNTED_WEAPON(driver)
+		
+
+		Atk(vehatkr, targets, vehatkset.weapon, driver)
+
+	   
+
+		SET_PED_KEEP_TASK(driver, true)
+		SET_VEHICLE_FORWARD_SPEED(vatkr, 20)
+		if hash == 'minitank' then
+			func.AddBlip(vatkr, 742, 1)
+		elseif hash == 'ruiner2' then
+			func.AddBlip(vatkr, 530, 1)
+		else
+			func.AddBlip(vatkr, 421, 1)
+		end
+		
+		util.yield()
+	return vatkr, driver
+	end
+end
+
 local function Atkrspawn(invinc, invis, pid, hash)
 	local targets = GET_PLAYER_PED_SCRIPT_INDEX(pid)
 	local tar1 = GET_OFFSET_FROM_ENTITY_IN_WORLD_COORDS(targets, 1, 0, 0)
@@ -309,206 +510,7 @@ local function Refreshveh(pid)
 	end
 end
 
-local function Atk(tab, targets, weapon, pilot)
-	for tab as atkr do
-		local playerRelGroup = GET_PED_RELATIONSHIP_GROUP_HASH(targets)
-		SET_RELATIONSHIP_BETWEEN_GROUPS(5, util.joaat("ARMY"), playerRelGroup)
-		SET_RELATIONSHIP_BETWEEN_GROUPS(5, playerRelGroup, util.joaat("ARMY"))
-		SET_RELATIONSHIP_BETWEEN_GROUPS(0, util.joaat("ARMY"), util.joaat("ARMY"))
-		GIVE_WEAPON_TO_PED(atkr, util.joaat(weapon), -1, false, true)
-		
-		SET_PED_COMBAT_ATTRIBUTES(atkr, 20, true)
 
-		SET_PED_MAX_HEALTH(atkr, 500)
-		SET_ENTITY_HEALTH(atkr, 500, 0)
-		SET_ENTITY_INVINCIBLE(atkr, true)
-		SET_PED_SHOOT_RATE(atkr, 1000)
-		SET_PED_RELATIONSHIP_GROUP_HASH(atkr, util.joaat("ARMY"))
-		TASK_COMBAT_HATED_TARGETS_AROUND_PED(atkr, 200.0, 0)
-		TASK_COMBAT_PED(atkr , targets, 0, 16)
-		CONTROL_MOUNTED_WEAPON(atkr)
-		SET_PED_KEEP_TASK(pilot, true)
-		SET_PED_ACCURACY(atkr , 100.0)
-		SET_PED_COMBAT_ABILITY(atkr , 2)
-	end
-end
-
-local function Plneatkr(invinc, invis, pid, hash)
-	local targets = GET_PLAYER_PED_SCRIPT_INDEX(pid)
-	local tar1 = GET_OFFSET_FROM_ENTITY_IN_WORLD_COORDS(targets, 1.0, 0.0, 500.0)
-	local pilhs = util.joaat(pil_dri[1])
-	local plne = util.joaat(hash)
-	func.Streament(plne)
-	func.Streament(pilhs)
-	for gunners as gunner do
-		local gunh = util.joaat(gunner)
-		func.Streament(gunh)
-	end
-
-	for i= 1 , 100 do
-		tar1.x = tar1.x + i * 2
-		tar1.y = tar1.y + i * 2
-   
-		local atkplne = CREATE_VEHICLE(plne, tar1.x, tar1.y, tar1.z, 0.0, true, true, false)
-		func.Vmod(atkplne, 'fuckoff', 100, 40)
-		entities.set_can_migrate(entities.handle_to_pointer(atkplne), false)
-		if invinc then
-			SET_ENTITY_INVINCIBLE(atkplne, true)
-		end
-		if invis then
-			SET_ENTITY_VISIBLE(atkplne, false, 0)
-		end
-
-		local plpilot = entities.create_ped(1, pilhs, tar1, 0)
-		entities.set_can_migrate(entities.handle_to_pointer(plpilot), false)
-		SET_PED_INTO_VEHICLE(plpilot , atkplne, -1)
-		table.insert(plneatkr, plpilot)
-		local seatnum = GET_VEHICLE_MODEL_NUMBER_OF_SEATS(plne) - 1
-		for j = 1, seatnum do
-			if DOES_ENTITY_EXIST(atkplne) then
-				util.yield(10)
-					local gunner = entities.create_ped(1, util.joaat(gunners[j]), tar1, 0) 
-					SET_PED_INTO_VEHICLE(gunner , atkplne, -2)
-					table.insert(plneatkr, gunner)
-			end
-		end
-
-		Atk(plneatkr, targets, platkset.weapon, plpilot)
-		SET_VEHICLE_FORWARD_SPEED(atkplne, 80)
-		CONTROL_LANDING_GEAR(atkplne, 3)
-		TASK_PLANE_MISSION(plpilot , atkplne, 0, targets, 0, 0, 0, 6, 0.0, 0, 0.0, 50.0, 40.0)
-		TASK_COMBAT_PED(plpilot , targets, 0, 16)
-		SET_PED_ACCURACY(plpilot , 100.0)
-		SET_PED_COMBAT_ABILITY(plpilot , 2)
-		CONTROL_MOUNTED_WEAPON(plpilot)
-		SET_PED_KEEP_TASK(plpilot, true)
-		func.AddBlip(atkplne, 424, 1)
-		util.yield()
-		return atkplne, plpilot
-	end
-end
-
-local function Heliatkr(invinc, invis, pid, hash)
-	local targets = GET_PLAYER_PED_SCRIPT_INDEX(pid)
-	local tar1 = GET_OFFSET_FROM_ENTITY_IN_WORLD_COORDS(targets, 1.0, 0.0, 100.0)
-	local pilhs = util.joaat(pil_dri[1])
-	for gunners as gunner do
-		local gunh = util.joaat(gunner)
-		func.Streament(gunh)
-	end
-
-	local heli = util.joaat(hash)
-	func.Streament(heli)
-	func.Streament(pilhs)
-
-
-	for i= 1 , 100 do
-		tar1.x = tar1.x + i * 2
-		tar1.y = tar1.y + i * 2
-   
-		local atkheli = CREATE_VEHICLE(heli, tar1.x, tar1.y, tar1.z, 0.0, true, true, false)
-		func.Vmod(atkheli, 'fuckoff', 100, 40)
-		entities.set_can_migrate(entities.handle_to_pointer(atkheli), false)
-		if invinc then
-			SET_ENTITY_INVINCIBLE(atkheli, true)
-		end
-		if invis then
-			SET_ENTITY_VISIBLE(atkheli, false, 0)
-		end
-		local pilot = entities.create_ped(1, pilhs, tar1, 0)
-		SET_PED_INTO_VEHICLE(pilot , atkheli, -1)
-		table.insert(heliatkr, pilot)
-		local seatnum = GET_VEHICLE_MODEL_NUMBER_OF_SEATS(heli) - 1
-		for j = 1, seatnum do
-			if DOES_ENTITY_EXIST(atkheli) then
-				util.yield(10)
-					local gunner = entities.create_ped(1, util.joaat(gunners[j]), tar1, 0) 
-					SET_PED_INTO_VEHICLE(gunner , atkheli, -2)
-					table.insert(heliatkr, gunner)
-			end
-		end
-		SET_BLOCKING_OF_NON_TEMPORARY_EVENTS(pilot, true)
-		
-		TASK_HELI_MISSION(pilot, heli, 0, targets, 0.0, 0.0, 0.0, 6, 150.0, 40.0, -1.0, 0, 10, -1.0, 16)
-		CONTROL_MOUNTED_WEAPON(pilot)
-		
-		
-		Atk(heliatkr, targets, heliatkset.weapon, pilot)
-		if hash == 'akula' or 'annihilator2' then
-			SET_DEPLOY_FOLDING_WINGS(atkheli, true, true)
-		end
-		SET_HELI_BLADES_FULL_SPEED(atkheli)
-		SET_VEHICLE_FORWARD_SPEED(atkheli, 80)
-		CONTROL_LANDING_GEAR(atkheli, 3)
-		func.AddBlip(atkheli, 422, 1)
-		util.yield()
-	return atkheli, pilot
-	end
-end
-
-local function Vehatkr(invinc, invis, pid, hash)
-	local targets = GET_PLAYER_PED_SCRIPT_INDEX(pid)
-	local tar1 = GET_OFFSET_FROM_ENTITY_IN_WORLD_COORDS(targets, math.random(-1, 1), math.random(-1, 1), 0.0)
-	local drihs = util.joaat(pil_dri[1])
-	for gunners as gunner do
-		local gunh = util.joaat(gunner)
-		func.Streament(gunh)
-	end
-
-	local vhash = util.joaat(hash)
-	func.Streament(vhash)
-	func.Streament(drihs)
-
-	for i= 1 , 100 do
-		tar1.x = tar1.x + i * 2
-		tar1.y = tar1.y + i * 2
-   
-		local vatkr = CREATE_VEHICLE(vhash, tar1.x, tar1.y, tar1.z, 0.0, true, true, false)
-		func.Vmod(vatkr, 'fuckoff', 100, 40)
-		MODIFY_VEHICLE_TOP_SPEED(vatkr, 150)
-		entities.set_can_migrate(entities.handle_to_pointer(vatkr), false)
-		if invinc then
-			SET_ENTITY_INVINCIBLE(vatkr, true)
-		end
-		if invis then
-			SET_ENTITY_VISIBLE(vatkr, false, 0)
-		end
-		local driver = entities.create_ped(1, drihs, tar1, 0)
-		SET_PED_INTO_VEHICLE(driver , vatkr, -1)
-		table.insert(vehatkr, driver)
-		local seatnum = GET_VEHICLE_MODEL_NUMBER_OF_SEATS(vhash) - 1
-		for j = 1, seatnum do
-			if DOES_ENTITY_EXIST(vatkr) then
-				util.yield(10)
-				local gunner = entities.create_ped(1, util.joaat(gunners[j]), tar1, 0) 
-				SET_PED_INTO_VEHICLE(gunner , vatkr, -2)
-				table.insert(vehatkr, gunner)
-			end
-		end
-		SET_BLOCKING_OF_NON_TEMPORARY_EVENTS(driver, true)
-		TASK_COMBAT_PED(driver , targets, 0, 16)
-		TASK_VEHICLE_MISSION(driver, vatkr, 0, targets, 9, 150.0, 40.0, -1.0, 0, 10, -1.0, 16)
-		CONTROL_MOUNTED_WEAPON(driver)
-		
-
-		Atk(vehatkr, targets, vehatkset.weapon, driver)
-
-	   
-
-		SET_PED_KEEP_TASK(driver, true)
-		SET_VEHICLE_FORWARD_SPEED(vatkr, 20)
-		if hash == 'minitank' then
-			func.AddBlip(vatkr, 742, 1)
-		elseif hash == 'ruiner2' then
-			func.AddBlip(vatkr, 530, 1)
-		else
-			func.AddBlip(vatkr, 421, 1)
-		end
-		
-		util.yield()
-	return vatkr, driver
-	end
-end
 
 local function Teabagtime(p1, p2, p3, p4, p5, p6, p7, p8)
 	util.create_tick_handler (function ()
@@ -1574,7 +1576,7 @@ players.add_command_hook(function(pid, root)
 			START_NETWORKED_PARTICLE_FX_NON_LOOPED_AT_COORD(ptfxs.sel, tar1.x, tar1.y, tar1.z + 1, 0, 0, 0, ptfxs.scale, true, true, true)
 		end)
 		menus.ptfxspams:list_action(Str_trans('Ptfx List'), {}, Str_trans('Choose a PTFX from the list'), Tables.Fxcorelist, function(fxsel)
-			ptfxs.sel = Fxha[fxsel]
+			ptfxs.sel = Tables.Fxha[fxsel]
 			ptfx.lib = 'core'
 		end)
 		menus.ptfxspams:slider(Str_trans('Scale'), {}, Str_trans('Choose the scale of the PTFX'), 1, 1000, 10, 1, function(s)
