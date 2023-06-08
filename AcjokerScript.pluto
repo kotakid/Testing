@@ -7,9 +7,9 @@
    --Script made by acjoker8818
    -------------------------------------------------------------------------
 util.keep_running()
-local yieldlib = require "resources.AcjokerScript.Modules.Scaleform"
-yieldlib.init()
 local LOADING_START = util.current_time_millis()
+Script = {}
+Script.Version = "0.33.91"
 ---
 --- Auto-Updater Lib Install
 ---
@@ -67,6 +67,11 @@ local auto_update_config = {
             script_relpath="resources/AcjokerScript/gizmoUtils.lua",
         },
         {
+            name="Vehicles",
+            source_url="https://raw.githubusercontent.com/kotakid/Testing/main/resources/AcjokerScript/Modules/Vehicles.pluto",
+            script_relpath="resources/AcjokerScript/Modules/Vehicles.pluto",
+        },
+        {
             name="Bodyguards",
             source_url="https://raw.githubusercontent.com/kotakid/Testing/main/resources/AcjokerScript/Modules/Bodyguards.pluto",
             script_relpath="resources/AcjokerScript/Modules/Bodyguards.pluto",
@@ -95,11 +100,6 @@ local auto_update_config = {
             name="Self",
             source_url="https://raw.githubusercontent.com/kotakid/Testing/main/resources/AcjokerScript/Modules/Self.pluto",
             script_relpath="resources/AcjokerScript/Modules/Self.pluto",
-        },
-        {
-            name="Vehicles",
-            source_url="https://raw.githubusercontent.com/kotakid/Testing/main/resources/AcjokerScript/Modules/Vehicles.pluto",
-            script_relpath="resources/AcjokerScript/Modules/Vehicles.pluto",
         },
         {
             name="Settings",
@@ -168,13 +168,10 @@ local auto_update_config = {
 
 auto_updater.run_auto_update(auto_update_config)
 
-local scripts_dir = filesystem.scripts_dir()
-
-
 util.ensure_package_is_installed("natives-1681379138")
 util.ensure_package_is_installed("quaternionLib")
 quaternion = require('quaternionLib')
-require "resources.AcjokerScript.translations"
+
 local requirements = {
     modules = {
         "natives-1681379138.g",
@@ -186,51 +183,27 @@ local requirements = {
         "resources.AcjokerScript.Modules.Players",
         "resources.AcjokerScript.Modules.Scaleform",
         "resources.AcjokerScript.Modules.Settings",
-    },
-    modules_names = {
-        "'natives-1681379138 module'",
-        "'gizmoUtils module'",
-        "'weapons module'",
-        "'vehicles module'",
-        "'online module'",
-        "'bodyguards module'",
-        "'players module'",
-        "'scaleform module'",
-        "'settings module'",
     }
 }
 
-do
-    local backup = package.path
-    package.path = ""
-    
-    local script_modules = $"{scripts_dir}/resources/AcjokerScript/Modules"
-    
-    package.path = package.path .. ";" .. script_modules .. "/?.pluto"
-    
-    package.path = package.path .. ";" .. backup
-    backup = nil
-end
+
+util.execute_in_os_thread(function()
+    require "resources.AcjokerScript.translations"
+    for requirements.modules as mod do
+        package.loaded[mod] = nil
+        local state, err = pcall(require, mod)
+        if not state then
+            util.toast($"Failed to load {mod}. Check the log for more info")
+            print($"[AcjokerScript] {err}")
+        end
+    end
+end)
 
 util.ensure_package_is_installed("lua/ScaleformLib")
+local yieldlib = require "resources.AcjokerScript.Modules.Scaleform"
+yieldlib.init()
 
-for i, mod in requirements.modules do
-    package.loaded[mod] = nil
-    xpcall(
-        function()
-            local required_mod = require(mod)
-        end,
-        function(err)
-            local failed_mod_name = requirements.modules_names[i]
-            util.toast($"Failed to load: {failed_mod_name}. Check the log for more info")
-            util.log($"[AcjokerScript]: Failed to load a module ({failed_mod_name}), error: {err}")
-        end
-    )
-end
-
-
-local my = menu.my_root()
-my:action(T('Player Options'), {}, T('Redirects you to the Player list in Stand for the Trolling and Friendly options'), function ()
+menu.my_root():action(T('Player Options'), {}, T('Redirects you to the Player list in Stand for the Trolling and Friendly options'), function ()
     menu.ref_by_path("Players"):trigger()
 end)
 
