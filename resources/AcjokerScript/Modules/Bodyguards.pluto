@@ -165,8 +165,6 @@ local function BodyguardFollow()
         SET_GROUP_FORMATION_SPACING(bgg, 1.0, -1.0, -1.0)
         SET_GROUP_FORMATION(bgg, Bodyg_formation)
         entities.set_can_migrate(entities.handle_to_pointer(spawned_bg), false)
-        
-        
     end
 end
 util.create_tick_handler(function ()
