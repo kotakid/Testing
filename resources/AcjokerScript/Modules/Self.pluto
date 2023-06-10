@@ -12,6 +12,7 @@ end
 local Death_Log = SettingsDir .. "Death_Log.txt"
 if filesystem.is_regular_file(CONFIG_DIR .. "Pets_List.json") then
     os.rename(CONFIG_DIR .. "Pets_List.json", SettingsDir.."Pets_List.json")
+    Pets_List = SettingsDir.."Pets_List.json"
 else
     Pets_List = SettingsDir.. "Pets_List.json"
 end
@@ -78,6 +79,8 @@ local function Petfollow(pet)
         util.yield(150)
     end
 end
+
+
 
 
 ----------------------------------------------------------------------------------------------------------------
@@ -453,11 +456,11 @@ end)
 local pets = {}
 local petnames = {}
 
-local function add_pet(name, hash, number, handle)
-    local new_pet = {name=name, hash=hash, number=number, handle=handle}
+local function add_pet(name, hash, handle)
+    local new_pet = {name=name, hash=hash, handle=handle}
     local pets_list = func.Load_settings(Pets_List)
     for pets_list as pet do
-        if pet.number == new_pet.number then
+        if pet.handle == new_pet.handle then
             return true
         end
     end
@@ -466,10 +469,10 @@ local function add_pet(name, hash, number, handle)
     return true
 end
 
-local function remove_pet(name)
+local function remove_pet(handle)
     local pets_list = func.Load_settings(Pets_List)
     for index, pet in pets_list do
-        if pet.name == name then
+        if pet.handle == handle then
             pets_list[index] = nil
             func.Save_settings(Pets_List, pets_list)
             return true
@@ -491,7 +494,7 @@ local function regen_pet_list(root)
             local pets_list_menu = root:list(v.name, {}, v.name)
             pets_list_menu:action(Str_trans('Remove from Pet List'), {}, Str_trans('Remove Animal from Pet List'), function ()
                 entities.delete_by_handle(v.handle)
-                remove_pet(v.name)
+                remove_pet(v.handle)
                 petz = petz - 1
                 if func.set.alert then
                     func.ACutil(v.name..Str_trans(' Removed from Pet List'))
@@ -509,6 +512,49 @@ local function regen_pet_list(root)
             end)
             table.insert(pets_list_menus, pets_list_menu)
         end
+    end
+end
+
+local saved_pet_list_menus = {}
+local function regen_saved_pet_list(root)
+    local pload = func.Load_settings(Pets_List)
+    for saved_pet_list_menus as saved_pet_list_menu do
+        if saved_pet_list_menu:isValid() then saved_pet_list_menu:delete() end
+    end
+    saved_pet_list_menus = {}
+    for pload as v do
+        local saved_pet_list_menu = root:list(v.name, {}, v.name)
+        saved_pet_list_menu:action(Str_trans('Spawn Pet'), {}, Str_trans('Spawn Pet from saved pet list'), function ()
+            pethash = v.hash
+            local pos = GET_OFFSET_FROM_ENTITY_IN_WORLD_COORDS(players.user_ped(), 0, 1, 0)
+            if #pets >= 7 then func.ACutil(Str_trans('Too many pets')) return end
+            remove_pet(v.handle)
+            local pet = Petcreate(pethash, pos)
+            add_pet(v.name, pethash, pet)
+            entities.set_can_migrate(entities.handle_to_pointer(pet), false)
+            table.insert(pets, pet)
+            petz = petz + 1
+            Petfollow(pet)
+        end)
+        saved_pet_list_menu:action(Str_trans('Remove from Pet List'), {}, Str_trans('Remove Animal from Pet List'), function ()
+            entities.delete_by_handle(v.handle)
+            remove_pet(v.handle)
+            petz = petz - 1
+            if func.set.alert then
+                func.ACutil(v.name..Str_trans(' Removed from Pet List'))
+            end
+            Spawnedpetmenu:focus()
+            return true
+        end)
+        saved_pet_list_menu:action(Str_trans('Bring to you'), {}, Str_trans('Bring pet to you'), function ()
+            local coords = GET_OFFSET_FROM_ENTITY_IN_WORLD_COORDS(players.user_ped(), math.random(-1, 1), math.random(-1, 1), 0)
+            SEC(v.handle, coords.x, coords.y, coords.z, false, true, true, false)
+            if func.set.alert then
+                func.ACutil(v.name..Str_trans(' Pet brought back'))
+            end
+            return true
+        end)
+        table.insert(saved_pet_list_menus, saved_pet_list_menu)
     end
 end
 
@@ -535,22 +581,32 @@ Spawnedpetmenu = menus.pets:list(T('Spawned Pets'), {}, '', function ()
     regen_pet_list(Spawnedpetmenu)
 end)
 
-menus.pets:action(T('Respawn Pets'), {'respawnpets'}, T('Respawn the pets on your pets list'), function ()
-    pload = func.Load_settings(Pets_List)
-    pets = {}
-    local coor = GET_OFFSET_FROM_ENTITY_IN_WORLD_COORDS(players.user_ped(), 0, 1, 0)
-    if #pets >= 7 then func.ACutil(Str_trans('Too many pets')) return end
-    for pload as v do
-        v.handle = 0
-        local pet = Petcreate(v.hash, coor)
-        v.handle = pet
-        table.insert(pets, pet)
-        add_pet(v.name, v.hash, pet)
-        Petfollow(pet)
+Savedpetmenu = menus.pets:list(T('Saved Pets'), {}, '', function ()
+    regen_saved_pet_list(Savedpetmenu)
+end)
+
+local respawn_pets = menus.pets:toggle(T('Respawn Pets'), {'respawnpets'}, T('Respawn the pets on your pets list'), function (on)
+    if on then
+        pload = func.Load_settings(Pets_List)
+        pets = {}
+        local coor = GET_OFFSET_FROM_ENTITY_IN_WORLD_COORDS(players.user_ped(), 0, 1, 0)
+        if #pets >= 7 then func.ACutil(Str_trans('Too many pets')) return end
+        for pload as v do
+            if #pets >= 7 then func.ACutil(Str_trans('Too many pets')) return end
+            local pet = Petcreate(v.hash, coor)
+            remove_pet(v.handle)
+            add_pet(v.name, v.hash, pet)
+            table.insert(pets, pet)
+            Petfollow(pet)
+        end
+        io.remove(Pets_List)
+        func.Save_settings(Pets_List, pload)
+    else
+        func.DelEnt(pets)
+        petz = 0
+        pets = {}
+        return
     end
-    io.remove(Pets_List)
-    func.Save_settings(Pets_List, pload)
-    return
 end)
 
 
@@ -567,6 +623,9 @@ menus.pets:action(T('Completely Delete Pets'), {'delpets'}, T('Delete all the pe
     func.DelEnt(pets)
     pets = {}
     petz = 0
+    if respawn_pets.value then
+        respawn_pets.value = false
+    end
 end)
 
 menus.pets:list_action(T('Pets Formations'), {}, 'A list of your pets formations', Tables.Bgformationlist, function (index)
