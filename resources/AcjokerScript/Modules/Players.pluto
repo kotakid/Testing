@@ -1,5 +1,5 @@
-require 'resources/AcjokerScript/Modules/Functions'
 local func = require 'resources/AcjokerScript/Modules/Functions'
+local Tables = require 'resources/AcjokerScript/ACJSTables'
 local pil_dri = {'S_M_M_Pilot_01'}
 local gunners = {'s_m_y_blackops_01', 's_m_y_blackops_02', 's_m_y_blackops_03'}
 local plneatkr = {}
@@ -1787,7 +1787,7 @@ players.add_command_hook(function(pid, root)
 
 		local spec = func.GetSpec(pid)
 		func.Delcar(targets, spec, pid)
-		func.Streament(juglset.jugsel)
+			func.Streament(juglset.jugsel)
 
 		if not IS_PED_RAGDOLL(targets) then
 			JuggleCar(juglset.jugsel, tar1, juglset.invisjugc, juglset.jugr)

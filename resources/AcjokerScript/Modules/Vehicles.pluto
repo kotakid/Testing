@@ -1,10 +1,10 @@
 local CONFIG_DIR = filesystem.resources_dir() .. 'AcjokerScript\\'
 local VehiclesDir = CONFIG_DIR.. 'Vehicles\\'
 filesystem.mkdirs(VehiclesDir)
-require 'resources/AcjokerScript/Modules/Functions'
-local Tables = require 'resources/AcjokerScript/ACJSTables'
+
 local func = require 'resources/AcjokerScript/Modules/Functions'
 local menus = {}
+local SettingsDir = CONFIG_DIR..'Settings\\'
 if filesystem.is_regular_file(CONFIG_DIR .. "FavVehicles.json") then
     os.rename(CONFIG_DIR .. "FavVehicles.json", SettingsDir.."FavVehicles.json")
 else
@@ -20,6 +20,7 @@ local clomem = {}
 local weapons_menus = {}
 local weapon_attach = {}
 local vehicle_menus = {}
+local colmem = {}
 local vehroot = menu.my_root():list(T('Vehicles'), {}, '')
 local close_script = false
 util.on_pre_stop(function()
@@ -750,7 +751,7 @@ end)
 
 
 menus.locations:action(Str_trans('Delete all locations'), {}, Str_trans('Delete all locations (does not delete the locations in the original file)'), function ()
-    DelEnt(weapon_attach)
+    func.DelEnt(weapon_attach)
 end)
 
 
@@ -787,11 +788,11 @@ menus.locations:toggle(Str_trans('Visible locations'), {}, Str_trans('Make the l
             SET_ENTITY_VISIBLE(w, false)
         end
     end
-end, nil,  IS_ENTITY_VISIBLE(w))
+end)
 
-menus.vehweap:toggle_loop(Str_trans('Turn on Weapons'), {'vehweapactivate'}, Str_trans('Shoots your chosen bullet from each location you have set'), function ()
-    if IS_CONTROL_PRESSED(0, 68) then
-        for weapon_attach as locations do
+menus.weapturnon = menus.vehweap:toggle_loop(Str_trans('Turn on Weapons'), {'vehweapactivate'}, Str_trans('Shoots your chosen bullet from each location you have set'), function ()
+    for weapon_attach as locations do
+        if IS_CONTROL_PRESSED(0, 68) and DOES_ENTITY_EXIST(locations) and IS_ENTITY_ATTACHED(locations) then
             local pos = GET_OFFSET_FROM_ENTITY_IN_WORLD_COORDS(locations, 0, 1, 0)
             local pos2 = GET_OFFSET_FROM_ENTITY_IN_WORLD_COORDS(locations, 0, 15, 0)
             local hash = util.joaat(Tables.Weapon_selections.veh_weap)
@@ -801,6 +802,11 @@ menus.vehweap:toggle_loop(Str_trans('Turn on Weapons'), {'vehweapactivate'}, Str
             util.yield()
         end
     end
+end)
+menus.vehweap:onBlur(function ()
+    for weapon_attach as locations do
+        if not IS_ENTITY_ATTACHED(locations) then return func.DelEnt(weapon_attach), menus.weapturnon == false end
+    end 
 end)
 
 menus.giveweap = menus.vehweap:list(T("Change Weapons"), {}, T("Change the weapon used"), function ()
@@ -1466,27 +1472,28 @@ pbodym:onFocus(function ()
         end
     end
 end)
-
-local colmem = {}
-util.create_tick_handler(function ()
-    colmem.red = memory.alloc()
-    colmem.green = memory.alloc()
-    colmem.blue = memory.alloc()
-    local vcolor = entities.get_user_vehicle_as_handle()
-    GET_VEHICLE_CUSTOM_PRIMARY_COLOUR(vcolor, colmem.red, colmem.green, colmem.blue)
-    colmem.sred = memory.alloc()
-    colmem.sgreen = memory.alloc()
-    colmem.sblue = memory.alloc()
-    GET_VEHICLE_CUSTOM_SECONDARY_COLOUR(vcolor, colmem.sred, colmem.sgreen, colmem.sblue)
-    Prgb = {color= {r = memory.read_int(colmem.red) / 255, g =  memory.read_int(colmem.green) / 255, b = memory.read_int(colmem.blue) / 255, a = 1}}
-    Psrgb = {color= {r = memory.read_int(colmem.sred)/ 255, g =  memory.read_int(colmem.sgreen)/ 255, b = memory.read_int(colmem.sblue) / 255, a = 1}}
-end)
-
-
-
-
-    local pcolor = {}
-    menus.uservehpai = pcolm:colour(T('Primary Color RGB'), {}, T('Changes the Primary Color on the Vehicle to RGB'), Prgb.color, false, function(prbgc)
+local focused
+local Prgb
+local Psrgb
+pcolm:onBlur( function ()
+    focused = true 
+        local pcolor = {}
+    util.create_tick_handler(function ()
+        if not focused then return false end
+        colmem.red = memory.alloc()
+        colmem.green = memory.alloc()
+        colmem.blue = memory.alloc()
+        local vcolor = entities.get_user_vehicle_as_handle()
+        GET_VEHICLE_CUSTOM_PRIMARY_COLOUR(vcolor, colmem.red, colmem.green, colmem.blue)
+        colmem.sred = memory.alloc()
+        colmem.sgreen = memory.alloc()
+        colmem.sblue = memory.alloc()
+        GET_VEHICLE_CUSTOM_SECONDARY_COLOUR(vcolor, colmem.sred, colmem.sgreen, colmem.sblue)
+        Prgb = {color= {r = memory.read_int(colmem.red) / 255, g =  memory.read_int(colmem.green) / 255, b = memory.read_int(colmem.blue) / 255, a = 1}}
+        Psrgb = {color= {r = memory.read_int(colmem.sred)/ 255, g =  memory.read_int(colmem.sgreen)/ 255, b = memory.read_int(colmem.sblue) / 255, a = 1}}
+        return Prgb, Psrgb
+    end)
+    menus.uservehpai = pcolm:colour(Str_trans('Primary Color RGB'), {}, Str_trans('Changes the Primary Color on the Vehicle to RGB'), Prgb.color, false, function(prbgc)
         Prgb.color = prbgc
         local vcolor = entities.get_user_vehicle_as_handle()
         local red = math.floor(Prgb.color.r * 255)
@@ -1498,7 +1505,7 @@ end)
     end)
 
 
-    menus.uservehspai = pcolm:colour(T('Secondary Color RGB'), {}, T('Changes the Secondary Color on the Vehicle to RGB'), Psrgb.color, false, function(prbgsc)
+    menus.uservehspai = pcolm:colour(Str_trans('Secondary Color RGB'), {}, Str_trans('Changes the Secondary Color on the Vehicle to RGB'), Psrgb.color, false, function(prbgsc)
         Psrgb.color = prbgsc
         local vcolor = entities.get_user_vehicle_as_handle()
         local sred = math.floor(Psrgb.color.r * 255)
@@ -1508,6 +1515,19 @@ end)
             SET_VEHICLE_CUSTOM_SECONDARY_COLOUR(vcolor, sred, sgreen, sblue)
         end
     end)
+    pcolm:onFocus(function ()
+        if menus.uservehpai:isValid() then menus.uservehpai:delete() end
+        if menus.uservehspai:isValid() then menus.uservehspai:delete() end
+        focused = false
+    end)
+end)
+
+
+
+
+
+
+
 
 
 

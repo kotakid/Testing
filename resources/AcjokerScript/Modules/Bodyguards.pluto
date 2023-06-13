@@ -1,9 +1,8 @@
 
 
-require 'resources/AcjokerScript/Modules/Functions'
 local json = require 'pretty.json'
 local func = require 'resources/AcjokerScript/Modules/Functions'
-local Tables = require 'resources/AcjokerScript/ACJSTables'
+
 local BodyguardsDir = filesystem.resources_dir() .. 'AcjokerScript\\Bodyguards\\'
 filesystem.mkdirs(BodyguardsDir)
 local menus = {}
@@ -146,28 +145,7 @@ local function Bodyguard(hash, tar1)
     return bodyG
 end
 
-
-local function BodyguardFollow()
-    local bgg = GET_PED_GROUP_INDEX(GET_PLAYER_PED_SCRIPT_INDEX(players.user()))
-    for bg_lis as spawned_bg do
-        SET_PED_AS_GROUP_MEMBER(spawned_bg, bgg)
-        SET_ENTITY_INVINCIBLE(spawned_bg, true)
-        SET_ENTITY_PROOFS(bodyG, true, true, true, true, true, true, true, true)
-        SET_PED_AS_GROUP_LEADER(players.user_ped(), bgg)
-        SET_PED_CAN_BE_TARGETTED_BY_TEAM(spawned_bg, bgg, false)
-        SET_ENTITY_CAN_BE_DAMAGED_BY_RELATIONSHIP_GROUP(players.user_ped(), false, bgg)
-        SET_ENTITY_CAN_BE_DAMAGED_BY_RELATIONSHIP_GROUP(spawned_bg, false, bgg)
-        SET_PED_INFINITE_AMMO_CLIP(spawned_bg, true)
-        func.AddBlip(spawned_bg, 1, 3)
-        SET_CAN_ATTACK_FRIENDLY(spawned_bg, false, false)
-        SET_PED_RELATIONSHIP_GROUP_HASH(spawned_bg, util.joaat("rgFM_HateEveryOne"))
-        SET_GROUP_SEPARATION_RANGE(bgg, 9999.0)
-        SET_GROUP_FORMATION_SPACING(bgg, 1.0, -1.0, -1.0)
-        SET_GROUP_FORMATION(bgg, Bodyg_formation)
-        entities.set_can_migrate(entities.handle_to_pointer(spawned_bg), false)
-    end
-end
-util.create_tick_handler(function ()
+local function SUVfollow()
     local driver
     for bg_lis as spawned_bg do
         if IS_PED_IN_ANY_VEHICLE(players.user_ped(), true) then
@@ -211,7 +189,38 @@ util.create_tick_handler(function ()
         local driver = GET_PED_IN_VEHICLE_SEAT(SUV, -1)
         CLEAR_PED_TASKS(driver)
     end
+end
+
+local function BodyguardFollow()
+    local bgg = GET_PED_GROUP_INDEX(GET_PLAYER_PED_SCRIPT_INDEX(players.user()))
+    for bg_lis as spawned_bg do
+        SET_PED_AS_GROUP_MEMBER(spawned_bg, bgg)
+        SET_ENTITY_INVINCIBLE(spawned_bg, true)
+        SET_ENTITY_PROOFS(bodyG, true, true, true, true, true, true, true, true)
+        SET_PED_AS_GROUP_LEADER(players.user_ped(), bgg)
+        SET_PED_CAN_BE_TARGETTED_BY_TEAM(spawned_bg, bgg, false)
+        SET_ENTITY_CAN_BE_DAMAGED_BY_RELATIONSHIP_GROUP(players.user_ped(), false, bgg)
+        SET_ENTITY_CAN_BE_DAMAGED_BY_RELATIONSHIP_GROUP(spawned_bg, false, bgg)
+        SET_PED_INFINITE_AMMO_CLIP(spawned_bg, true)
+        func.AddBlip(spawned_bg, 1, 3)
+        SET_CAN_ATTACK_FRIENDLY(spawned_bg, false, false)
+        SET_PED_RELATIONSHIP_GROUP_HASH(spawned_bg, util.joaat("rgFM_HateEveryOne"))
+        SET_GROUP_SEPARATION_RANGE(bgg, 9999.0)
+        SET_GROUP_FORMATION_SPACING(bgg, 1.0, -1.0, -1.0)
+        SET_GROUP_FORMATION(bgg, Bodyg_formation)
+        entities.set_can_migrate(entities.handle_to_pointer(spawned_bg), false)
+    end
+    util.create_tick_handler(function ()
+    SUVfollow()
+    if not IS_PED_IN_ANY_VEHICLE(players.user_ped()) then
+        return false
+    end
 end)
+end
+
+
+
+
 
 bodyguard_list_menus = {}
 

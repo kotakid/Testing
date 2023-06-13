@@ -1,4 +1,3 @@
-require 'resources/AcjokerScript/Modules/Functions'
 local Tables = require 'resources/AcjokerScript/ACJSTables'
 local func = require 'resources/AcjokerScript/Modules/Functions'
 local CONFIG_DIR = filesystem.resources_dir() .. 'AcjokerScript\\'
@@ -102,19 +101,19 @@ menus.speedruns = onlineroot:list(T('Speed Run'), {}, '')
 
 menus.speedruns:toggle_loop(T('Instant Finish Criminal Damage'), {'instacrimdam'}, T('Instantly win Criminal Damage Session Event'), function ()
     if GET_NUMBER_OF_THREADS_RUNNING_THE_SCRIPT_WITH_THIS_HASH(util.joaat("am_criminal_damage")) != 0 then
-        SET_INT_LOCAL('am_criminal_damage', 105,  max_int)
+        SET_INT_LOCAL('am_criminal_damage', 106,  max_int)
         util.yield(3000)
-        SET_INT_LOCAL('am_criminal_damage', 110 + 39, 0)
+        SET_INT_LOCAL('am_criminal_damage', 111 + 39, 0)
     end
 end)
 
 menus.speedruns:toggle_loop(T('Instant Finish Checkpoint Collection'), {'instacheck'}, T('Instantly win Checkpoint Collection Session Event'), function ()
     if GET_NUMBER_OF_THREADS_RUNNING_THE_SCRIPT_WITH_THIS_HASH(util.joaat("am_cp_collection")) != 0 then
-        SET_INT_LOCAL('am_cp_collection', 3456 + (PARTICIPANT_ID_TO_INT() + 5) + 4, 120)
-        local int = GET_INT_LOCAL('am_cp_collection', 3456 + (PARTICIPANT_ID_TO_INT() + 5) + 4 )
+        SET_INT_LOCAL('am_cp_collection', 3457 + (PARTICIPANT_ID_TO_INT() + 5) + 4, 120)
+        local int = GET_INT_LOCAL('am_cp_collection', 3457 + (PARTICIPANT_ID_TO_INT() + 5) + 4 )
         util.yield(10000)
-        SET_INT_LOCAL('am_cp_collection', 815 + 708, 0)
-        SET_INT_LOCAL('am_cp_collection', 815 + 661, 0)--finish 
+        SET_INT_LOCAL('am_cp_collection', 816 + 708, 0)
+        SET_INT_LOCAL('am_cp_collection', 816 + 661, 0)--finish 
     end
 end)
 

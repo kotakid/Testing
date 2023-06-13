@@ -1,4 +1,3 @@
-require 'resources/AcjokerScript/Modules/Functions'
 local menus = require 'resources/AcjokerScript/Modules/Self'
 
 local func = require 'resources/AcjokerScript/Modules/Functions'
@@ -656,7 +655,7 @@ menus.aimbot:toggle(T('Turn on Shoot Through Walls'), {}, T('Turns on Shoot Thro
 end)
 
 
-menus.aimbot:slider_float(T('Field of View'), {'tpslider'}, T('Adjust the amount of your Field of View is with Aimbot'), 100, 36000, 300, 100, function (s)
+menus.aimbot:slider_float(T('Field of View'), {}, T('Adjust the amount of your Field of View is with Aimbot'), 100, 36000, 300, 100, function (s)
     aimbot.fov = s*.01
 end)
 
@@ -1068,7 +1067,7 @@ super_xray:colour(T('Box and ESP Color'), {}, T('Choose the Box and ESP color to
     SuperESPrgb.color = bcolor
 end)
 
-super_xray:slider_float(T('Field of View'), {'tpslider'}, T('Adjust the amount of your Field of View is with X-Ray Vision'), 100, 36000, 1000, 100, function (s)
+super_xray:slider_float(T('Field of View'), {}, T('Adjust the amount of your Field of View is with X-Ray Vision'), 100, 36000, 1000, 100, function (s)
     xray.fov = s*0.01
 end)
 
