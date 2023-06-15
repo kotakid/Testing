@@ -2,9 +2,9 @@
 
 local translations = {}
 Lang = {}
-Lang.Version = "0.34.9"
+Lang.Version = "0.35.2"
 Template = false
-translations.lang = {}
+
 translations.current_translations = {}
 translations.missing_translations = {}
 local LANG_STRING_NOT_FOUND = "/!\\ STRING NOT FOUND /!\\"
@@ -109,6 +109,28 @@ if Template then --credits to Jerry123
             Hexarobi_translate(text)
         end
     end
+    local modulesdir = filesystem.resources_dir() ..'AcjokerScript\\Modules\\'
+    local Modules = filesystem.list_files(modulesdir)
+    for Modules as module do
+        if filesystem.is_regular_file(module) then
+           local mod = modulesdir..module
+           print(mod..'module')
+           local mod_file = ReadAll(module)
+
+            for text in string.gmatch(mod_file, 'Str_trans%(.-%)') do
+                text = string.gsub(text, 'Str_trans%(.', '')
+                text = string.gsub(text, '\'%)', '')
+                text = string.gsub(text, '"%)', '')
+                text = string.gsub(text, '\\\'', '\'')
+                text = string.gsub(text, '\\"', '\"')
+                text = string.gsub(text, '\\\n', '\n')
+                if registeredStrings[text] == nil then
+                    registeredStrings[text] = true
+                    Hexarobi_translate(text)
+                end
+            end
+        end
+    end
 
 
 end
@@ -164,32 +186,16 @@ translations.GAME_LANGUAGE_IDS = {
     ["ja"] = "ja-JP",
     ["lt"] = "lt-LT"
 }
-translations.LANGUAGE_NAMES = {
-    ["en-US"] = "English",
-    ["fr-FR"] = "French",
-    ["de-DE"] = "German",
-    ["it-IT"] = "Italian",
-    ["es-ES"] = "Spanish",
-    ["pt-BR"] = "Brazilian",
-    ["pl-PL"] = "Polish",
-    ["ru-RU"] = "Russian",
-    ["ko-KR"] = "Korean",
-    ["zh-TW"] = "Chinese (Traditional)",
-    ["ja-JP"] = "Japanese",
-    ["es-MX"] = "Spanish (Mexican)",
-    ["zh-CN"] = "Chinese (Simplified)",
-    ["lt-LT"] = "Lithuanian"
-}
 
 translations.lang = {}
 
 local cur_lang = lang.get_current()
 if cur_lang != 'en' then
-    local status, lang = pcall(require, 'resources/AcJokerScript/Modules/Languages/'..cur_lang)
-    if not status then print('Failed to find language reverting to English')
+    local status, lang = pcall(require, 'resources\\AcjokerScript\\Modules\\Languages\\'..cur_lang)
+    if not status then print(lang)
         return 
     else 
-        translations.lang[cur_lang] = require('resources/AcjokerScript/Modules/Languages/'..cur_lang)
+        translations.lang[cur_lang] = require('resources\\AcjokerScript\\Modules\\Languages\\'..cur_lang)
     end
 end
 

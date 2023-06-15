@@ -101,19 +101,19 @@ menus.speedruns = onlineroot:list(T('Speed Run'), {}, '')
 
 menus.speedruns:toggle_loop(T('Instant Finish Criminal Damage'), {'instacrimdam'}, T('Instantly win Criminal Damage Session Event'), function ()
     if GET_NUMBER_OF_THREADS_RUNNING_THE_SCRIPT_WITH_THIS_HASH(util.joaat("am_criminal_damage")) != 0 then
-        SET_INT_LOCAL('am_criminal_damage', 106,  max_int)
+        SET_INT_LOCAL('am_criminal_damage', 106,  max_int) --iLocal_106 = (iLocal_106 + iVar27) build 2944
         util.yield(3000)
-        SET_INT_LOCAL('am_criminal_damage', 111 + 39, 0)
+        SET_INT_LOCAL('am_criminal_damage', 111 + 39, 0) --switch (Local_111.f_37) case 3 build 2944
     end
 end)
 
 menus.speedruns:toggle_loop(T('Instant Finish Checkpoint Collection'), {'instacheck'}, T('Instantly win Checkpoint Collection Session Event'), function ()
     if GET_NUMBER_OF_THREADS_RUNNING_THE_SCRIPT_WITH_THIS_HASH(util.joaat("am_cp_collection")) != 0 then
-        SET_INT_LOCAL('am_cp_collection', 3457 + (PARTICIPANT_ID_TO_INT() + 5) + 4, 120)
+        SET_INT_LOCAL('am_cp_collection', 3457 + (PARTICIPANT_ID_TO_INT() + 5) + 4, 120) -- AMCH_WIN
         local int = GET_INT_LOCAL('am_cp_collection', 3457 + (PARTICIPANT_ID_TO_INT() + 5) + 4 )
         util.yield(10000)
-        SET_INT_LOCAL('am_cp_collection', 816 + 708, 0)
-        SET_INT_LOCAL('am_cp_collection', 816 + 661, 0)--finish 
+        SET_INT_LOCAL('am_cp_collection', 816 + 708, 0)-- func_22 build 2944
+        SET_INT_LOCAL('am_cp_collection', 816 + 661, 0)--switch (Local_816.f_8) case 3 build 2944
     end
 end)
 
@@ -275,9 +275,15 @@ end)
 
 onlineroot:toggle_loop(T('Increase Kosatka Missile Range'), {'krange'}, T('You can use it anywhere in the map now'), function ()
     if util.is_session_started() then
-        memory.write_float(memory.script_global(262145 + 30176), 200000.0)
+        memory.write_float(memory.script_global(262145 + 30383), 200000.0) -- Global_262145.f_30383 build 2944
     end
 end)
+
+onlineroot:toggle_loop(T('Set Missile Cooldown To One'), {''}, T('Set the Cooldown to 1'), function ()
+    if util.is_session_started() then
+        memory.write_uint(memory.script_global(262145 + 30394), 2000.0) -- Global_262145.f_30394 build 2944 (according to Ayim)
+    end
+end)--credits to Chr0my
 
 onlineroot:toggle_loop(T('See who is using Voice chat'), {'seevoicec'}, T('Lets you see who is using Voice chat with a notification'), function ()
     for players.list() as pid do

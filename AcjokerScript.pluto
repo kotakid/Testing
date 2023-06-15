@@ -9,7 +9,7 @@
 util.keep_running()
 local LOADING_START = util.current_time_millis()
 Script = {}
-Script.Version = "0.34.9"
+Script.Version = "0.35.2"
 ---
 --- Auto-Updater Lib Install
 ---
@@ -175,6 +175,7 @@ quaternion = require('quaternionLib')
 local requirements = {
     modules = {
         "natives-1681379138.g",
+        "resources.AcjokerScript.translations",
         "resources.AcjokerScript.gizmoUtils",
         "resources.AcjokerScript.Modules.Weapons",
         "resources.AcjokerScript.Modules.Vehicles",
@@ -188,7 +189,6 @@ local requirements = {
 
 
 util.execute_in_os_thread(function()
-    require "resources.AcjokerScript.translations"
     for requirements.modules as mod do
         package.loaded[mod] = nil
         local state, err = pcall(require, mod)
@@ -207,7 +207,6 @@ menu.my_root():action(T('Player Options'), {}, T('Redirects you to the Player li
     menu.ref_by_path("Players"):trigger()
 end)
 
-
 util.create_thread(function () 
     if SCRIPT_MANUAL_START and not SCRIPT_SILENT_START then--credits to Hexarobi
         local logo_path = filesystem.resources_dir() .. 'AcjokerScript\\' ..'intrologo.png'
@@ -220,26 +219,22 @@ util.create_thread(function ()
         local fade_steps = 50
         for i = 0, fade_steps do
             directx.draw_texture(logo, 0.2, 0.2, 0.5, 0.5, 0.5, 0.55, 0, 1, 1, 1, i/fade_steps)
-            directx.draw_text(0.5, 0.8, "0.32.9", ALIGN_CENTRE, 2.0, rgb.color.r, rgb.color.g, rgb.color.b, rgb.color.a/fade_steps/2)
+            directx.draw_text(0.5, 0.8, Script.Version, ALIGN_CENTRE, 2.0, rgb.color.r, rgb.color.g, rgb.color.b, rgb.color.a/fade_steps/2)
             util.yield()
         end
         for i = 0, 100 do
             directx.draw_texture(logo, 0.2, 0.2, 0.5, 0.5, 0.5, 0.55, 0, 1, 1, 1, 1)
-            directx.draw_text(0.5, 0.8, "0.32.9", ALIGN_CENTRE, 2.0, rgb.color)
+            directx.draw_text(0.5, 0.8, Script.Version, ALIGN_CENTRE, 2.0, rgb.color)
             util.yield()
         end
         for i = fade_steps,0,-1 do
-            directx.draw_text(0.5, 0.8, "0.32.9", ALIGN_CENTRE, 2.0, rgb.color.r, rgb.color.g, rgb.color.b, rgb.color.a/fade_steps)
+            directx.draw_text(0.5, 0.8, Script.Version, ALIGN_CENTRE, 2.0, rgb.color.r, rgb.color.g, rgb.color.b, rgb.color.a/fade_steps)
             directx.draw_texture(logo, 0.2, 0.2, 0.5, 0.5, 0.5, 0.55, 0, 1, 1, 1, i/fade_steps/2)
             util.yield()
         end
     end
     util.stop_thread()
 end)
-
-
-
-
 
 LOADING_SCRIPT = false
 if Template and not LOADING_SCRIPT then
