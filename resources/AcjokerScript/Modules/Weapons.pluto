@@ -1,5 +1,5 @@
 local menus = require 'resources/AcjokerScript/Modules/Self'
-
+local Tables = require 'resources/AcjokerScript/ACJSTables'
 local func = require 'resources/AcjokerScript/Modules/Functions'
 local CONFIG_DIR = filesystem.resources_dir() .. 'AcjokerScript\\'
 local SettingsDir = CONFIG_DIR..'Settings\\'
@@ -196,6 +196,14 @@ local function AimbotTarget(aimbot, aim_target, rgb)
             func.ACutil(Str_trans('Target is ')..pname)
         end
     end
+    if aimbot.movement then
+        local fov = GET_GAMEPLAY_CAM_FOV()
+        local aimbotcam = CREATE_CAM_WITH_PARAMS('DEFAULT_SCRIPTED_CAMERA', 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, fov, false, false)
+        SET_CAM_ACTIVE(aimbotcam, true)
+        RENDER_SCRIPT_CAMS(true, true, 1000, true, true, 0)
+        
+    end
+
     if aimbot.esp then
         Draw_esp(aim_target, ESPrgb)
     end
@@ -708,7 +716,7 @@ menus.aimbotchw = menus.aimbotweap:list(T('Change Weapons'), {''}, T('Choose the
     for weapons_menus as weapons_menu do
         if weapons_menu:isValid() then weapons_menu:delete() end
     end
-    weapons_menus = func.Create_ped_weapon_menu(menus.aimbotchw, Tables.Ped_weapons, {3})
+    weapons_menus = func.Create_ped_weapon_menu(menus.aimbotchw, {3})
 end)
 
 menus.shot_coords = menus.aimbotweap:list(T('Shot Coordinates'), {}, T('Choose where to shoot the target'))
@@ -742,7 +750,9 @@ menus.ESP_Box:colour(T('Box and ESP Color'), {}, T('Choose the Box and ESP color
     ESPrgb.color = bcolor
 end)
 
-
+menus.aimbot:toggle(T('Turn on cam movement'), {}, T('Turns cam movement with Aimbot'), function (on)
+    aimbot.movement = on
+end)
 
 
 local godgunset = {amount = 100, godmode = nil}
@@ -1320,7 +1330,7 @@ menus.lazweap = menus.lazergun:list(Str_trans('Change Lazer Weapon'), {}, Str_tr
         for weapons_menus as weapons_menu do
             if weapons_menu:isValid() then weapons_menu:delete() end
         end
-        weapons_menus = func.Create_ped_weapon_menu(menus.lazweap, Tables.Ped_weapons, {9})
+        weapons_menus = func.Create_ped_weapon_menu(menus.lazweap, {9})
 end)
 
 
@@ -1385,7 +1395,7 @@ menus.clone_weap = menus.clonegun:list(T('Change Weapons'), {''}, T('Choose the 
     for weapons_menus as weapons_menu do
         if weapons_menu:isValid() then weapons_menu:delete() end
     end
-    weapons_menus = func.Create_ped_weapon_menu(menus.clone_weap, Tables.Ped_weapons, {10})
+    weapons_menus = func.Create_ped_weapon_menu(menus.clone_weap, {10})
 end)
 
 menus.clonegun:action(T('Delete Attackers'), {}, T('Delete the attackers you have spawned'), function ()
