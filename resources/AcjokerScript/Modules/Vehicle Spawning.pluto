@@ -9,24 +9,25 @@ local commandbox_characters = "pv"
 local Vehicle_names_pv = {}
 local Vehicle_names = {}
 local pv_veh_menus = {}
+local veh_menus = {}
 
 
-local function regennames(root)
+local function regenpvnames(root)
     for pv_veh_menus as pv_veh_menu do
         if pv_veh_menu:isValid() then pv_veh_menu:delete() end
     end
     pv_veh_menus = {}
-	local vehicles = util.get_vehicles()
-	for vehicles as vehicle do
-	    table.insert(Vehicle_names_pv, commandbox_characters..vehicle.name)
-	end
+    local vehicles = util.get_vehicles()
+    for vehicles as vehicle do
+        table.insert(Vehicle_names_pv, commandbox_characters..vehicle.name)
+    end
 
-	for Vehicle_names_pv as name do
-	    local pv = {
-	    [name] = name
-	    }
-	    table.insert(Vehicle_names, pv)
-	end
+    for Vehicle_names_pv as name do
+        local pv = {
+        [name] = name
+        }
+        table.insert(Vehicle_names, pv)
+    end
     for Vehicle_names as v do
         for v as i do 
             pv_veh_menu = root:action(i, {i}, i, function()
@@ -35,6 +36,25 @@ local function regennames(root)
             end)
             table.insert(pv_veh_menus, pv_veh_menu)
         end
+    end
+end
+
+local function regennames(root) 
+    for veh_menus as veh_menu do
+        if veh_menu:isValid() then veh_menu:delete() end
+    end
+    veh_menus = {}
+    local vehicles = util.get_vehicles()
+    for vehicles as vehicle do
+        veh_menu = root:action(vehicle.name, {}, vehicle.name, function()
+            local data = memory.script_global(2672524 + 3788)
+            memory.write_int(data, util.joaat(vehicle.name))
+            local data2 = memory.script_global(2672524 + 3787)--credits to mr robot and the king for helping figure this out
+            memory.write_int(data2, memory.read_int(data2) | (1 << 7))
+            util.yield(10)
+            memory.write_int(data2, memory.read_int(data2) &~ (1 << 7))
+        end)
+        table.insert(veh_menus, veh_menu)
     end
 end
 
@@ -81,14 +101,14 @@ end)
 
 menus.pvmenu = vspawnroot:list(Str_trans('Personal Vehicle List'), {}, Str_trans('Creates a list of all vehicles so you can spawn personal vehicles by typing pv in the command box'), function ()
     for pv_veh_menus as pv_veh_menu do
-        if pv_veh_menu:isValid() then util.toast('fuckoff') pv_veh_menu:delete() end
+        if pv_veh_menu:isValid() then pv_veh_menu:delete() end
     end
     Vehicle_names = {}
     Vehicle_names_pv = {}
     pv_veh_menus = {}
-    regennames(menus.pvmenu)
+    regenpvnames(menus.pvmenu)
 end)
-regennames(menus.pvmenu)
+regenpvnames(menus.pvmenu)
 
 ---------------------------------Custom Veh------------------------------------------------
 local customveh = vspawnroot:list(T('Custom Vehicle'), {}, '')
@@ -153,7 +173,7 @@ local function regenflycars(root)
             car_attach = carcreate()
             plane_attach = planecreate()
             ATTACH_ENTITY_TO_ENTITY(car_attach, plane_attach, 0, Tables.flyingcarset.x, Tables.flyingcarset.y, Tables.flyingcarset.z, Tables.flyingcarset.pitch, Tables.flyingcarset.roll, Tables.flyingcarset.yaw, false, true, true, false, 0, true)
-        	menu.trigger_commands('invisibility'..' on')
+            menu.trigger_commands('invisibility'..' on')
         end)
         table.insert(regen_flying_cars, flying_car)
     end
@@ -618,73 +638,73 @@ end)
 local vteles = vspawnroot:list(T('Vehicle Teleports'), {}, '')
 
 vteles:action(T('TP into Acid Lab'), {''},  T('Teleports you into the Acid Lab'), function ()
-	menu.trigger_commands('tplab')
+    menu.trigger_commands('tplab')
 end)
 
 vteles:action(T('Return Acid Lab'), {''}, T('Return Acid Lab to storage'), function ()
-	menu.trigger_commands('retacid')
+    menu.trigger_commands('retacid')
 end)
 
 vteles:action(T('TP onto Acid Lab Bike'), {''},  T('Teleports you onto the Acid Lab Bike'), function ()
-	menu.trigger_commands('tpbikelab')
+    menu.trigger_commands('tpbikelab')
 end)
 
 vteles:action(T('Return Acid Lab Bike'), {''}, T('Return Acid Lab Bike to storage'), function ()
-	menu.trigger_commands('retbikeacid')
+    menu.trigger_commands('retbikeacid')
 end)
 
 
 vteles:action(T('TP into Avenger'), {''}, T('Teleport into Avengers holding area'), function ()
-	menu.trigger_commands('tpaven')
+    menu.trigger_commands('tpaven')
 end)
 
 vteles:action(T('Return Avenger Facility'), {''}, T('Return Avenger to Facility'), function ()
-	menu.trigger_commands('retfacilityavenger')
+    menu.trigger_commands('retfacilityavenger')
 end)
 
 vteles:action(T('Return Avenger Hangar'), {''}, T('Return Avenger to Hangar'), function ()
-	menu.trigger_commands('rethangavenger')
+    menu.trigger_commands('rethangavenger')
 end)
 
 vteles:action(T('TP into Avenger Thruster'), {''}, T('Teleport to Avenger Thruster'), function ()
-	menu.trigger_commands('tpathruster')
+    menu.trigger_commands('tpathruster')
 end)
 
 vteles:action(T('Return Avenger Thruster'), {''}, T('Return Avenger Thruster to storage'), function ()
-	menu.trigger_commands('retathruster')
+    menu.trigger_commands('retathruster')
 end)
 
 
 vteles:action(T('TP into Kosatka'), {''}, T('Teleport to Kosatka Cayo Perico Heist board'), function ()
-	menu.trigger_commands('tpkosatka')
+    menu.trigger_commands('tpkosatka')
 end)
 
 vteles:action(T('Return Kosatka'), {''}, T('Do NOT be on the Kosatka to Return Kosatka to storage'), function ()
-	menu.trigger_commands('retkos')
+    menu.trigger_commands('retkos')
 end)
 
 vteles:action(T('TP into Sea Sparrow'), {''}, T('Teleport to Kosatka Sea Sparrow'), function ()
-	menu.trigger_commands('tpssparrow')
+    menu.trigger_commands('tpssparrow')
 end)
 
 vteles:action(T('Return Sea Sparrow'), {''}, T('Return Sea Sparrow back to Kosatka'), function ()
-	menu.trigger_commands('retssparrow')
+    menu.trigger_commands('retssparrow')
 end)
 
 vteles:action(T('TP into Avisa'), {''}, T('Teleport to Kosatka Avisa'), function ()
-	menu.trigger_commands('tpavisa')
+    menu.trigger_commands('tpavisa')
 end)
 
 vteles:action(T('Return Avisa'), {''}, T('Return Avisa back to Kosatka'), function ()
-	menu.trigger_commands('retavisa') 
+    menu.trigger_commands('retavisa') 
 end)
 
 vteles:action(T('TP into MOC'), {''}, T('Teleport into MOC command center/bunker'), function ()
-	menu.trigger_commands('tpMOC')
+    menu.trigger_commands('tpMOC')
 end)
 
 vteles:action(T('Return MOC'), {''}, T('Return MOC to storage'), function ()
-	menu.trigger_commands('retMOC')
+    menu.trigger_commands('retMOC')
 end)
 
 vteles:action(T('TP into Terrorbyte'), {''}, T('Teleport to Terrorbyte Business control'), function ()
@@ -692,9 +712,17 @@ vteles:action(T('TP into Terrorbyte'), {''}, T('Teleport to Terrorbyte Business 
 end)
 
 vteles:action(T('Return Terrorbyte'), {''}, T('Return Terrorbyte to storage'), function ()
-	menu.trigger_commands('retter')
+    menu.trigger_commands('retter')
 end)
 
 vteles:action(T('Return Personal Vehicle'), {''}, T('Return Personal Vehicle'), function () --credits to Mr Robot
-	func.ReturnPV()
+    func.ReturnPV()
+end)
+
+----------------------------------------------------------------
+
+menus.peg = vspawnroot:list(T('Make any vehicle a Pegasus Vehicle'), {}, T('Make any vehicle a Pegasus Vehicle'))
+
+menus.choose = menus.peg:list(T('Choose the Vehicle'), {}, T('Choose the vehicle you want to turn into a Pegasus Vehicle'), function ()
+    regennames(menus.choose)
 end)
