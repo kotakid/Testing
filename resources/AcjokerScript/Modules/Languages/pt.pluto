@@ -1425,6 +1425,15 @@ local translation = {
     ['For helping decrease load times with the module loader'] = "Por ajudar a diminuir os tempos de carregamento com o loader de módulos",
     ['Mr Robot'] = "Mr Robot",
     ['For helping decrease load times and general help all around'] = "Por ajudar a diminuir os tempos de carregamento e fornecer ajuda geral em tudo",
+    ['Lower Bullets'] = "Poucas Balas",
+    ['Lowers the amount of bullets shot to one'] = "Reduz a quantidade de balas disparadas para uma",
+    ['Keep Lines On'] = "Manter as linhas ativadas",
+    ['Keep the box and/or the line esp on even while not aiming'] = "Manter a caixa e/ou a linha ESP ligadas mesmo quando não estiver mirando",
+    ['Cam Movement'] = "Movimento da câmera",
+    ['Turn on Cam Movement while aiming'] = "Ligar o movimento da câmera ao mirar",
+    ['Make any vehicle a Pegasus Vehicle'] = "Tornar qualquer veículo um Veículo Pegasus",
+    ['Choose the Vehicle'] = "Escolher o veículo",
+    ['Choose the vehicle you want to turn into a Pegasus Vehicle'] = "Escolha o veículo que deseja transformar em um Veículo Pegasus",
     ['Return Terrorbyte'] = "Retornar Terrorbyte",
     ['Return Terrorbyte to storage'] = "Retornar o Terrorbyte para a garagem",
     ['Return MOC'] = "Retornar COM",
@@ -1475,7 +1484,10 @@ local translation = {
     ['Set the Cooldown to 1'] = "Defina o Cooldown para 1",
 
 
+
+
 }
+
     --end Portuguese
 
 return translation

@@ -1015,6 +1015,12 @@ local translation = {
     ['For helping decrease load times with the module loader'] = "Um die Ladezeiten mit dem Modullader zu verkürzen",
     ['Mr Robot'] = "Mr. Robot",
     ['For helping decrease load times and general help all around'] = "Um die Ladezeiten zu verkürzen und allgemein Hilfe anzubieten",
+    ['Return Acid Lab Bike to storage'] = "Acid Lab Bike ins Lager zurückbringen",
+    ['Return Avenger Facility'] = "Avenger zurück zur Einrichtung",
+    ['Return Avenger to Facility'] = "Avenger zur Einrichtung zurückbringen",
+    ['Return Avenger Hangar'] = "Avenger zurück zum Hangar",
+    ['Return Avenger to Hangar'] = "Avenger zurück zum Hangar",
+    ['TP into Avenger Thruster'] = "In Avenger Thruster teleportieren",
     ['Teleport to Avenger Thruster'] = "Zum Avenger Thruster teleportieren",
     ['Return Avenger Thruster'] = "Avenger Thruster zurückbringen",
     ['Return Avenger Thruster to storage'] = "Avenger Thruster ins Lager zurückbringen",
@@ -1047,8 +1053,8 @@ local translation = {
     ['A list of your saved planes'] = "Eine Liste deiner gespeicherten Flugzeuge",
     ['Return Personal Vehicle'] = "Persönliches Fahrzeug zurückbringen",
     ['Set Missile Cooldown To One'] = "Raketen-Abklingzeit auf Eins setzen",
-    ['Set the Cooldown to 1'] = "Setzt die Abklingzeit auf 1",
-    
+    ['Set the Cooldown to 1'] = "Setzt die Abklingzeit auf 1"
+        
 
 
 }
