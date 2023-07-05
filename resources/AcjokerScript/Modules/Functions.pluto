@@ -40,7 +40,13 @@ function func.FindVeh(veh)
     func.ACutil(Str_trans('Not a Personal Vehicle'))
 end
 
-
+function func.Draw_esp(ped, rgb) --credits to Totaw Annihiwation
+    local screenX = memory.alloc(4)
+    local screenY = memory.alloc(4)
+    local pos = GET_ENTITY_COORDS(ped)
+    GET_SCREEN_COORD_FROM_WORLD_COORD(pos.x, pos.y, pos.z, screenX, screenY)
+    directx.draw_line(0.5, 0.5, memory.read_float(screenX), memory.read_float(screenY), rgb.color) 
+end
 
 
 function func.GetControl(vic, spec, pid)

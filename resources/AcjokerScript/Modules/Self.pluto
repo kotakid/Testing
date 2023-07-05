@@ -746,7 +746,7 @@ waterwalkroot:toggle_loop(T('Walk/Drive on Water'), {'waterwalk'}, T('Walk or dr
                 local waterped = GET_ENTITY_SUBMERGED_LEVEL(players.user_ped())
                 local waterveh = GET_ENTITY_SUBMERGED_LEVEL(vmod)
                 for blocks as block do
-                	SET_ENTITY_ALPHA(block, 0)
+                	SET_ENTITY_ALPHA(block, 0, false)
             		SET_ENTITY_VISIBLE(block, false, 0)
                 end
                 if waterped >= 1.0 then

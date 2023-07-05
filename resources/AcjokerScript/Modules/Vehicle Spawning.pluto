@@ -17,17 +17,17 @@ local function regenpvnames(root)
         if pv_veh_menu:isValid() then pv_veh_menu:delete() end
     end
     pv_veh_menus = {}
-    local vehicles = util.get_vehicles()
-    for vehicles as vehicle do
-        table.insert(Vehicle_names_pv, commandbox_characters..vehicle.name)
-    end
+	local vehicles = util.get_vehicles()
+	for vehicles as vehicle do
+	    table.insert(Vehicle_names_pv, commandbox_characters..vehicle.name)
+	end
 
-    for Vehicle_names_pv as name do
-        local pv = {
-        [name] = name
-        }
-        table.insert(Vehicle_names, pv)
-    end
+	for Vehicle_names_pv as name do
+	    local pv = {
+	    [name] = name
+	    }
+	    table.insert(Vehicle_names, pv)
+	end
     for Vehicle_names as v do
         for v as i do 
             pv_veh_menu = root:action(i, {i}, i, function()
@@ -39,23 +39,23 @@ local function regenpvnames(root)
     end
 end
 
-local function regennames(root) 
+local function regennames(root) --credits to mr robot and the king for helping figure this out
     for veh_menus as veh_menu do
         if veh_menu:isValid() then veh_menu:delete() end
     end
     veh_menus = {}
-    local vehicles = util.get_vehicles()
-    for vehicles as vehicle do
-        veh_menu = root:action(vehicle.name, {}, vehicle.name, function()
-            local data = memory.script_global(2672524 + 3788)
-            memory.write_int(data, util.joaat(vehicle.name))
-            local data2 = memory.script_global(2672524 + 3787)--credits to mr robot and the king for helping figure this out
-            memory.write_int(data2, memory.read_int(data2) | (1 << 7))
-            util.yield(10)
-            memory.write_int(data2, memory.read_int(data2) &~ (1 << 7))
-        end)
-        table.insert(veh_menus, veh_menu)
-    end
+	local vehicles = util.get_vehicles()
+	for vehicles as vehicle do
+	    veh_menu = root:action(vehicle.name, {}, vehicle.name, function()
+	    	local data = memory.script_global(2672524 + 3788)
+    		memory.write_int(data, util.joaat(vehicle.name))
+    		local data2 = memory.script_global(2672524 + 3787)
+		    memory.write_int(data2, memory.read_int(data2) | (1 << 7))
+		    util.yield(10)
+		    memory.write_int(data2, memory.read_int(data2) &~ (1 << 7))
+	    end)
+	    table.insert(veh_menus, veh_menu)
+	end
 end
 
 function string.starts(String,Start) --hexarobi function
@@ -123,6 +123,7 @@ local function planecreate()
     local plane = func.Vspawn(planehash, coords, players.user_ped(), 'Acjoker')
     if Tables.flyingcarset.invis then
         SET_ENTITY_VISIBLE(plane, false, 0)
+        SET_ENTITY_ALPHA(plane, 0, false)
     end
     SET_ENTITY_INVINCIBLE(plane, true)
     entities.set_can_migrate(plane, false)
@@ -173,7 +174,7 @@ local function regenflycars(root)
             car_attach = carcreate()
             plane_attach = planecreate()
             ATTACH_ENTITY_TO_ENTITY(car_attach, plane_attach, 0, Tables.flyingcarset.x, Tables.flyingcarset.y, Tables.flyingcarset.z, Tables.flyingcarset.pitch, Tables.flyingcarset.roll, Tables.flyingcarset.yaw, false, true, true, false, 0, true)
-            menu.trigger_commands('invisibility'..' on')
+        	menu.trigger_commands('invisibility'..' on')
         end)
         table.insert(regen_flying_cars, flying_car)
     end
@@ -493,6 +494,7 @@ end)
 ---------------------------------- FF9 Charger ----------------------------------
 local charroot = customveh:list(T('Charger'), {}, T('Duke O Death with Electro Magnet capabilities'))
 local charger = {charg = util.joaat('dukes2'), emp = util.joaat('hei_prop_heist_emp')}
+local magval = {scale = 5000, nodam = true}
 local function Ccreate(pCoor)
 
     FFchar = CREATE_VEHICLE(charger.charg, pCoor.x, pCoor.y, pCoor.z + 1, 0, true, true, false)
@@ -513,9 +515,8 @@ local function Ccreate(pCoor)
         util.yield()
     end
 
-    local magtf = {true, false}
-    local maglist = {Str_trans('Push Away'), Str_trans('Blow Up')}
-    local magval = {scale = 5000, nodam = true}
+
+
     function Magout()
         if  IS_CONTROL_PRESSED(0, 86) then
             local car = GET_ENTITY_COORDS(players.user_ped())
@@ -526,51 +527,43 @@ local function Ccreate(pCoor)
             ADD_EXPLOSION(car.x, car.y + y, car.z, 81, magval.scale, false, true, 0.0, magval.nodam)
         end
     end
-    util.yield()
 end
 
 local closeveh = {}
 function Yeet()
     local car = entities.get_all_vehicles_as_handles()
     for car as value do
-    local cvc = GET_ENTITY_COORDS(value)
-    local chc = GET_ENTITY_COORDS(FFchar)
-    local disbet = VDIST2(chc.x, chc.y, chc.z, cvc.x, cvc.y, cvc.z)
-    if  IS_CONTROL_PRESSED(0, 72) and IS_CONTROL_PRESSED(0, 76) then
-        for car as pveh do
-            if disbet >= 5 then
-                table.insert(closeveh, pveh)
-            end
-            if #closeveh >= 50 then break end
-        for closeveh as cv do
-            if cv != car then
-                FREEZE_ENTITY_POSITION(FFchar, true)
-                func.Getent(cv)
-                APPLY_FORCE_TO_ENTITY(cv, 1, math.random(1, 100), math.random(1, 100), math.random(1, 100), 0.0, 0.0, 0.0, 0, false, false, true, false, false)
-                closeveh = {}
-            end
+	    local cvc = GET_ENTITY_COORDS(value)
+	    local chc = GET_ENTITY_COORDS(FFchar)
+	    local disbet = VDIST2(chc.x, chc.y, chc.z, cvc.x, cvc.y, cvc.z)
+	    if  IS_CONTROL_PRESSED(0, 72) and IS_CONTROL_PRESSED(0, 76) then
+	        for car as pveh do
+	            if disbet >= 5 then
+	                table.insert(closeveh, pveh)
+	            end
+	            if #closeveh >= 50 then break end
+	        for closeveh as cv do
+	            if cv != car then
+	                FREEZE_ENTITY_POSITION(FFchar, true)
+	                func.Getent(cv)
+	                APPLY_FORCE_TO_ENTITY(cv, 1, math.random(1, 100), math.random(1, 100), math.random(1, 100), 0.0, 0.0, 0.0, 0, false, false, true, false, false)
+	                closeveh = {}
+	            end
 
-        end
-        end
-        if func.set.alert then
-            func.ACutil(Str_trans('Yeet'))
-        end
-        else 
-            closeveh = {}
-        end
-        FREEZE_ENTITY_POSITION(FFchar, false)
-    end
+	        end
+	        end
+	        if func.set.alert then
+	            func.ACutil(Str_trans('Yeet'))
+	        end
+	        else 
+	            closeveh = {}
+	        end
+	        FREEZE_ENTITY_POSITION(FFchar, false)
+	    end
+	end
 end
-
-Mag_int = charroot:list_action(Str_trans('Magnet Intensity'), {'Magint'}, Str_trans('Changes Magnet to Push Away or Blow up'), maglist, function(magint)
-    magval.nodam = magtf[magint]
-end)
-
-Mag_sca = charroot:slider(Str_trans('Magnet Push Away Scale'), {}, Str_trans('Change how far you push away objects'), 0, 10000, 5000, 5000, function (s)
-    magval.scale = s
-end)    
-
-util.create_tick_handler(function ()
+    
+	util.create_tick_handler(function ()
         if IS_PED_IN_VEHICLE(players.user_ped(), FFchar, false) then
             SET_VEHICLE_DIRT_LEVEL(FFchar, 0)
             SET_ENTITY_INVINCIBLE(FFchar, true)
@@ -580,7 +573,7 @@ util.create_tick_handler(function ()
             end
         end
     end)
-end
+
 Spawn = charroot:toggle_loop(T('Spawn FF9 EMP Charger'), {'FF9Wspawn'}, T('Spawn Charger from FF9 with Electro Magnet capabilities'), function ()
 
     func.Streament(charger.charg)
@@ -625,12 +618,23 @@ Spawn = charroot:toggle_loop(T('Spawn FF9 EMP Charger'), {'FF9Wspawn'}, T('Spawn
         entities.delete_by_handle(FFchar)
         SET_ENTITY_AS_MISSION_ENTITY(Empa)
         entities.delete_by_handle(Empa)
-        Mag_int:delete()
-        Mag_sca:delete()
+        menus.Mag_int:delete()
+        menus.Mag_sca:delete()
         SET_MODEL_AS_NO_LONGER_NEEDED(charger.charg)
         SET_MODEL_AS_NO_LONGER_NEEDED(charger.emp)
         util.stop_thread()
     end
+end)
+
+local magtf = {true, false}
+local maglist = {Str_trans('Push Away'), Str_trans('Blow Up')}
+
+menus.Mag_int = charroot:list_action(Str_trans('Magnet Intensity'), {'Magint'}, Str_trans('Changes Magnet to Push Away or Blow up'), maglist, function(magint)
+    magval.nodam = magtf[magint]
+end)
+
+menus.Mag_sca = charroot:slider(Str_trans('Magnet Push Away Scale'), {}, Str_trans('Change how far you push away objects'), 0, 10000, 5000, 5000, function (s)
+    magval.scale = s
 end)
  -----------------------------------------
 
@@ -638,73 +642,73 @@ end)
 local vteles = vspawnroot:list(T('Vehicle Teleports'), {}, '')
 
 vteles:action(T('TP into Acid Lab'), {''},  T('Teleports you into the Acid Lab'), function ()
-    menu.trigger_commands('tplab')
+	menu.trigger_commands('tplab')
 end)
 
 vteles:action(T('Return Acid Lab'), {''}, T('Return Acid Lab to storage'), function ()
-    menu.trigger_commands('retacid')
+	menu.trigger_commands('retacid')
 end)
 
 vteles:action(T('TP onto Acid Lab Bike'), {''},  T('Teleports you onto the Acid Lab Bike'), function ()
-    menu.trigger_commands('tpbikelab')
+	menu.trigger_commands('tpbikelab')
 end)
 
 vteles:action(T('Return Acid Lab Bike'), {''}, T('Return Acid Lab Bike to storage'), function ()
-    menu.trigger_commands('retbikeacid')
+	menu.trigger_commands('retbikeacid')
 end)
 
 
 vteles:action(T('TP into Avenger'), {''}, T('Teleport into Avengers holding area'), function ()
-    menu.trigger_commands('tpaven')
+	menu.trigger_commands('tpaven')
 end)
 
 vteles:action(T('Return Avenger Facility'), {''}, T('Return Avenger to Facility'), function ()
-    menu.trigger_commands('retfacilityavenger')
+	menu.trigger_commands('retfacilityavenger')
 end)
 
 vteles:action(T('Return Avenger Hangar'), {''}, T('Return Avenger to Hangar'), function ()
-    menu.trigger_commands('rethangavenger')
+	menu.trigger_commands('rethangavenger')
 end)
 
 vteles:action(T('TP into Avenger Thruster'), {''}, T('Teleport to Avenger Thruster'), function ()
-    menu.trigger_commands('tpathruster')
+	menu.trigger_commands('tpathruster')
 end)
 
 vteles:action(T('Return Avenger Thruster'), {''}, T('Return Avenger Thruster to storage'), function ()
-    menu.trigger_commands('retathruster')
+	menu.trigger_commands('retathruster')
 end)
 
 
 vteles:action(T('TP into Kosatka'), {''}, T('Teleport to Kosatka Cayo Perico Heist board'), function ()
-    menu.trigger_commands('tpkosatka')
+	menu.trigger_commands('tpkosatka')
 end)
 
 vteles:action(T('Return Kosatka'), {''}, T('Do NOT be on the Kosatka to Return Kosatka to storage'), function ()
-    menu.trigger_commands('retkos')
+	menu.trigger_commands('retkos')
 end)
 
 vteles:action(T('TP into Sea Sparrow'), {''}, T('Teleport to Kosatka Sea Sparrow'), function ()
-    menu.trigger_commands('tpssparrow')
+	menu.trigger_commands('tpssparrow')
 end)
 
 vteles:action(T('Return Sea Sparrow'), {''}, T('Return Sea Sparrow back to Kosatka'), function ()
-    menu.trigger_commands('retssparrow')
+	menu.trigger_commands('retssparrow')
 end)
 
 vteles:action(T('TP into Avisa'), {''}, T('Teleport to Kosatka Avisa'), function ()
-    menu.trigger_commands('tpavisa')
+	menu.trigger_commands('tpavisa')
 end)
 
 vteles:action(T('Return Avisa'), {''}, T('Return Avisa back to Kosatka'), function ()
-    menu.trigger_commands('retavisa') 
+	menu.trigger_commands('retavisa') 
 end)
 
 vteles:action(T('TP into MOC'), {''}, T('Teleport into MOC command center/bunker'), function ()
-    menu.trigger_commands('tpMOC')
+	menu.trigger_commands('tpMOC')
 end)
 
 vteles:action(T('Return MOC'), {''}, T('Return MOC to storage'), function ()
-    menu.trigger_commands('retMOC')
+	menu.trigger_commands('retMOC')
 end)
 
 vteles:action(T('TP into Terrorbyte'), {''}, T('Teleport to Terrorbyte Business control'), function ()
@@ -712,11 +716,11 @@ vteles:action(T('TP into Terrorbyte'), {''}, T('Teleport to Terrorbyte Business 
 end)
 
 vteles:action(T('Return Terrorbyte'), {''}, T('Return Terrorbyte to storage'), function ()
-    menu.trigger_commands('retter')
+	menu.trigger_commands('retter')
 end)
 
 vteles:action(T('Return Personal Vehicle'), {''}, T('Return Personal Vehicle'), function () --credits to Mr Robot
-    func.ReturnPV()
+	func.ReturnPV()
 end)
 
 ----------------------------------------------------------------
@@ -724,5 +728,5 @@ end)
 menus.peg = vspawnroot:list(T('Make any vehicle a Pegasus Vehicle'), {}, T('Make any vehicle a Pegasus Vehicle'))
 
 menus.choose = menus.peg:list(T('Choose the Vehicle'), {}, T('Choose the vehicle you want to turn into a Pegasus Vehicle'), function ()
-    regennames(menus.choose)
+	regennames(menus.choose)
 end)

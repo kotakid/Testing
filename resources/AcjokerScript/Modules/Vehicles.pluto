@@ -1216,12 +1216,18 @@ local function rebuild_nearby_vehicles_menu()
         end
     end
     local handles = entities.get_all_vehicles_as_handles()
+    local player_pos = GET_ENTITY_COORDS(players.user_ped())
+table.sort(handles, function(a,b)
+     local pos_a = GET_ENTITY_COORDS(a, true)
+     local pos_b = GET_ENTITY_COORDS(b, true)
+     return VDIST2(player_pos.x, player_pos.y, player_pos.z, pos_b.x, pos_b.y, pos_b.z) > VDIST2(player_pos.x, player_pos.y, player_pos.z, pos_a.x, pos_a.y, pos_a.z)
+end)
     menus.vehlist:onFocus(function ()
-     if DOES_CAM_EXIST(nearby_vehicle_cam) then
-         destroy_cam(nearby_vehicle_cam)
-         selected_vehicle = nil
-         menus.nearby_menu = {}
-     end
+    if DOES_CAM_EXIST(nearby_vehicle_cam) then
+        destroy_cam(nearby_vehicle_cam)
+        selected_vehicle = nil
+        menus.nearby_menu = {}
+    end
 end) 
 
 for nearby_vehicle_menus as nearby_vehicle_menu do
@@ -1244,12 +1250,7 @@ local function drive_vehicle(veh)
 end
 
 
-local player_pos = GET_ENTITY_COORDS(players.user_ped())
-table.sort(handles, function(a,b)
-     local pos_a = GET_ENTITY_COORDS(a, true)
-     local pos_b = GET_ENTITY_COORDS(b, true)
-     return VDIST2(player_pos.x, player_pos.y, player_pos.z, pos_b.x, pos_b.y, pos_b.z) > VDIST2(player_pos.x, player_pos.y, player_pos.z, pos_a.x, pos_a.y, pos_a.z)
-end)
+
 
 Seats = {
     Str_trans('Any Available Seat'),
@@ -1368,7 +1369,7 @@ menus.refreshl = menus.vehlist:action(T('Refresh List'), {}, T('Refresh list of 
 end)
 
 local function nearby_vehicle_tick()
-    if menu.is_open() then
+    if menu.is_open() and DOES_CAM_EXIST(nearby_vehicle_cam) then
         if selected_vehicle then
             local color = {
                 r = brgb.color.r * 255,
