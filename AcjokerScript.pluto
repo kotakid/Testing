@@ -9,8 +9,7 @@
 util.keep_running()
 local LOADING_START = util.current_time_millis()
 Script = {}
-Script.Version = "0.35.9"
-
+Script.Version = "0.35.91"
 ---
 --- Auto-Updater Lib Install
 ---
@@ -215,7 +214,6 @@ end)
 util.ensure_package_is_installed("lua/ScaleformLib")
 local yieldlib = require "resources.AcjokerScript.Modules.Scaleform"
 yieldlib.init()
- 
 
 
 menu.my_root():action(T('Player Options'), {}, T('Redirects you to the Player list in Stand for the Trolling and Friendly options'), function ()
