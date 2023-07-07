@@ -1054,7 +1054,17 @@ local translation = {
     ['Return Personal Vehicle'] = "Persönliches Fahrzeug zurückbringen",
     ['Set Missile Cooldown To One'] = "Raketen-Abklingzeit auf Eins setzen",
     ['Set the Cooldown to 1'] = "Setzt die Abklingzeit auf 1"
-        
+    ['Lower Bullets'] = "Weniger Kugeln",
+    ['Lowers the amount of bullets shot to one'] = "Verringert die Anzahl der abgefeuerten Kugeln auf eins",
+    ['Keep Lines On'] = "Linien aktiviert lassen",
+    ['Keep the box and/or the line esp on even while not aiming'] = "Linien- und/oder Box-ESP aktiviert lassen, auch wenn nicht gezielt wird",
+    ['Cam Movement'] = "Kamera-Bewegung",
+    ['Turn on Cam Movement while aiming'] = "Aktiviere Kamera-Bewegung beim Zielen",
+    ['Make any vehicle a Pegasus Vehicle'] = "Mache jedes Fahrzeug zu einem Pegasus-Fahrzeug",
+    ['Choose the Vehicle'] = "Fahrzeug auswählen",
+    ['Choose the vehicle you want to turn into a Pegasus Vehicle'] = "Wähle das Fahrzeug aus, das du in ein Pegasus-Fahrzeug verwandeln möchtest",
+    ['No Bullets'] = "Keine Kugeln",
+    ['Uses the bullet shot from the gun for aimbot'] = "Verwendet die aus der Waffe abgefeuerte Kugel für den Aimbot",   
 
 
 }

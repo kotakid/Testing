@@ -1482,7 +1482,8 @@ local translation = {
     ['Return Personal Vehicle'] = "Retornar Veículo Pessoal",
     ['Set Missile Cooldown To One'] = "Defina o cooldown do míssil para Um",
     ['Set the Cooldown to 1'] = "Defina o Cooldown para 1",
-
+    ['No Bullets'] = "Sem Balas",
+    ['Uses the bullet shot from the gun for aimbot'] = "Usa o tiro da arma para o aimbot",
 
 
 
