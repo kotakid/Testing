@@ -2,8 +2,9 @@
 
 local translations = {}
 Lang = {}
-Lang.Version = "0.35.91"
-Template = false
+Lang.Version = "0.37.0"
+Template = true
+
 
 translations.current_translations = {}
 translations.missing_translations = {}
