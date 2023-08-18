@@ -2,15 +2,15 @@ local Tables = require 'resources/AcjokerScript/ACJSTables'
 local Globals = require 'resources/AcjokerScript/Modules/Globals'
 local func = require 'resources/AcjokerScript/Modules/Functions'
 local CONFIG_DIR = filesystem.resources_dir() .. 'AcjokerScript\\'
-local CusSongsDir = CONFIG_DIR..'Songs\\'
+local CusSongsDir = filesystem.store_dir() .. 'AcjokerScript\\Songs\\'
 local Songfile = filesystem.stand_dir()..'Song.lrc'
-local SettingsDir = CONFIG_DIR..'Settings\\'
+local SettingsDir = filesystem.store_dir() .. 'AcjokerScript\\Settings\\'
 if filesystem.is_regular_file(CONFIG_DIR.. "Current Song Name.txt") then
     os.rename(CONFIG_DIR.. "Current Song Name.txt", SettingsDir..'Current Song Name.txt')
 else
     Songs_Settings = SettingsDir.. "Current Song Name.txt"
 end
-filesystem.mkdirs(CusSongsDir)
+
 
 
 local onlineroot = menu.my_root():list(T('Online'), {}, '')
@@ -255,7 +255,7 @@ onlineroot:action(T('Snowball Fight'), {}, T('Gives everyone in the lobby Snowba
         local plyr = GET_PLAYER_PED_SCRIPT_INDEX(plist[i])
         GIVE_DELAYED_WEAPON_TO_PED(plyr, snowballs, 20, true)
         SET_PED_AMMO(plyr, snowballs, 20)
-        players.send_sms(plist[i], players.user(), Str_trans('Snowball Fight! You now have snowballs'))
+        chat.send_message(Str_trans('Snowball Fight! You now have snowballs'), false, true, true)
         util.yield()
     end
 end)
@@ -268,7 +268,7 @@ onlineroot:action(T('Murica'), {}, T('Gives everyone in the lobby Firework Launc
         local plyr = GET_PLAYER_PED_SCRIPT_INDEX(plist[i])
         GIVE_DELAYED_WEAPON_TO_PED(plyr, fireworks, 20, true)
         SET_PED_AMMO(plyr, fireworks, 20)
-        players.send_sms(plist[i], players.user(), Str_trans('Murica f*** ya! You now have Fireworks'))
+        chat.send_message(Str_trans('Murica f*** ya! You now have Fireworks'), false, true, true)
         util.yield()
     end
 end)

@@ -1,7 +1,5 @@
 local Tables = require 'resources/AcjokerScript/ACJSTables'
 local func = require 'resources/AcjokerScript/Modules/Functions'
-local FlyingVehDir = filesystem.resources_dir() .. 'AcjokerScript\\Flying Vehicles\\'
-filesystem.mkdirs(FlyingVehDir)
 local menus = {}
 local vspawnroot = menu.my_root():list(T('Vehicle Spawning'), {}, '')
 local chat_control_character = "?"
@@ -94,7 +92,7 @@ local function regenopvnames(root, sortbyname) --credits to mr robot helping fig
             for veh_names as vname do
                 local curlist = root:list(vname, {}, vname)
                 local veh_menu = curlist:action(Str_trans('Spawn ')..vname, {}, vname, function()
-                    
+                    func.FindVeh(name)
                 end)
                 table.insert(veh_menus, curlist)
             end
@@ -103,7 +101,7 @@ local function regenopvnames(root, sortbyname) --credits to mr robot helping fig
             for veh_names as name do 
                 local curlist = root:list(name, {}, name)
                 local veh_menu = curlist:action(Str_trans('Spawn ')..name, {}, name, function()
-                    
+                    func.FindVeh(name)
                 end)
                 table.insert(veh_menus, curlist)
             end
@@ -116,21 +114,53 @@ end
 function string.starts(String,Start) --hexarobi function
     return string.sub(String,1,string.len(Start))==Start
 end
-
-local playerid = players.user()
+local chatcomset = {spawn = false, strangers = false, friends = false, org = false, crew = false}
 chat.on_message(function(playerid, reserved, message_text, is_team_chat)
+    local targets = GET_PLAYER_PED_SCRIPT_INDEX(playerid)
+    local tar1 = GET_ENTITY_COORDS(targets, true)
     if string.starts(message_text, chat_control_character) then
         message_text = message_text:gsub(chat_control_character, '')
-        func.FindVeh(message_text)
-        return
+        if chatcomset.spawn and not chatcomset.strangers and not chatcomset.friends and not chatcomset.org then 
+            func.FindVeh(message_text)
+            return
+        elseif chatcomset.spawn and chatcomset.friends and func.Friend_player(playerid) then
+            func.Vspawn(message_text, tar1, targets, 'custveh')
+        elseif chatcomset.spawn and chatcomset.org  and func.ArePlayersInTheSameOrg(players.user(), playerid) then
+            func.Vspawn(message_text, tar1, targets, 'orgveh')
+        elseif chatcomset.spawn and chatcomset.crew  and func.ArePlayersInTheSameCrew(players.user(), playerid) then
+            func.Vspawn(message_text, tar1, targets, 'crewveh')
+        elseif chatcomset.spawn and chatcomset.strangers then
+            func.Vspawn(message_text, tar1, targets, 'custveh')
+        end
     end
 end)
 
+local chatspawn = vspawnroot:list(Str_trans('Chat Spawn'), {}, Str_trans('Change chat spawn settings'))
+
 local control_characters = {"?", "#", "@", "&", "*"}
-vspawnroot:list_select(Str_trans('Change Chat Spawn Character'), {}, Str_trans('Change Chat Character used for spawning vehicles'), control_characters, 1, function(sel)
+chatspawn:list_select(Str_trans('Change Chat Spawn Character'), {}, Str_trans('Change Chat Character used for spawning vehicles'), control_characters, 1, function(sel)
     chat_control_character = control_characters[sel]
 end)
 
+chatspawn:toggle(Str_trans('Turn on Chat Spawn Character'), {}, Str_trans('Turn on Chat Spawn Character'), function(on)
+    chatcomset.spawn = on 
+end)
+
+chatspawn:toggle(Str_trans('Enable Friends'), {}, Str_trans('Turn on Chat Spawn for friends'), function(on)
+    chatcomset.friends = on 
+end)
+
+chatspawn:toggle(Str_trans('Enable Org'), {}, Str_trans('Turn on Chat Spawn for people in your Organisation'), function(on)
+    chatcomset.org = on 
+end)
+
+chatspawn:toggle(Str_trans('Enable Crew'), {}, Str_trans('Turn on Chat Spawn for people in your Crew'), function(on)
+    chatcomset.crew = on 
+end)
+
+chatspawn:toggle(Str_trans('Enable Stangers'), {}, Str_trans('Turn on Chat Spawn for strangers'), function(on)
+    chatcomset.strangers = on 
+end)
 
 vspawnroot:action(Str_trans('Change Command Box Spawn Characters'), {}, Str_trans('Change Command Box Spawn Characters used for spawning vehicles'), function()
     for pv_veh_menus as pv_veh_menu do
@@ -786,7 +816,7 @@ menus.choose = menus.peg:list(T('Choose the Vehicle'), {}, T('Choose the vehicle
 	regennames(menus.choose)
 end)
 
-menus.peg:text_input(T('Search for a Pegausus Vehicle'), {'pegasus'}, T('Search for a Pegasus vehicle'), function (sel)
+menus.peg:text_input(T('Search for a Pegasus Vehicle'), {'pegasus'}, T('Search for a Pegasus vehicle'), function (sel)
     if sel != "" then
         if IS_MODEL_A_VEHICLE(util.joaat(sel)) then
             local data = memory.script_global(Globals.Pegasus1)
@@ -838,8 +868,3 @@ end)
             sortbyname = true
         end
     end)
-
-
-
---[[            local data2 = memory.script_global(2794162 + 928)
-            memory.write_int(data2, 1)]]
