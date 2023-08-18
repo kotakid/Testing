@@ -6,10 +6,11 @@
    --credits to aaronlink127#0127 for the ScaleformLib script and help with executing it
    --Script made by acjoker8818
    -------------------------------------------------------------------------
-util.keep_running()
+
 local LOADING_START = util.current_time_millis()
 Script = {}
-Script.Version = "0.37.0"
+Script.Version = "0.38.0"
+
 ---
 --- Auto-Updater Lib Install
 ---
@@ -66,7 +67,7 @@ local auto_update_config = {
             source_url="https://raw.githubusercontent.com/kotakid/Testing/main/resources/AcjokerScript/gizmoUtils.lua",
             script_relpath="resources/AcjokerScript/gizmoUtils.lua",
         },
-	{
+    {
             name="Advanced Homing Missiles",
             source_url="https://raw.githubusercontent.com/kotakid/Testing/main/resources/AcjokerScript/Modules/Advanced Homing Missiles.pluto",
             script_relpath="resources/AcjokerScript/Modules/Bodyguards.pluto",
@@ -105,6 +106,16 @@ local auto_update_config = {
             name="Vehicles",
             source_url="https://raw.githubusercontent.com/kotakid/Testing/main/resources/AcjokerScript/Modules/Vehicles.pluto",
             script_relpath="resources/AcjokerScript/Modules/Vehicles.pluto",
+        },
+        {
+            name="Vehicle Spawning",
+            source_url="https://raw.githubusercontent.com/kotakid/Testing/main/resources/AcjokerScript/Modules/Vehicle Spawning.pluto",
+            script_relpath="resources/AcjokerScript/Modules/Vehicle Spawning.pluto",
+        },
+        {
+            name="Vehicle Neons",
+            source_url="https://raw.githubusercontent.com/kotakid/Testing/main/resources/AcjokerScript/Modules/Vehicle Neons.pluto",
+            script_relpath="resources/AcjokerScript/Modules/Vehicle Neons.pluto",
         },
         {
             name="Settings",
@@ -184,7 +195,7 @@ local requirements = {
         "resources.AcjokerScript.gizmoUtils",
         "resources.AcjokerScript.Modules.Weapons",
         "resources.AcjokerScript.Modules.Advanced Homing Missiles",
-        "resources.AcjokerScript.Modules.Vehicles",
+        "resources.AcjokerScript.Modules.Vehicle Neons",
         "resources.AcjokerScript.Modules.Vehicle Spawning",
         "resources.AcjokerScript.Modules.Online",
         "resources.AcjokerScript.Modules.Bodyguards",
@@ -194,7 +205,71 @@ local requirements = {
     }
 }
 
+local CONFIG_DIR = filesystem.resources_dir() .. 'AcjokerScript\\'
+local SettingsDirmove = CONFIG_DIR..'Settings\\'
+local SettingsDir = filesystem.store_dir()..'AcjokerScript\\Settings\\'
+if filesystem.is_dir(SettingsDirmove) then
+    filesystem.mkdirs(SettingsDir)
+    for filesystem.list_files(SettingsDirmove) as message do
+        local _, dirname = string.match(message,  "(.-)([^\\/]-%.?)$")
+        os.rename(message, SettingsDir..dirname)
+    end
+    os.remove(filesystem.resources_dir() .. 'AcjokerScript\\Settings\\')
+else
+    filesystem.mkdirs(SettingsDir)
+end
 
+local FlyingVehiclesDirmove = CONFIG_DIR..'Flying Vehicles\\'
+local FlyingVehiclesDir = filesystem.store_dir()..'AcjokerScript\\Flying Vehicles\\'
+if filesystem.is_dir(FlyingVehiclesDirmove) then
+    filesystem.mkdirs(FlyingVehiclesDir)
+    for filesystem.list_files(FlyingVehiclesDirmove) as message do
+        local _, dirname = string.match(message,  "(.-)([^\\/]-%.?)$")
+        os.rename(message, FlyingVehiclesDir..dirname)
+    end
+    os.remove(filesystem.resources_dir() .. 'AcjokerScript\\Flying Vehicles')
+else
+    filesystem.mkdirs(FlyingVehiclesDir)
+end
+
+local BodyguardsDirmove = CONFIG_DIR..'Bodyguards\\'
+local BodyguardsDir = filesystem.store_dir()..'AcjokerScript\\Bodyguards\\'
+if filesystem.is_dir(BodyguardsDirmove) then
+    filesystem.mkdirs(BodyguardsDir)
+    for filesystem.list_files(BodyguardsDirmove) as message do
+        local _, dirname = string.match(message,  "(.-)([^\\/]-%.?)$")
+        os.rename(message, BodyguardsDir..dirname)
+    end
+    os.remove(filesystem.resources_dir() .. 'AcjokerScript\\Bodyguards\\')
+else
+    filesystem.mkdirs(BodyguardsDir)
+end
+
+local SongsDirmove = CONFIG_DIR..'Songs\\'
+local SongsDir = filesystem.store_dir()..'AcjokerScript\\Songs\\'
+if filesystem.is_dir(SongsDirmove) then
+    filesystem.mkdirs(SongsDir)
+    for filesystem.list_files(SongsDirmove) as message do
+        local _, dirname = string.match(message,  "(.-)([^\\/]-%.?)$")
+        os.rename(message, SongsDir..dirname)
+    end
+    os.remove(filesystem.resources_dir() .. 'AcjokerScript\\Songs\\')
+else
+    filesystem.mkdirs(SongsDir)
+end
+
+local VehiclesDirmove = CONFIG_DIR..'Vehicles\\'
+local VehiclesDir = filesystem.store_dir()..'AcjokerScript\\Vehicles\\'
+if filesystem.is_dir(VehiclesDirmove) then
+    filesystem.mkdirs(VehiclesDir)
+    for filesystem.list_files(VehiclesDirmove) as message do
+        local _, dirname = string.match(message,  "(.-)([^\\/]-%.?)$")
+        os.rename(message, VehiclesDir..dirname)
+    end
+    os.remove(filesystem.resources_dir() .. 'AcjokerScript\\Vehicles\\')
+else
+    filesystem.mkdirs(VehiclesDir)
+end
 util.execute_in_os_thread(function()
     for requirements.modules as mod do
         package.loaded[mod] = nil
@@ -211,9 +286,9 @@ local yieldlib = require "resources.AcjokerScript.Modules.Scaleform"
 yieldlib.init()
 
 
---[[menu.my_root():action(T('Player Options'), {}, T('Redirects you to the Player list in Stand for the Trolling and Friendly options'), function ()
+menu.my_root():action(T('Player Options'), {}, T('Redirects you to the Player list in Stand for the Trolling and Friendly options'), function ()
     menu.ref_by_path("Players"):trigger()
-end)]]
+end)
 
 util.create_thread(function () 
     if SCRIPT_MANUAL_START and not SCRIPT_SILENT_START then--credits to Hexarobi
