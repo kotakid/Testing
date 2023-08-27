@@ -1078,7 +1078,7 @@ end)
 
 
 local selected_vehicle
-local nearby_vehicle_cam
+local nearby_vehicle_cam = 0
 
 local function focus_on_nearby_vehicle(vehicle)
     util.yield(1000)
@@ -1091,7 +1091,7 @@ local function blur_from_nearby_vehicle(vehicle)
             selected_vehicle = nil
     destroy_cam(nearby_vehicle_cam)
     end
-    nearby_vehicle_cam = nil
+    nearby_vehicle_cam = 0
     util.yield(1000)
 
 end

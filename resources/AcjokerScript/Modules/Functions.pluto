@@ -95,12 +95,13 @@ function func.Disbet(targets)
 end
 
 function func.Pedspawn(pedhash, tar1)
+    local pedS = 0
     func.Streament(pedhash)
-    local pedS = entities.create_ped(1, pedhash, tar1, 0)
+    pedS = entities.create_ped(1, pedhash, tar1, 0)
     SET_ENTITY_INVINCIBLE(pedS, true)
     FREEZE_ENTITY_POSITION(pedS, true)
     SET_BLOCKING_OF_NON_TEMPORARY_EVENTS(pedS, true)
-    SET_PED_CAN_LOSE_PROPS_ON_DAMAGE(pedS, false)
+    SET_PED_CAN_LOSE_PROPS_ON_DAMAGE(pedS, false, 0)
     if pedhash == util.joaat('ig_lestercrest') then
         SET_PED_PROP_INDEX(pedS, 1)
     end

@@ -8,7 +8,7 @@ local Vehicle_names_pv = {}
 local Vehicle_names = {}
 local pv_veh_menus = {}
 local veh_menus = {}
-
+local FlyingVehiclesDir = filesystem.store_dir()..'AcjokerScript\\Flying Vehicles\\'
 
 local function regenpvnames(root)
     for pv_veh_menus as pv_veh_menu do
@@ -228,7 +228,7 @@ local function regenflycars(root)
     for regen_flying_cars as flyingcar do
         if flyingcar:isValid() then flyingcar:delete() end
     end
-    for filesystem.list_files(FlyingVehDir) as path do
+    for filesystem.list_files(FlyingVehiclesDir) as path do
         local _, dirname = string.match(path,  "(.-)([^\\/]-%.?)$")
         dirname = dirname:gsub('.txt', '')
         local flying_car = root:action(dirname, {}, dirname, function()
@@ -580,6 +580,7 @@ end)
 local charroot = customveh:list(T('Charger'), {}, T('Duke O Death with Electro Magnet capabilities'))
 local charger = {charg = util.joaat('dukes2'), emp = util.joaat('hei_prop_heist_emp')}
 local magval = {scale = 5000, nodam = true}
+local FFchar = 0
 local function Ccreate(pCoor)
 
     FFchar = CREATE_VEHICLE(charger.charg, pCoor.x, pCoor.y, pCoor.z + 1, 0, true, true, false)
